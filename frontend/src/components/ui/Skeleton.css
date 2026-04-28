@@ -1,0 +1,11 @@
+.skeleton {
+  background: var(--bg-surface-active);
+  border-radius: var(--radius-sm);
+  animation: skeleton-pulse 1.8s var(--ease-in-out) infinite;
+}
+
+.skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

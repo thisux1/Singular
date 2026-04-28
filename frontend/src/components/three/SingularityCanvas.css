@@ -1,0 +1,45 @@
+.singularity-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-background);
+  pointer-events: none;
+}
+
+.singularity-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Fallback gradient for medium tier (if R3F struggles) */
+.singularity-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-background);
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 58% 42% at 50% 50%, rgba(180, 30, 30, 0.10) 0%, rgba(120, 20, 20, 0.07) 36%, rgba(9, 9, 11, 0) 74%),
+    radial-gradient(ellipse 44% 28% at 65% 40%, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 80%);
+  animation: blackhole-pulse 16s var(--ease-in-out) infinite alternate;
+}
+
+@keyframes blackhole-pulse {
+  from {
+    opacity: 0.38;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.62;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .singularity-canvas {
+    display: none;
+  }
+  .singularity-fallback {
+    animation: none;
+    transform: none;
+  }
+}

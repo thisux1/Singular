@@ -1,0 +1,58 @@
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependencies
+node_modules/
+/jspm_packages/
+.npm
+.eslintcache
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.turbo/
+.vercel/
+.vite/
+.output/
+.react-router/
+coverage/
+
+# Misc
+.DS_Store
+*.pem
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.history/
+
+# Local Python
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Planning and Strategy
+docplans/
+docs/
+# Application Data
+data/
+.data/
+backend/data/
+backend/.data/
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/tmp/
+frontend/public/hero-frames/**
+
+# Agent Config (if user wants to avoid tracking specific config changes, but we kept redaction)
+# opencode.json (usually project-wide, so keeping it tracked but redacted)

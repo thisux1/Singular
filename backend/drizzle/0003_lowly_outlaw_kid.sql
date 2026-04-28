@@ -1,0 +1,2 @@
+CREATE TYPE "public"."classification_status" AS ENUM('pending', 'classified', 'failed');--> statement-breakpoint
+ALTER TABLE "questions" ADD COLUMN "classification_status" "classification_status" DEFAULT 'pending' NOT NULL;

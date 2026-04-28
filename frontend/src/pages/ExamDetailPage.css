@@ -1,0 +1,301 @@
+.exam-detail {
+  display: flex;
+  flex-direction: column;
+  padding-top: 40px;
+  padding-bottom: 80px;
+}
+
+/* ─── The Terminal (Main Integrated Container) ─── */
+.exam-detail__terminal {
+  position: relative;
+  background: transparent;
+  border: none;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
+  display: flex;
+  flex-direction: column;
+  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+}
+
+.exam-detail__terminal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  /* Sculpted continuous border */
+  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  z-index: -2;
+  transition: background 0.3s ease;
+}
+
+.exam-detail__terminal::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  /* 1px border thickness */
+  background: rgba(10, 5, 5, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  z-index: -1;
+}
+
+.exam-detail__premium-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 0%, rgba(234, 88, 12, 0.05), transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.exam-detail__terminal--error::before {
+  background: rgba(220, 38, 38, 0.6);
+  /* Red border for error */
+}
+
+.exam-detail__terminal--error::after {
+  background: rgba(40, 10, 10, 0.85);
+}
+
+.exam-detail__terminal--error {
+  padding: var(--terminal-padding-v) var(--terminal-padding-h);
+}
+
+/* ─── Integrated Corner Badge (Parallelogram) ─── */
+.exam-detail__corner-badge {
+  --badge-h: var(--terminal-cut);
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: var(--badge-h);
+  z-index: 10;
+  clip-path: polygon(0 0, calc(100% - var(--badge-h)) 0, 100% 100%, var(--badge-h) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 calc(var(--badge-h) / 2 + 16px);
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
+}
+
+/* Badge variants */
+.exam-detail__status-processing {
+  background: rgba(234, 88, 12, 0.9);
+  color: #fff;
+  animation: pulse-orange-badge 2s infinite alternate;
+}
+
+.exam-detail__status-reviewing {
+  background: rgba(14, 165, 233, 0.9);
+  color: #fff;
+}
+
+.exam-detail__status-failed {
+  background: rgba(220, 38, 38, 0.9);
+  color: #fff;
+}
+
+.exam-detail__status-completed {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
+
+@keyframes pulse-orange-badge {
+  from {
+    background: rgba(234, 88, 12, 0.7);
+  }
+
+  to {
+    background: rgba(234, 88, 12, 1);
+  }
+}
+
+.exam-detail__status-failed-text {
+  color: #fca5a5;
+  text-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+}
+
+.exam-detail__status-processing-text {
+  color: #fb923c;
+  text-shadow: 0 0 10px rgba(234, 88, 12, 0.5);
+}
+
+.exam-detail__status-reviewing-text {
+  color: #7dd3fc;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.exam-detail__status-completed-text {
+  color: #fff;
+}
+
+/* ─── Header ─── */
+.exam-detail__header {
+  position: relative;
+  z-index: 1;
+  padding: var(--terminal-padding-v) var(--terminal-padding-h) 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
+}
+
+.exam-detail__title {
+  font-family: 'Clash Display', system-ui, sans-serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  text-shadow: 0 4px 15px rgba(250, 204, 21, 0.1);
+  max-width: calc(100% - 160px);
+  /* Leave room for corner badge */
+}
+
+.exam-detail__subtitle {
+  font-family: 'Geist Mono', monospace;
+  font-size: 1rem;
+  color: #a1a1aa;
+  letter-spacing: 1px;
+}
+
+/* ─── Integrated Data Grid ─── */
+.exam-detail__data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.exam-detail__data-box {
+  padding: 32px var(--terminal-padding-h);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exam-detail__data-box:first-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.exam-detail__data-label {
+  color: #a1a1aa;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.exam-detail__data-value {
+  font-size: 2.5rem;
+  font-family: 'Clash Display', sans-serif;
+  color: #fff;
+  line-height: 1;
+}
+
+/* ─── Content / Body ─── */
+.exam-detail__content {
+  position: relative;
+  z-index: 1;
+  padding: 32px var(--terminal-padding-h);
+  min-height: 160px;
+}
+
+.exam-detail__hint {
+  color: #a1a1aa;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.exam-detail__hint--error {
+  color: #fca5a5;
+}
+
+.exam-detail__error-box {
+  margin-top: 24px;
+  padding: 24px;
+  background: rgba(185, 28, 28, 0.1);
+  border-left: 4px solid #ef4444;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.exam-detail__error-icon {
+  font-size: 1.5rem;
+  color: #f87171;
+}
+
+.exam-detail__error-box p {
+  color: #fca5a5;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.exam-detail__questions-loading {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* ─── Footer / Actions ─── */
+.exam-detail__footer {
+  position: relative;
+  z-index: 1;
+  padding: 32px var(--terminal-padding-h);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.exam-detail__footer-spacer {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .exam-detail__corner-badge {
+    right: 16px;
+    width: 140px;
+    height: 44px;
+    padding-right: 16px;
+    font-size: 0.7rem;
+    clip-path: polygon(var(--badge-skew) 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .exam-detail__title {
+    font-size: 2rem;
+    max-width: calc(100% - 120px);
+  }
+
+  .exam-detail__data-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-detail__data-box:first-child {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .exam-detail__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exam-detail__footer .btn {
+    width: 100%;
+  }
+
+  .exam-detail__footer-spacer {
+    display: none;
+  }
+}

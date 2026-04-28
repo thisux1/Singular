@@ -1,0 +1,10 @@
+{
+  "name": "quizsaber",
+  "version": "1.0.0",
+  "scripts": {
+    "all": "docker compose up -d && npm run db:migrate --prefix backend && concurrently --names \"api,workers,frontend\" --prefix-colors \"blue,cyan,magenta\" \"npm run dev --prefix backend\" \"npm run dev:workers --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}

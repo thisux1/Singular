@@ -1,0 +1,55 @@
+.animated-icon {
+  color: #a1a1aa;
+  transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1), color 0.3s ease;
+  overflow: visible;
+}
+
+.animated-icon:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.animated-icon--selected {
+  color: #ea580c;
+  filter: drop-shadow(0 0 8px rgba(234, 88, 12, 0.6));
+}
+
+.icon-path {
+  transition: all 0.3s ease;
+}
+
+/* Idle states animations */
+.icon-idle-line {
+  stroke-dasharray: 10;
+  stroke-dashoffset: 10;
+  animation: idlePulse 2s infinite alternate ease-in-out;
+}
+
+.icon-idle-circle {
+  animation: floatCircle 3s infinite ease-in-out;
+}
+
+/* Checkmark draw animation */
+.icon-check {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: drawCheck 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+  stroke-width: 2.5;
+  stroke: #facc15;
+}
+
+@keyframes drawCheck {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes idlePulse {
+  0% { stroke-dashoffset: 10; opacity: 0; }
+  50% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.5; }
+}
+
+@keyframes floatCircle {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-2px); opacity: 0.8; }
+}
