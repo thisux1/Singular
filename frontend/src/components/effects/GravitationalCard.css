@@ -1,0 +1,269 @@
+.creative-wrapper {
+  perspective: 1500px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.creative-card {
+  position: relative;
+  width: 100%;
+  min-height: 550px;
+  border-radius: 28px;
+  transform-style: preserve-3d;
+  transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  box-shadow: 
+    0 40px 80px -20px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(250, 100, 0, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  background: #0a0505;
+  cursor: crosshair;
+}
+
+/* Suaviza o retorno para o centro quando o mouse sai */
+.creative-card:not(:hover) {
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: rotateX(0deg) rotateY(0deg) !important;
+}
+
+/* LAYER 1: NEBULOSAS ANIMADAS (Event Horizon Accretion Disk vibes) */
+.creative-card__nebula {
+  position: absolute;
+  inset: -100%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(153, 27, 27, 0.5), transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(234, 88, 12, 0.4), transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(250, 204, 21, 0.3), transparent 40%);
+  filter: blur(40px);
+  animation: nebulaSpin 30s linear infinite;
+  transform: translateZ(-100px); /* Joga bem pro fundo (Parallax) */
+}
+
+@keyframes nebulaSpin {
+  0% { transform: translateZ(-100px) rotate(0deg) scale(1.2); }
+  50% { transform: translateZ(-100px) rotate(180deg) scale(1.5); }
+  100% { transform: translateZ(-100px) rotate(360deg) scale(1.2); }
+}
+
+/* LAYER 2: ESTRELAS E POEIRA (Photon ring dust) COM PARALLAX INVERSO */
+.creative-card__stars {
+  position: absolute;
+  inset: -50px;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1.5px 1.5px at 60px 80px, rgba(253,186,116,0.9), transparent),
+    radial-gradient(2px 2px at 150px 40px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 250px 180px, rgba(254,215,170,0.6), transparent),
+    radial-gradient(2px 2px at 320px 90px, rgba(250,204,21,0.8), transparent);
+  background-size: 350px 350px;
+  /* Movimento oposto ao mouse para dar profundidade (Parallax) */
+  transform: translateZ(-50px) translateX(calc(var(--px) * -25px)) translateY(calc(var(--py) * -25px));
+  opacity: 0.6;
+}
+
+/* LAYER 3: O NÚCLEO CENTRAL (The Singularity) */
+.creative-card__orb-container {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  /* Parallax forte para frente, ele "pula" pra fora do card */
+  transform: translate(-50%, -50%) translateZ(60px) translateX(calc(var(--px) * 20px)) translateY(calc(var(--py) * 20px));
+  width: 140px;
+  height: 140px;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.creative-card__orb {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: floatOrb 5s ease-in-out infinite;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* The Black Hole itself */
+.creative-card__orb-core {
+  position: absolute;
+  inset: 35%;
+  background: #000;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px #000,
+    0 0 40px #b91c1c,
+    0 0 80px #ea580c,
+    inset 0 0 10px rgba(0,0,0,0.9);
+  /* The black hole is completely black inside, emitting a burning corona */
+  animation: pulseCore 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseCore {
+  0% { transform: scale(0.95); box-shadow: 0 0 20px #000, 0 0 30px #b91c1c, 0 0 60px #ea580c, inset 0 0 10px rgba(0,0,0,0.9); filter: hue-rotate(-5deg); }
+  100% { transform: scale(1.05); box-shadow: 0 0 25px #000, 0 0 50px #b91c1c, 0 0 100px #ea580c, inset 0 0 15px rgba(0,0,0,0.9); filter: hue-rotate(10deg); }
+}
+
+/* ANÉIS ORBITAIS EM 3D (Accretion Disks) */
+.creative-card__orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.ring-1 {
+  border-top-color: rgba(250, 204, 21, 0.9); /* yellow-400 */
+  border-right-color: rgba(234, 88, 12, 0.7); /* orange-600 */
+  animation: spinRing1 4s linear infinite;
+}
+
+.ring-2 {
+  inset: -15%;
+  border-width: 1px;
+  border-bottom-color: rgba(220, 38, 38, 0.8); /* red-600 */
+  border-left-color: rgba(249, 115, 22, 0.5); /* orange-500 */
+  animation: spinRing2 5s linear infinite;
+}
+
+.ring-3 {
+  inset: -30%;
+  border-width: 1px;
+  border-style: dashed;
+  border-top-color: rgba(255, 255, 255, 0.3);
+  animation: spinRing3 6s linear infinite;
+}
+
+@keyframes spinRing1 {
+  0% { transform: rotateX(65deg) rotateY(15deg) rotateZ(0deg); }
+  100% { transform: rotateX(65deg) rotateY(15deg) rotateZ(360deg); }
+}
+@keyframes spinRing2 {
+  0% { transform: rotateX(-50deg) rotateY(-20deg) rotateZ(360deg); }
+  100% { transform: rotateX(-50deg) rotateY(-20deg) rotateZ(0deg); }
+}
+@keyframes spinRing3 {
+  0% { transform: rotateX(75deg) rotateY(-30deg) rotateZ(0deg); }
+  100% { transform: rotateX(75deg) rotateY(-30deg) rotateZ(360deg); }
+}
+
+
+/* LAYER 4: INTERFACE EM GLASSMORPHISM COM PARALLAX */
+.creative-card__content-layer {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  /* Parallax forte na mesma direção do mouse (parece flutuar por cima) */
+  transform: translateZ(90px) translateX(calc(var(--px) * 15px)) translateY(calc(var(--py) * 15px));
+}
+
+.creative-card__glass-panel {
+  background: rgba(15, 5, 5, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Reflexo de luz passando pelo vidro */
+.creative-card__glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%; width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(250,204,21,0.1), transparent);
+  transform: skewX(-25deg);
+  animation: shine 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes shine {
+  0%, 70% { left: -150%; }
+  100% { left: 250%; }
+}
+
+.creative-card__badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: rgba(234, 88, 12, 0.15); /* orange-600 */
+  border: 1px solid rgba(234, 88, 12, 0.4);
+  color: #fdba74; /* orange-300 */
+  font-size: 0.75rem;
+  font-family: monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-radius: 30px;
+  margin-bottom: 16px;
+  box-shadow: 0 0 10px rgba(234, 88, 12, 0.2);
+}
+
+.creative-card__title {
+  margin: 0 0 12px 0;
+  font-size: 2rem;
+  font-family: 'Clash Display', system-ui, sans-serif;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+  background: linear-gradient(135deg, #ffffff, #fde047, #ea580c); /* white, yellow, orange */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.creative-card__desc {
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  line-height: 1.6;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.creative-card__btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #ea580c, #b91c1c); /* orange to red */
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(185, 28, 28, 0.5); /* red */
+  position: relative;
+  overflow: hidden;
+}
+
+.creative-card__btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.7), 0 0 15px rgba(234, 88, 12, 0.6);
+  background: linear-gradient(135deg, #f97316, #dc2626);
+}
+
+.creative-card__btn:active {
+  transform: translateY(1px);
+}
+
+/* LAYER 5: REFLEXO / GLARE INTERATIVO DO CARD INTEIRO */
+.creative-card__glare {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mx) var(--my),
+    rgba(255, 230, 200, 0.1),
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: 20;
+  mix-blend-mode: overlay;
+}

@@ -1,0 +1,169 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "username": "thiago",
+  "model": "github-copilot/gpt-5.3-codex",
+  "small_model": "github-copilot/gpt-5-mini",
+  "default_agent": "orquestrador",
+  "autoupdate": "notify",
+  "share": "manual",
+  "snapshot": false,
+  "server": {
+    "port": 4096,
+    "hostname": "127.0.0.1",
+    "cors": [
+      "http://localhost:5173",
+      "http://localhost:3000"
+    ]
+  },
+  "watcher": {
+    "ignore": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.git/**",
+      "**/.next/**",
+      "**/.turbo/**",
+      "**/.cache/**",
+      "**/.vercel/**",
+      "**/.vite/**",
+      "**/.output/**",
+      "**/.react-router/**",
+      "**/coverage/**",
+      "frontend/public/hero-frames/**"
+    ]
+  },
+  "instructions": [
+    "docs/agents/AGENTS.md"
+  ],
+  "command": {
+    "orq": {
+      "description": "Orquestracao enxuta por area",
+      "template": "Objetivo do usuario: $ARGUMENTS",
+      "agent": "orquestrador"
+    },
+    "test-plan": {
+      "description": "Gerar plano de testes manual",
+      "template": "Contexto: $ARGUMENTS\nNao execute comandos. Gere somente a secao 'O QUE E COMO TESTAR' com:\n- testes unitarios relevantes\n- smoke manual\n- comandos de lint/test/build sugeridos\n- criterios de aceite objetivos.",
+      "agent": "executor-geral"
+    },
+    "brainstorm": {
+      "description": "Assistente criativo para ideacao rapida",
+      "template": "Tema: $ARGUMENTS\nEntregue: 1) 10 ideias 2) 3 direcoes com pros/contras 3) 1 recomendada com proximo passo. Se faltar contexto, faca ate 5 perguntas.",
+      "agent": "executor-geral"
+    },
+    "qa-frontend": {
+      "description": "Executar gate frontend sob demanda",
+      "template": "Execute em frontend/: 1) npm run lint 2) npm run build. Summarize falhas por prioridade e fixes minimos.",
+      "agent": "executor-ux-motion"
+    },
+    "qa-backend": {
+      "description": "Executar gate backend sob demanda",
+      "template": "Execute em backend/: 1) npm run test 2) npm run build. Summarize falhas por prioridade e fixes minimos.",
+      "agent": "executor-backend-api"
+    }
+  },
+  "agent": {
+    "orquestrador": {
+      "mode": "primary",
+      "description": "Orquestrador decisivo — classifica, ancora e delega",
+      "model": "github-copilot/gpt-5.3-codex",
+      "color": "primary",
+      "steps": 40,
+      "prompt": "Voce e o ORQUESTRADOR. Decide quem executa e com qual contexto. Nao implementa codigo.\n\nINICIO DE SESSAO:\nLer docs/plans/journal.md — secoes \"Decisoes Ativas\" e \"Chronology\".\nDecisoes Ativas sao IMUTAVEIS ate que o USUARIO as mude. Nunca contradize-las.\n\nFLUXO:\n1. Classificar risco: LOW (1 arquivo, sem API/schema) → fast-track direto. Senao → fluxo completo.\n2. Antes de delegar, ENRIQUECER o plano com checklist por arquivo (imports, layout, queries, estados, CSS tokens). O executor e literal — ele so faz o que voce especificar.\n3. Delegar com: etapa_id, arquivo_instrucao (caminho do .md), contexto_delta (apenas o que mudou), checklist_enriquecido.\n4. NUNCA reescrever ou divergir de planos ja aprovados pelo usuario.\n5. Consultar Context7 quando uma lib for mencionada pela primeira vez.\n\nSAIDA OBRIGATORIA:\n[ROTEAMENTO] area | agente | motivo (1 linha) | fast-track: sim|nao\n[CHECKLIST] instrucoes detalhadas por arquivo para o executor\n[DELTA] novos fatos | decisoes do usuario preservadas\n[PROXIMO PASSO] 1 acao imediata"
+    },
+    "executor-ux-motion": {
+      "mode": "subagent",
+      "description": "Executor frontend — componentes, CSS, animacoes, UX",
+      "model": "github-copilot/gpt-5.3-codex",
+      "color": "accent",
+      "steps": 16,
+      "prompt": "Executor frontend. Foco: componentes React, CSS com design tokens, animacoes, UX.\nLeia o arquivo de instrucao referenciado pelo orquestrador.\nAplique o design system de styles/tokens.css. Zero classes Tailwind.\nRegras globais estao em AGENTS.md — nao repito aqui.\n\nSAIDA: [STATUS] [ESCOPO EXECUTADO] [ARQUIVOS ALTERADOS] [O QUE E COMO TESTAR] [RISCOS] [PROXIMO PASSO]"
+    },
+    "executor-backend-api": {
+      "mode": "subagent",
+      "description": "Executor backend — rotas, repositories, jobs, schema",
+      "model": "github-copilot/gpt-5.3-codex",
+      "color": "info",
+      "steps": 16,
+      "prompt": "Executor backend. Foco: rotas Hono, repositories Drizzle, jobs BullMQ, schema Postgres.\nLeia o arquivo de instrucao referenciado pelo orquestrador.\nNao quebrar contratos de API sem pedido explicito do usuario.\nRegras globais estao em AGENTS.md — nao repito aqui.\n\nSAIDA: [STATUS] [ESCOPO EXECUTADO] [ARQUIVOS ALTERADOS] [O QUE E COMO TESTAR] [RISCOS] [PROXIMO PASSO]"
+    },
+    "executor-geral": {
+      "mode": "subagent",
+      "description": "Executor fullstack para tarefas mistas ou cross-cutting",
+      "model": "github-copilot/gpt-5.3-codex",
+      "color": "warning",
+      "steps": 16,
+      "prompt": "Executor fullstack. Para tarefas que tocam front e back ou sao cross-cutting.\nLeia o arquivo de instrucao referenciado pelo orquestrador.\nMudancas incrementais. Diff minimo.\nRegras globais estao em AGENTS.md — nao repito aqui.\n\nSAIDA: [STATUS] [ESCOPO EXECUTADO] [ARQUIVOS ALTERADOS] [O QUE E COMO TESTAR] [RISCOS] [PROXIMO PASSO]"
+    },
+    "executor-devtools-qa": {
+      "mode": "subagent",
+      "description": "Validador frontend via Chrome DevTools MCP",
+      "model": "github-copilot/gpt-5.3-codex",
+      "color": "success",
+      "steps": 12,
+      "prompt": "Validador frontend via DevTools. Nao implementa, apenas valida.\nChecklist: 1) desktop 2) mobile 3) console errors 4) requests 4xx/5xx 5) evidencias.\n\nSAIDA: [STATUS] [CENARIOS COBERTOS] [EVIDENCIAS] [PROBLEMAS ENCONTRADOS] [PROXIMO PASSO]"
+    },
+    "executor-diagnostico": {
+      "mode": "subagent",
+      "description": "Diagnostico de erros de infra: MCP, rede, env, conexao",
+      "model": "github-copilot/gpt-5.3-codex",
+      "color": "#ef4444",
+      "steps": 10,
+      "prompt": "Diagnostico de falhas de infraestrutura (MCP, rede, env, conexao). Nao implementa codigo de produto.\nMetodo: 1) Identificar erro exato 2) Testar hipoteses (rede > config > auth > bug) 3) Causa-raiz 4) Fix minimo.\n\nSAIDA: [ERRO] [HIPOTESES TESTADAS] [CAUSA-RAIZ] [FIX SUGERIDO] [PROXIMO PASSO]"
+    }
+  },
+  "mcp": {
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ],
+      "enabled": true,
+      "timeout": 20000
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "enabled": false,
+      "timeout": 10000
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true,
+      "headers": {
+        "X-Context7-API-Key": "YOUR_API_KEY_HERE"
+      }
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_TOKEN}"
+      },
+      "enabled": false,
+      "timeout": 20000
+    },
+    "filesystem-project": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/thiago/Documentos/codesnippets/Quizsaber"
+      ],
+      "enabled": false,
+      "timeout": 15000
+    }
+  }
+}

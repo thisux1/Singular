@@ -1,0 +1,288 @@
+.exam-singularity {
+  perspective: 1500px;
+  width: 100%;
+  min-height: 480px; /* Tall premium format like the original card */
+  display: block;
+  text-align: left;
+  background: #0a0505;
+  border: none;
+  padding: 0;
+  border-radius: 28px;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  box-shadow: 
+    0 30px 60px -20px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .exam-singularity {
+    min-height: 380px;
+  }
+}
+
+.exam-singularity:not(:hover) {
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: rotateX(0deg) rotateY(0deg) !important;
+}
+
+/* LAYER 1: NEBULAS */
+.exam-singularity__nebula {
+  position: absolute;
+  inset: -100%;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(153, 27, 27, 0.3), transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(234, 88, 12, 0.2), transparent 40%);
+  filter: blur(40px);
+  animation: examNebulaSpin 40s linear infinite;
+  transform: translateZ(-100px);
+  pointer-events: none;
+}
+
+@keyframes examNebulaSpin {
+  0% { transform: translateZ(-100px) rotate(0deg) scale(1.2); }
+  50% { transform: translateZ(-100px) rotate(180deg) scale(1.5); }
+  100% { transform: translateZ(-100px) rotate(360deg) scale(1.2); }
+}
+
+/* LAYER 2: STARS/DUST */
+.exam-singularity__stars {
+  position: absolute;
+  inset: -50px;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1.5px 1.5px at 60px 80px, rgba(253,186,116,0.7), transparent),
+    radial-gradient(2px 2px at 150px 40px, rgba(255,255,255,0.5), transparent);
+  background-size: 250px 250px;
+  transform: translateZ(-50px) translateX(calc(var(--px) * -15px)) translateY(calc(var(--py) * -15px));
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* LAYER 3: ORB */
+.exam-singularity__orb-container {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateZ(40px) translateX(calc(var(--px) * 10px)) translateY(calc(var(--py) * 10px));
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.exam-singularity__orb {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: examFloatOrb 5s ease-in-out infinite;
+}
+
+@keyframes examFloatOrb {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.exam-singularity__orb-core {
+  position: absolute;
+  inset: 35%;
+  background: #000;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 15px #000,
+    0 0 30px rgba(185, 28, 28, 0.8),
+    0 0 60px rgba(234, 88, 12, 0.6),
+    inset 0 0 10px rgba(0,0,0,0.9);
+  animation: examPulseCore 2s ease-in-out infinite alternate;
+}
+
+@keyframes examPulseCore {
+  0% { transform: scale(0.95); filter: hue-rotate(-5deg); }
+  100% { transform: scale(1.05); filter: hue-rotate(10deg); }
+}
+
+.exam-singularity__orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid transparent;
+}
+
+.ring-1 {
+  border-top-color: rgba(250, 204, 21, 0.8);
+  border-right-color: rgba(234, 88, 12, 0.6);
+  animation: examSpinRing1 4s linear infinite;
+}
+
+.ring-2 {
+  inset: -15%;
+  border-bottom-color: rgba(220, 38, 38, 0.7);
+  border-left-color: rgba(249, 115, 22, 0.4);
+  animation: examSpinRing2 5s linear infinite;
+}
+
+@keyframes examSpinRing1 {
+  0% { transform: rotateX(65deg) rotateY(15deg) rotateZ(0deg); }
+  100% { transform: rotateX(65deg) rotateY(15deg) rotateZ(360deg); }
+}
+@keyframes examSpinRing2 {
+  0% { transform: rotateX(-50deg) rotateY(-20deg) rotateZ(360deg); }
+  100% { transform: rotateX(-50deg) rotateY(-20deg) rotateZ(0deg); }
+}
+
+/* LAYER 4: GLASS PANEL CONTENT */
+.exam-singularity__content-layer {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  transform: translateZ(80px) translateX(calc(var(--px) * 15px)) translateY(calc(var(--py) * 15px));
+  transform-style: preserve-3d;
+}
+
+.exam-singularity__glass-panel {
+  background: rgba(15, 5, 5, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.exam-singularity:hover .exam-singularity__glass-panel {
+  background: rgba(20, 10, 10, 0.65);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.exam-singularity__glare {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    500px circle at var(--mx) var(--my),
+    rgba(255, 200, 150, 0.1),
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: 20;
+  mix-blend-mode: overlay;
+}
+
+/* ─── STATUS MODIFIERS ─── */
+
+.exam-singularity--queued .exam-singularity__glass-panel {
+  border-color: rgba(250, 204, 21, 0.3);
+}
+
+.exam-singularity--processing .exam-singularity__glass-panel {
+  border-color: rgba(234, 88, 12, 0.4);
+}
+.exam-singularity--processing .exam-singularity__glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(234, 88, 12, 0.1), transparent);
+  animation: examScanData 2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes examScanData {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.exam-singularity--reviewing .exam-singularity__glass-panel {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.exam-singularity--completed .exam-singularity__glass-panel {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* FAILED - SOBER & DEEP GLITCH EFFECT */
+.exam-singularity--failed .exam-singularity__orb-core {
+  background: #2a0000;
+  box-shadow: 
+    0 0 15px #000,
+    0 0 40px rgba(185, 28, 28, 0.9),
+    0 0 80px rgba(100, 0, 0, 0.6);
+  animation: examPulseCoreFailed 0.1s infinite alternate;
+}
+
+@keyframes examPulseCoreFailed {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1.1); filter: hue-rotate(-20deg); }
+}
+
+.exam-singularity--failed .exam-singularity__glass-panel {
+  border-color: rgba(185, 28, 28, 0.5);
+  background: rgba(30, 5, 5, 0.7);
+}
+
+.exam-singularity__glitch-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  border-radius: 28px;
+}
+
+/* We cancel mouse tracking in the glitch copies to make them disjointed */
+.exam-singularity__glitch-layer .glitch-content-layer {
+  transform: translateZ(80px); 
+}
+
+/* SOBER & DEEP GLITCH: Dark red/blood orange splits */
+.exam-singularity--failed .glitch-layer-1 {
+  animation: cyber-glitch 1.5s steps(2, end) infinite;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+  filter: drop-shadow(-2px 0 0 rgba(220, 38, 38, 0.8)); /* Red */
+}
+
+.exam-singularity--failed .glitch-layer-2 {
+  animation: cyber-glitch-2 2s steps(2, end) infinite reverse;
+  opacity: 0.7;
+  mix-blend-mode: exclusion;
+  filter: drop-shadow(2px 0 0 rgba(150, 0, 0, 0.9)); /* Darker Red/Crimson */
+}
+
+@keyframes cyber-glitch {
+  0% { clip-path: inset(80% -6px 0 0); transform: translate(-2px, -2px); }
+  10% { clip-path: inset(10% -6px 85% 0); transform: translate(2px, 2px); }
+  20% { clip-path: inset(80% -6px 0 0); transform: translate(-2px, 2px); }
+  30% { clip-path: inset(10% -6px 85% 0); transform: translate(0px, 1px); }
+  40% { clip-path: inset(50% -6px 30% 0); transform: translate(-1px, 0px); }
+  50% { clip-path: inset(10% -6px 85% 0); transform: translate(1px, 0px); }
+  60% { clip-path: inset(40% -6px 43% 0); transform: translate(1px, 2px); }
+  70% { clip-path: inset(50% -6px 30% 0); transform: translate(-2px, 2px); }
+  80% { clip-path: inset(80% -6px 5% 0); transform: translate(4px, -2px); }
+  90% { clip-path: inset(80% -6px 0 0); transform: translate(-2px, 0px); }
+  100% { clip-path: inset(80% -6px 0 0); transform: translate(0); }
+}
+
+@keyframes cyber-glitch-2 {
+  0% { clip-path: inset(20% -6px 60% 0); transform: translate(2px, -2px); }
+  10% { clip-path: inset(60% -6px 10% 0); transform: translate(-2px, 1px); }
+  20% { clip-path: inset(30% -6px 40% 0); transform: translate(2px, -1px); }
+  30% { clip-path: inset(80% -6px 5% 0); transform: translate(-1px, -2px); }
+  40% { clip-path: inset(10% -6px 70% 0); transform: translate(1px, 1px); }
+  50% { clip-path: inset(40% -6px 30% 0); transform: translate(-2px, 0px); }
+  60% { clip-path: inset(70% -6px 10% 0); transform: translate(2px, 1px); }
+  70% { clip-path: inset(5% -6px 80% 0); transform: translate(-1px, 2px); }
+  80% { clip-path: inset(50% -6px 30% 0); transform: translate(2px, -2px); }
+  90% { clip-path: inset(90% -6px 0% 0); transform: translate(-1px, 0px); }
+  100% { clip-path: inset(20% -6px 60% 0); transform: translate(0); }
+}

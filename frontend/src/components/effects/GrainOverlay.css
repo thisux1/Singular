@@ -1,0 +1,108 @@
+.grain-overlay {
+  --grain-opacity: 0.2;
+  --grain-opacity-amplitude: 0.004;
+  --grain-size: 288px;
+  --grain-size-secondary: calc(var(--grain-size) * 0.86);
+  --grain-size-tertiary: calc(var(--grain-size) * 0.64);
+  --grain-contrast: 1.58;
+  --grain-brightness: 1.28;
+  --grain-drift-duration: 100s;
+  --grain-breathe-duration: 100s;
+  --grain-layer-a: 0.9;
+  --grain-layer-b: 0.62;
+  --grain-layer-c: 0.38;
+  --grain-blend-a: normal;
+  --grain-blend-b: screen;
+  --grain-blend-c: soft-light;
+
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-toast) - 1);
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: normal;
+  filter: contrast(var(--grain-contrast)) brightness(var(--grain-brightness));
+  animation:
+    grain-overlay-drift var(--grain-drift-duration) linear infinite alternate,
+    grain-overlay-breathe var(--grain-breathe-duration) ease-in-out infinite;
+
+  background-image:
+    url('/black-plain-concrete-textured-background.jpg'),
+    url('/black-plain-concrete-textured-background.jpg'),
+    url('/black-plain-concrete-textured-background.jpg'),
+    url('/noise-256.webp'),
+    radial-gradient(circle at 50% 46%, rgb(255 255 255 / 3%), rgb(255 255 255 / 0%));
+  background-repeat: repeat, repeat, repeat, repeat, no-repeat;
+  background-size:
+    var(--grain-size) var(--grain-size),
+    var(--grain-size-secondary) var(--grain-size-secondary),
+    var(--grain-size-tertiary) var(--grain-size-tertiary),
+    calc(var(--grain-size) * 0.52) calc(var(--grain-size) * 0.52),
+    cover;
+  background-position:
+    -37px -61px,
+    109px 47px,
+    -143px 131px,
+    83px 47px,
+    center;
+  background-color: rgb(255 255 255 / 0%);
+  background-blend-mode:
+    var(--grain-blend-a),
+    var(--grain-blend-b),
+    var(--grain-blend-c),
+    overlay,
+    normal;
+}
+
+@keyframes grain-overlay-drift {
+  0% {
+    background-position:
+      -37px -61px,
+      109px 47px,
+      -143px 131px,
+      83px 47px,
+      center;
+  }
+
+  50% {
+    background-position:
+      -29px -55px,
+      116px 52px,
+      -136px 125px,
+      89px 52px,
+      center;
+  }
+
+  100% {
+    background-position:
+      -42px -66px,
+      101px 43px,
+      -149px 136px,
+      78px 41px,
+      center;
+  }
+}
+
+@keyframes grain-overlay-breathe {
+  0%,
+  100% {
+    opacity: calc(var(--grain-opacity) - var(--grain-opacity-amplitude));
+  }
+
+  50% {
+    opacity: calc(var(--grain-opacity) + var(--grain-opacity-amplitude));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain-overlay {
+    --grain-opacity: 0.042;
+    --grain-size: 304px;
+    --grain-contrast: 1.36;
+    --grain-brightness: 1.17;
+    --grain-layer-a: 0.78;
+    --grain-layer-b: 0.46;
+    --grain-layer-c: 0.24;
+    animation: none;
+  }
+}

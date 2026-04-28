@@ -1,0 +1,82 @@
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg-void);
+  isolation: isolate;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .app-shell,
+  .app-shell * {
+    cursor: none !important;
+  }
+
+  .app-shell input:is([type='text'], [type='search'], [type='email'], [type='url'], [type='password'], [type='tel']),
+  .app-shell textarea,
+  .app-shell [contenteditable='true'] {
+    cursor: text !important;
+  }
+}
+
+.app-shell__content {
+  position: relative;
+  z-index: var(--z-content);
+  min-height: 100vh;
+  pointer-events: auto;
+}
+
+.app-shell__main {
+  padding-top: calc(var(--navbar-height) + var(--space-4));
+  padding-bottom: var(--space-10);
+}
+
+.app-shell__cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: #ea580c;
+  box-shadow: 0 0 10px #ea580c, 0 0 20px #facc15;
+  z-index: calc(var(--z-toast) + 2);
+  pointer-events: none;
+  transform: translate3d(-100px, -100px, 0) translate3d(-50%, -50%, 0);
+  will-change: transform;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.app-shell__cursor-trail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid rgba(234, 88, 12, 0.4);
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.1) 0%, transparent 60%);
+  backdrop-filter: blur(4px) hue-rotate(15deg);
+  -webkit-backdrop-filter: blur(4px) hue-rotate(15deg);
+  box-shadow: inset 0 0 20px rgba(250, 204, 21, 0.1);
+  z-index: calc(var(--z-toast) + 1);
+  pointer-events: none;
+  transform: translate3d(-100px, -100px, 0) translate3d(-50%, -50%, 0);
+  will-change: transform;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  opacity: 0;
+}
+
+.app-shell__cursor.is-active,
+.app-shell__cursor-trail.is-active {
+  opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .app-shell__cursor,
+  .app-shell__cursor-trail {
+    display: none;
+  }
+}
