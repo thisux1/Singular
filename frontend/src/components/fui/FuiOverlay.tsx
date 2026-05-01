@@ -67,12 +67,6 @@ export function FuiOverlay() {
 
   return (
     <div className="fui-overlay" aria-hidden="true">
-      {/* HUD Corners */}
-      <div className="fui-corner fui-corner--tl" />
-      <div className="fui-corner fui-corner--tr" />
-      <div className="fui-corner fui-corner--bl" />
-      <div className="fui-corner fui-corner--br" />
-
       {/* Decorative Grid Lines */}
       <div className="fui-grid-lines" />
 

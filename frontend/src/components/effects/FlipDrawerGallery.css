@@ -33,8 +33,8 @@
 .flip-drawer-card-wrapper {
   width: 100%;
   height: 100%;
-  /* Dormant cards (opacity handled by JS, but we can do a dark overlay via pseudo element) */
   position: relative;
+  /* A transição do Hover agora é 100% controlada pelo JS Física (60fps Spring Engine) */
 }
 
 .flip-drawer-node::after {
@@ -56,9 +56,155 @@
 }
 
 .flip-drawer-node--focused > .flip-drawer-card-wrapper {
-  pointer-events: auto;
+  /* Pode ser usado para estilos adicionais de foco, se necessário */
 }
 
-.flip-drawer-node:not(.flip-drawer-node--focused) > .flip-drawer-card-wrapper {
+/* Borda Destacada pro Card no Meio (FUI Holográfico) */
+.flip-drawer-node--focused .flip-drawer-card-wrapper::before {
+  content: '';
+  position: absolute;
+  /* Expande um pouco além do card pra servir de aura/bracket */
+  inset: -12px;
+  border: 1px solid rgba(234, 88, 12, 0.8);
+  box-shadow: 
+    inset 0 0 20px rgba(234, 88, 12, 0.2),
+    0 0 15px rgba(234, 88, 12, 0.4);
+  z-index: -1;
   pointer-events: none;
+  /* Recorte cyberpunk pra acompanhar o estilo da carta */
+  clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px);
+  animation: hud-focus-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
+
+.flip-drawer-node--focused .flip-drawer-card-wrapper::before {
+  opacity: 1;
+}
+
+@keyframes hud-focus-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+  50% { opacity: 0.6; transform: scale(1.02); filter: brightness(1.5); }
+}
+
+/* ─── ENVIRONMENT WRAPPER ─── */
+.flip-drawer-universe {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ─── FLAT HUD OVERLAY (Outside 3D Perspective) ─── */
+.flip-drawer-fui-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2000; /* Fica fixo "colado no vidro" da tela do usuário */
+}
+
+/* WINGS (Movidos pros cantos superiores e removido o blur) */
+.fui-wing {
+  position: absolute;
+  top: 60px; /* Alinhado próximo ao topo */
+  width: 250px;
+}
+.fui-wing-left { left: 40px; }
+.fui-wing-right { right: 40px; }
+
+/* Removendo blocões de vidro e brilho que tampavam as cartas */
+.fui-wing-glass, .fui-wing-glow {
+  display: none;
+}
+
+/* A decoração vira a estrutura principal (Minimalista Line-Art) */
+.fui-wing-deco {
+  position: relative;
+  z-index: 2;
+  font-family: 'Share Tech Mono', monospace;
+  color: rgba(234, 88, 12, 0.8);
+  padding: 16px 20px;
+}
+
+/* Moldura Tática Superior Esquerda */
+.fui-wing-left .fui-wing-deco { 
+  border-top: 2px solid rgba(234, 88, 12, 0.9);
+  border-left: 2px solid rgba(234, 88, 12, 0.4);
+}
+.fui-wing-left .fui-wing-deco::before {
+  content: ''; position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: rgba(234, 88, 12, 0.9);
+}
+.fui-wing-left .fui-wing-deco::after {
+  content: ''; position: absolute; bottom: 0; left: 0; width: 30%; height: 2px; background: rgba(234, 88, 12, 0.6);
+}
+
+/* Moldura Tática Superior Direita */
+.fui-wing-right .fui-wing-deco { 
+  text-align: right; 
+  border-top: 2px solid rgba(234, 88, 12, 0.9);
+  border-right: 2px solid rgba(234, 88, 12, 0.4);
+}
+.fui-wing-right .fui-wing-deco::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 10px; height: 10px; background: rgba(234, 88, 12, 0.9);
+}
+.fui-wing-right .fui-wing-deco::after {
+  content: ''; position: absolute; bottom: 0; right: 0; width: 30%; height: 2px; background: rgba(234, 88, 12, 0.6);
+}
+
+.fui-text { font-size: 14px; letter-spacing: 2px; margin-bottom: 4px; }
+.fui-text.highlight { color: rgba(250, 204, 21, 0.9); font-weight: bold; text-shadow: 0 0 8px rgba(250, 204, 21, 0.6); }
+
+.fui-bar { width: 100%; height: 4px; background: rgba(234, 88, 12, 0.2); margin: 12px 0; position: relative; overflow: hidden; }
+.fui-bar::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 40%; background: rgba(234, 88, 12, 0.8); box-shadow: 0 0 10px rgba(234, 88, 12, 0.8); animation: fui-bar-pulse 2s infinite alternate; }
+.fui-bar.reverse::after { left: auto; right: 0; }
+@keyframes fui-bar-pulse { 0% { width: 30%; } 100% { width: 70%; } }
+
+.fui-dots { display: flex; gap: 4px; }
+.fui-dots span { width: 6px; height: 6px; background: rgba(234, 88, 12, 0.5); }
+.fui-dots span:first-child { background: rgba(250, 204, 21, 0.8); box-shadow: 0 0 5px rgba(250, 204, 21, 0.8); }
+
+.fui-radar { width: 40px; height: 40px; border: 1px solid rgba(234, 88, 12, 0.4); border-radius: 50%; position: relative; margin-left: auto; overflow: hidden; }
+.fui-radar-sweep { position: absolute; inset: 0; background: conic-gradient(from 0deg, transparent 70%, rgba(234, 88, 12, 0.8) 100%); animation: fui-radar-spin 2s linear infinite; }
+@keyframes fui-radar-spin { 100% { transform: rotate(360deg); } }
+
+/* BRACKETS */
+.fui-top-bracket {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 500px; height: 15px;
+  background: rgba(234, 88, 12, 0.8);
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+  box-shadow: 0 0 10px rgba(234, 88, 12, 0.6);
+}
+.fui-bottom-bracket {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 30px;
+  background: rgba(10, 5, 5, 0.8); backdrop-filter: blur(5px);
+  clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
+  border-top: 2px solid rgba(234, 88, 12, 0.6);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.fui-data-stream { color: rgba(234, 88, 12, 0.6); font-family: 'Share Tech Mono', monospace; font-size: 11px; display: flex; gap: 12px; letter-spacing: 2px; }
+.fui-data-stream .blink { animation: fui-blink 1s steps(2) infinite; color: rgba(250, 204, 21, 0.8); }
+@keyframes fui-blink { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+/* TARGET BOX */
+.fui-target-box {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 580px; height: 640px; border: 1px dashed rgba(234, 88, 12, 0.15);
+}
+.fui-corner { position: absolute; width: 40px; height: 40px; border: 2px solid rgba(234, 88, 12, 0.6); }
+.fui-corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+.fui-corner.top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+.fui-corner.bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+.fui-corner.bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+.fui-crosshair-h, .fui-crosshair-v { position: absolute; background: rgba(234, 88, 12, 0.3); }
+.fui-crosshair-h { width: 100%; height: 1px; top: 50%; }
+.fui-crosshair-h::after { content: ''; position: absolute; top: -3px; left: 50%; width: 7px; height: 7px; background: rgba(234, 88, 12, 0.8); transform: translate(-50%, 0) rotate(45deg); }
+.fui-crosshair-v { height: 100%; width: 1px; left: 50%; }
+
+.fui-data-label { position: absolute; bottom: 20px; right: -80px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: rgba(234, 88, 12, 0.7); letter-spacing: 2px; transform: rotate(-90deg); transform-origin: bottom left; }
+
+.fui-scanline { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(250, 204, 21, 0.6); box-shadow: 0 0 10px rgba(250, 204, 21, 0.8); animation: fui-laser-scan 4s ease-in-out infinite alternate; }
+@keyframes fui-laser-scan { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(640px); opacity: 0; } }
