@@ -5,15 +5,22 @@
   padding-bottom: 80px;
 }
 
+/* ─── Wrapper to hold Terminal and Tab ─── */
+.exam-detail__container {
+  position: relative;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
+  display: flex;
+  flex-direction: column;
+}
+
 /* ─── The Terminal (Main Integrated Container) ─── */
 .exam-detail__terminal {
   position: relative;
   background: transparent;
   border: none;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
   display: flex;
   flex-direction: column;
-  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
 }
 
 .exam-detail__terminal::before {
@@ -21,8 +28,8 @@
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.2);
-  /* Sculpted continuous border */
-  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  /* Sculpted continuous border without top-right cut */
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
   z-index: -2;
   transition: background 0.3s ease;
 }
@@ -35,7 +42,7 @@
   background: rgba(10, 5, 5, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
   z-index: -1;
 }
 
@@ -63,58 +70,8 @@
   padding: var(--terminal-padding-v) var(--terminal-padding-h);
 }
 
-/* ─── Integrated Corner Badge (Parallelogram) ─── */
-.exam-detail__corner-badge {
-  --badge-h: var(--terminal-cut);
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: var(--badge-h);
-  z-index: 10;
-  clip-path: polygon(0 0, calc(100% - var(--badge-h)) 0, 100% 100%, var(--badge-h) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 calc(var(--badge-h) / 2 + 16px);
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
-}
-
-/* Badge variants */
-.exam-detail__status-processing {
-  background: rgba(234, 88, 12, 0.9);
-  color: #fff;
-  animation: pulse-orange-badge 2s infinite alternate;
-}
-
-.exam-detail__status-reviewing {
-  background: rgba(14, 165, 233, 0.9);
-  color: #fff;
-}
-
-.exam-detail__status-failed {
-  background: rgba(220, 38, 38, 0.9);
-  color: #fff;
-}
-
-.exam-detail__status-completed {
-  background: rgba(255, 255, 255, 0.9);
-  color: #000;
-}
-
-@keyframes pulse-orange-badge {
-  from {
-    background: rgba(234, 88, 12, 0.7);
-  }
-
-  to {
-    background: rgba(234, 88, 12, 1);
-  }
-}
+/* ─── Protruding Corner Badge (Trapezoid Tab) ─── */
+/* Badge and terminal variants replaced by TerminalTab */
 
 .exam-detail__status-failed-text {
   color: #fca5a5;
@@ -264,12 +221,7 @@
 
 @media (max-width: 900px) {
   .exam-detail__corner-badge {
-    right: 16px;
-    width: 140px;
-    height: 44px;
-    padding-right: 16px;
-    font-size: 0.7rem;
-    clip-path: polygon(var(--badge-skew) 0, 100% 0, 100% 100%, 0 100%);
+    font-size: 0.65rem;
   }
 
   .exam-detail__title {

@@ -7,13 +7,14 @@ import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { toast } from '../components/ui/ToastUtils';
 import { saveExamSession } from './quizSessionStorage';
+import { TerminalTab, type TerminalTabVariant } from '../components/ui/TerminalTab';
 import './ExamDetailPage.css';
 
-function statusVariantClass(status: string) {
-  if (status === 'completed') return 'status-completed';
-  if (status === 'failed') return 'status-failed';
-  if (status === 'reviewing') return 'status-reviewing';
-  return 'status-processing';
+function statusVariantClass(status: string): TerminalTabVariant {
+  if (status === 'completed') return 'completed';
+  if (status === 'failed') return 'failed';
+  if (status === 'reviewing') return 'reviewing';
+  return 'processing';
 }
 
 function statusLabel(status: string): string {
@@ -166,17 +167,17 @@ export function ExamDetailPage() {
 
   return (
     <section className="exam-detail page page-container">
-      <div className="exam-detail__terminal">
-        <div className="exam-detail__premium-glow" />
-        
-        {/* Integrated Status Badge in top right corner */}
-        <div className={`exam-detail__corner-badge exam-detail__${statusVariantClass(exam.status)}`}>
-          <div className="exam-detail__corner-badge-inner">
-            {statusLabel(exam.status)}
-          </div>
-        </div>
+      <div className="exam-detail__container">
+        {/* Protruding Status Badge */}
+        <TerminalTab 
+          label={statusLabel(exam.status)} 
+          variant={statusVariantClass(exam.status)} 
+        />
 
-        {/* Header Section */}
+        <div className="exam-detail__terminal">
+          <div className="exam-detail__premium-glow" />
+          
+          {/* Header Section */}
         <header className="exam-detail__header">
           <h1 className="exam-detail__title">{exam.title}</h1>
           <p className="exam-detail__subtitle text-mono">SYS.ID // {exam.id}</p>
@@ -263,6 +264,7 @@ export function ExamDetailPage() {
             Dissipar
           </Button>
         </footer>
+      </div>
       </div>
     </section>
   );

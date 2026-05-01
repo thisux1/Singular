@@ -115,13 +115,14 @@
   --max-width-narrow: 720px;
   --max-width-wide: 1440px;
   --navbar-height: 64px;
-  --page-padding: var(--space-6);
-  --terminal-cut-card: 12px;
+  --page-padding: var(--space-10);
+  --terminal-cut-card: 16px;
+  --btn-cut: 12px;
   --terminal-padding-h: clamp(20px, 4vw, 48px);
   --terminal-padding-v: clamp(24px, 3vw, 32px);
   --terminal-gap: clamp(24px, 4vw, 60px);
   --terminal-cut: clamp(24px, 4vw, 40px);
-  --badge-skew: 16px;
+  --badge-skew: 24px;
 }
 
 /* ─── Reduced motion ─── */
@@ -146,7 +147,7 @@
   :root {
     --text-hero: 2.25rem;
     --navbar-height: 56px;
-    --page-padding: var(--space-4);
+    --page-padding: var(--space-6);
     --terminal-cut: 16px;
   }
 }
