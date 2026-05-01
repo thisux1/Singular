@@ -4,6 +4,7 @@ import { apiFetch } from '../api/client';
 import { fetchExam, fetchExamQuestions, type Question } from '../api/exams';
 import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
+import { TerminalTab } from '../components/ui/TerminalTab';
 import { toast } from '../components/ui/ToastUtils';
 import './ExamReviewPage.css';
 
@@ -94,15 +95,15 @@ export function ExamReviewPage() {
 
   return (
     <section className="exam-review page page-container">
-      <div className="exam-review__terminal">
-        <div className="exam-review__premium-glow" />
-        
-        {/* Integrated Status Badge in top right corner */}
-        <div className={`exam-review__corner-badge ${isPublished ? 'badge-completed' : 'badge-draft'}`}>
-          <div className="exam-review__corner-badge-inner">
-            {isPublished ? 'Consolidado' : 'Em Rascunho'}
-          </div>
-        </div>
+      <div className="exam-review__container">
+        {/* Protruding Status Badge */}
+        <TerminalTab 
+          label={isPublished ? 'Consolidado' : 'Em Rascunho'} 
+          variant={isPublished ? 'completed' : 'reviewing'} 
+        />
+
+        <div className="exam-review__terminal">
+          <div className="exam-review__premium-glow" />
 
         <header className="exam-review__header">
           <div className="exam-review__header-content">
@@ -127,6 +128,7 @@ export function ExamReviewPage() {
             )}
           </div>
         </header>
+      </div>
       </div>
 
       <div className="exam-review__list">

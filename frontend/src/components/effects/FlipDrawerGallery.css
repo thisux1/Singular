@@ -1,0 +1,64 @@
+.flip-drawer-wrapper {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1200px;
+  margin-top: 64px;
+}
+
+.flip-drawer-track {
+  position: relative;
+  width: 500px; /* Width of the card */
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.flip-drawer-node {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  margin-top: -150px; /* Half of typical card height to center it */
+  transform-origin: bottom center;
+  will-change: transform, opacity;
+  /* Transitions are removed because JS handles the interpolation, OR we keep them super short for smoothness if JS steps are big */
+  /* Actually, since we drive this by wheel delta, no transition is better for instant 1:1 response to mouse */
+}
+
+/* The card is inside the node. The node handles 3D space, the wrapper handles dormancy */
+.flip-drawer-card-wrapper {
+  width: 100%;
+  height: 100%;
+  /* Dormant cards (opacity handled by JS, but we can do a dark overlay via pseudo element) */
+  position: relative;
+}
+
+.flip-drawer-node::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--dormancy-darkness, 0.7));
+  pointer-events: none;
+  border-radius: inherit;
+  transition: background 0.2s ease;
+}
+
+.flip-drawer-node--focused {
+  z-index: 100;
+}
+
+.flip-drawer-node--focused::after {
+  background: rgba(0, 0, 0, 0); /* Bright when focused */
+}
+
+.flip-drawer-node--focused > .flip-drawer-card-wrapper {
+  pointer-events: auto;
+}
+
+.flip-drawer-node:not(.flip-drawer-node--focused) > .flip-drawer-card-wrapper {
+  pointer-events: none;
+}

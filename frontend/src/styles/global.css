@@ -2,7 +2,7 @@
    Global Styles — Body, scrollbar, selection, utilities
    ═══════════════════════════════════════════════════════ */
 
-body {
+html, body {
   background-color: var(--bg-void);
   color: var(--text-primary);
   font-family: var(--font-body);

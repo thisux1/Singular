@@ -4,6 +4,7 @@ import { ToastContainer } from '../ui/Toast';
 import { useMousePosition } from '../../hooks/useMousePosition';
 import { SingularityCanvas } from '../three/SingularityCanvas';
 import { Navbar } from './Navbar';
+import { FuiOverlay } from '../fui/FuiOverlay';
 import './AppShell.css';
 
 import { useEffect, useState } from 'react';
@@ -61,6 +62,7 @@ export function AppShell() {
   return (
     <div className="app-shell">
       <SingularityCanvas />
+      <FuiOverlay />
       <GrainOverlay />
       <div className="app-shell__content">
         <Navbar />

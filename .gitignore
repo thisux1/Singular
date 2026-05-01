@@ -54,5 +54,11 @@ backend/uploads/*
 backend/tmp/
 frontend/public/hero-frames/**
 
-# Agent Config (if user wants to avoid tracking specific config changes, but we kept redaction)
-# opencode.json (usually project-wide, so keeping it tracked but redacted)
+
+EXAM_LIST_REFACTOR_PLAN.md
+screenshot_dropdown.png
+screenshot_angular.png
+screenshot_parallax_actions.png
+screenshot.png
+screenshot_bugfix.png
+screenshot_sidebadge.png

@@ -5,11 +5,13 @@
   gap: var(--space-2);
   font-family: 'Inter', system-ui, sans-serif;
   font-weight: 600;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  border: none;
+  background: transparent !important;
+  border-radius: 0;
+  clip-path: polygon(var(--btn-cut, 8px) 0, 100% 0, 100% calc(100% - var(--btn-cut, 8px)), calc(100% - var(--btn-cut, 8px)) 100%, 0 100%, 0 var(--btn-cut, 8px));
   cursor: pointer;
   /* Fast return on mouse leave, slow follow on hover */
-  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
   white-space: nowrap;
   user-select: none;
   position: relative;
@@ -57,11 +59,32 @@
   pointer-events: none;
 }
 
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--btn-border-color, transparent);
+  z-index: -2;
+  transition: background 0.3s ease;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: var(--btn-bg-color, transparent);
+  clip-path: polygon(var(--btn-cut, 8px) 0, 100% 0, 100% calc(100% - var(--btn-cut, 8px)), calc(100% - var(--btn-cut, 8px)) 100%, 0 100%, 0 var(--btn-cut, 8px));
+  z-index: -1;
+  transition: background 0.3s ease;
+  backdrop-filter: var(--btn-blur, none);
+  -webkit-backdrop-filter: var(--btn-blur, none);
+}
+
 /* ─── Sizes ─── */
 .btn--sm {
   padding: 6px 14px;
   font-size: 0.8rem;
-  border-radius: 3px;
+  --btn-cut: 6px;
 }
 
 .btn--md {
@@ -72,19 +95,20 @@
 .btn--lg {
   padding: 16px 32px;
   font-size: 1.05rem;
-  border-radius: 6px;
+  --btn-cut: 12px;
 }
 
 /* ─── Primary ─── */
 .btn--primary {
-  background: linear-gradient(135deg, #ea580c, #b91c1c); /* Orange to Red */
+  --btn-bg-color: linear-gradient(135deg, #ea580c, #b91c1c);
+  --btn-border-color: transparent;
   color: #fff;
   box-shadow: 0 4px 15px rgba(185, 28, 28, 0.4);
 }
 
 .btn--primary:hover:not(:disabled) {
   box-shadow: 0 8px 25px rgba(185, 28, 28, 0.6), 0 0 20px rgba(234, 88, 12, 0.5);
-  border-color: rgba(250, 204, 21, 0.4);
+  --btn-border-color: rgba(250, 204, 21, 0.4);
 }
 
 .btn--primary:active:not(:disabled) {
@@ -93,17 +117,16 @@
 
 /* ─── Ghost ─── */
 .btn--ghost {
-  background: rgba(255, 255, 255, 0.03);
+  --btn-bg-color: rgba(255, 255, 255, 0.03);
+  --btn-border-color: rgba(255, 255, 255, 0.12);
+  --btn-blur: blur(8px);
   color: #d4d4d8;
-  border-color: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .btn--ghost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
+  --btn-bg-color: rgba(255, 255, 255, 0.08);
+  --btn-border-color: rgba(255, 255, 255, 0.2);
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
 }
 
@@ -113,15 +136,15 @@
 
 /* ─── Danger ─── */
 .btn--danger {
-  background: rgba(185, 28, 28, 0.1);
+  --btn-bg-color: rgba(185, 28, 28, 0.1);
+  --btn-border-color: rgba(220, 38, 38, 0.3);
   color: #f87171;
-  border-color: rgba(220, 38, 38, 0.3);
 }
 
 .btn--danger:hover:not(:disabled) {
-  background: rgba(185, 28, 28, 0.2);
+  --btn-bg-color: rgba(185, 28, 28, 0.2);
+  --btn-border-color: rgba(220, 38, 38, 0.6);
   color: #fca5a5;
-  border-color: rgba(220, 38, 38, 0.6);
   box-shadow: 0 5px 15px rgba(185, 28, 28, 0.2), 0 0 15px rgba(220, 38, 38, 0.4);
 }
 
@@ -131,14 +154,14 @@
 
 .btn--ghost:disabled {
   color: #d4d4d8;
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.05);
+  --btn-border-color: rgba(255, 255, 255, 0.18);
+  --btn-bg-color: rgba(255, 255, 255, 0.05);
 }
 
 .btn--danger:disabled {
   color: #fca5a5;
-  border-color: rgba(220, 38, 38, 0.35);
-  background: rgba(185, 28, 28, 0.16);
+  --btn-border-color: rgba(220, 38, 38, 0.35);
+  --btn-bg-color: rgba(185, 28, 28, 0.16);
 }
 
 /* ─── Spinner ─── */
