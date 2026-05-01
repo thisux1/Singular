@@ -114,6 +114,11 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete }: ExamSin
         <span>OPÇÕES</span>
       </div>
 
+      {/* Top Tab for Stacked View */}
+      <div className="exam-singularity__folder-tab">
+        <span className="exam-singularity__folder-tab-title">{exam.title}</span>
+      </div>
+
       <div className="exam-singularity__hole-mask">
         <div className="exam-singularity__nebula" />
         <div className="exam-singularity__stars" />
