@@ -12,6 +12,7 @@ import { ExamSingularityCard } from '../components/effects/ExamSingularityCard';
 import { FlipDrawerGallery } from '../components/effects/FlipDrawerGallery';
 import { AnimatedFileIcon } from '../components/ui/AnimatedIcons';
 import { FuiSelect } from '../components/ui/FuiSelect';
+import { motion, AnimatePresence } from 'framer-motion';
 import './ExamListPage.css';
 
 
@@ -192,6 +193,18 @@ export function ExamListPage() {
   if (step === 3) logs.push(`> Awaiting Extraction Parameters...`);
   if (isSubmitting) logs.push(`> INITIATING COMPRESSION...`);
 
+  const renderLogs = (className: string) => (
+    <div className={`exam-list__live-logs ${className}`}>
+      <div className="live-logs-header">TERMINAL LOG OUTPUT</div>
+      <div className="live-logs-body">
+        {logs.map((log, index) => (
+          <div key={index} className="log-line">{log}</div>
+        ))}
+        <div className="log-line log-cursor">█</div>
+      </div>
+    </div>
+  );
+
   return (
     <section className="exam-list page page-container">
       <div className="exam-list__hero">
@@ -200,6 +213,8 @@ export function ExamListPage() {
           Condense o espaço-tempo de seus estudos. Envie provas e gabaritos para extrair conhecimento absoluto através da singularidade.
         </p>
       </div>
+
+      {renderLogs('exam-list__live-logs--top')}
 
       <div className="exam-list__dual-terminal">
         {/* WIZARD LEFT SIDE */}
@@ -222,53 +237,67 @@ export function ExamListPage() {
 
           <form className="exam-list__ingest-form" onSubmit={onSubmit}>
             <div className="exam-list__ingest-grid exam-list__ingest-grid--single">
-              
-              {/* STEP 1: ARQUIVOS */}
-              {step === 1 && (
-                <>
-                  <div className={`exam-list__field exam-list__field--file ${provaFile ? 'is-active' : ''}`}>
-                    <label className="exam-list__label" htmlFor="exam-upload-file">
-                      Arquivo Base (Obrigatório)
-                    </label>
-                    <div className="exam-list__file-box" onClick={() => provaFileInputRef.current?.click()}>
-                      <div className={`led ${provaFile ? 'led--active' : ''}`} />
-                      <AnimatedFileIcon selected={!!provaFile} type="base" />
-                      <span className="exam-list__file-name">{selectedProvaLabel}</span>
-                      <input
-                        ref={provaFileInputRef}
-                        id="exam-upload-file"
-                        className="exam-list__file-input"
-                        type="file"
-                        accept={acceptTypes}
-                        onChange={onChangeProvaFile}
-                      />
+              <AnimatePresence mode="wait">
+                {/* STEP 1: ARQUIVOS */}
+                {step === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' }}
+                    exit={{ opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' }}
+                    transition={{ duration: 0.3 }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+                  >
+                    <div className={`exam-list__field exam-list__field--file ${provaFile ? 'is-active' : ''}`}>
+                      <label className="exam-list__label" htmlFor="exam-upload-file">
+                        Arquivo Base (Obrigatório)
+                      </label>
+                      <div className="exam-list__file-box" onClick={() => provaFileInputRef.current?.click()}>
+                        <div className={`led ${provaFile ? 'led--active' : ''}`} />
+                        <AnimatedFileIcon selected={!!provaFile} type="base" />
+                        <span className="exam-list__file-name">{selectedProvaLabel}</span>
+                        <input
+                          ref={provaFileInputRef}
+                          id="exam-upload-file"
+                          className="exam-list__file-input"
+                          type="file"
+                          accept={acceptTypes}
+                          onChange={onChangeProvaFile}
+                        />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className={`exam-list__field exam-list__field--file ${gabaritoFile ? 'is-active' : ''}`}>
-                    <label className="exam-list__label" htmlFor="exam-upload-gabarito">
-                      Gabarito Oficial (Opcional)
-                    </label>
-                    <div className="exam-list__file-box" onClick={() => gabaritoFileInputRef.current?.click()}>
-                      <div className={`led ${gabaritoFile ? 'led--active' : ''}`} />
-                      <AnimatedFileIcon selected={!!gabaritoFile} type="check" />
-                      <span className="exam-list__file-name">{selectedGabaritoLabel}</span>
-                      <input
-                        ref={gabaritoFileInputRef}
-                        id="exam-upload-gabarito"
-                        className="exam-list__file-input"
-                        type="file"
-                        accept={acceptTypes}
-                        onChange={onChangeGabaritoFile}
-                      />
+                    <div className={`exam-list__field exam-list__field--file ${gabaritoFile ? 'is-active' : ''}`}>
+                      <label className="exam-list__label" htmlFor="exam-upload-gabarito">
+                        Gabarito Oficial (Opcional)
+                      </label>
+                      <div className="exam-list__file-box" onClick={() => gabaritoFileInputRef.current?.click()}>
+                        <div className={`led ${gabaritoFile ? 'led--active' : ''}`} />
+                        <AnimatedFileIcon selected={!!gabaritoFile} type="check" />
+                        <span className="exam-list__file-name">{selectedGabaritoLabel}</span>
+                        <input
+                          ref={gabaritoFileInputRef}
+                          id="exam-upload-gabarito"
+                          className="exam-list__file-input"
+                          type="file"
+                          accept={acceptTypes}
+                          onChange={onChangeGabaritoFile}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </motion.div>
+                )}
 
-              {/* STEP 2: IDENTIFICAÇÃO */}
-              {step === 2 && (
-                <>
+                {/* STEP 2: IDENTIFICAÇÃO */}
+                {step === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' }}
+                    exit={{ opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' }}
+                    transition={{ duration: 0.3 }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+                  >
                   <div className="exam-list__field">
                     <label className="exam-list__label" htmlFor="exam-title">Identificação / Título</label>
                     <input
@@ -305,12 +334,19 @@ export function ExamListPage() {
                       maxLength={10}
                     />
                   </div>
-                </>
-              )}
+                  </motion.div>
+                )}
 
-              {/* STEP 3: EXTRAÇÃO E METADADOS TECNICOS */}
-              {step === 3 && (
-                <>
+                {/* STEP 3: EXTRAÇÃO E METADADOS TECNICOS */}
+                {step === 3 && (
+                  <motion.div
+                    key="step3"
+                    initial={{ opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' }}
+                    exit={{ opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' }}
+                    transition={{ duration: 0.3 }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+                  >
                   <div className="exam-list__field">
                     <label className="exam-list__label" htmlFor="exam-prova-type">Arquétipo / Tipo</label>
                     <input
@@ -376,8 +412,9 @@ export function ExamListPage() {
                     />
                     <span className={pageRangeClassName}>{pageRangeHint}</span>
                   </div>
-                </>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             <div className="exam-list__wizard-footer">
@@ -394,22 +431,14 @@ export function ExamListPage() {
                 </Button>
               )}
             </div>
+
+            {renderLogs('exam-list__live-logs--embedded')}
           </form>
         </div>
 
         {/* PREVIEW RIGHT SIDE */}
         <div className="exam-list__preview-pane">
-          <ExamSingularityCard exam={previewExam} />
-          
-          <div className="exam-list__live-logs">
-            <div className="live-logs-header">TERMINAL LOG OUTPUT</div>
-            <div className="live-logs-body">
-              {logs.map((log, index) => (
-                <div key={index} className="log-line">{log}</div>
-              ))}
-              <div className="log-line log-cursor">_</div>
-            </div>
-          </div>
+          <ExamSingularityCard exam={previewExam} step={step} />
         </div>
       </div>
 

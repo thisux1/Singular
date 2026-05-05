@@ -19,7 +19,7 @@ function FuiRadar() {
       <div className="fui-radar__ring-1" />
       <div className="fui-radar__ring-2" />
       <div className="fui-radar__ring-3">
-        <div className="fui-radar__spinner" />
+        <div className="fui-radar-sweep" />
       </div>
       <div className="fui-radar__core" />
       <div className="fui-radar__crosshair-h" />

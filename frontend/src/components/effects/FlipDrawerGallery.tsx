@@ -19,6 +19,7 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
   
   // BYPASS REACT RENDER: We store scroll offset in a mutable ref
   const offsetRef = useRef(0);
+  const touchStartY = useRef(0);
   const animationFrameRef = useRef<number>();
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
@@ -29,18 +30,16 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
   const selectedExamIdRef = useRef<string | null>(null);
   const hoverPhysicsRef = useRef<number[]>([]);
 
-  // Ensure enough items to create a continuous loop
   let displayExams = [...exams];
-  while (displayExams.length > 0 && displayExams.length < 20) {
-    displayExams = [...displayExams, ...exams];
-  }
   
   // Initialize hover physics array
   if (hoverPhysicsRef.current.length !== displayExams.length) {
     hoverPhysicsRef.current = new Array(displayExams.length).fill(0);
   }
 
-  const totalLength = displayExams.length * ITEM_SPACING;
+  const ITEM_SPACING = 250;
+  // O tamanho exato do universo
+  const maxOffset = Math.max(0, (displayExams.length - 1) * ITEM_SPACING);
 
   // HARDWARE ACCELERATED PHYSICS ENGINE
   const updatePhysics = () => {
@@ -55,23 +54,19 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
         targetSnapPoint = scrollToTargetRef.current;
       }
 
-      // Calcula a distância. Importante: no mundo circular, precisamos achar o "caminho mais curto".
+      // Clamp o target pra não ultrapassar os limites
+      if (targetSnapPoint < 0) targetSnapPoint = 0;
+      if (targetSnapPoint > maxOffset) targetSnapPoint = maxOffset;
+
       let diff = targetSnapPoint - offsetRef.current;
-      if (displayExams.length > 0) {
-        if (diff > totalLength / 2) diff -= totalLength;
-        else if (diff < -totalLength / 2) diff += totalLength;
-      }
 
       // Checa se o alvo de navegação autônoma foi alcançado
       if (scrollToTargetRef.current !== null && Math.abs(diff) < 1) {
         scrollToTargetRef.current = null;
-        // Recalcula o snap natural pra não dar solavanco ao soltar a trava
         targetSnapPoint = Math.round(offsetRef.current / ITEM_SPACING) * ITEM_SPACING;
+        if (targetSnapPoint < 0) targetSnapPoint = 0;
+        if (targetSnapPoint > maxOffset) targetSnapPoint = maxOffset;
         diff = targetSnapPoint - offsetRef.current;
-        if (displayExams.length > 0) {
-          if (diff > totalLength / 2) diff -= totalLength;
-          else if (diff < -totalLength / 2) diff += totalLength;
-        }
       }
       
       // Aplica a força elástica
@@ -82,23 +77,17 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
       }
     }
 
-    // Loop boundary logic
+    // Clamp absolute bounds even during scroll
+    if (offsetRef.current < 0) offsetRef.current = 0;
+    if (offsetRef.current > maxOffset) offsetRef.current = maxOffset;
+
     let o = offsetRef.current;
-    if (displayExams.length > 0) {
-      if (o >= totalLength) o -= totalLength;
-      if (o < 0) o += totalLength;
-      offsetRef.current = o;
-    }
 
     nodesRef.current.forEach((node, index) => {
       if (!node) return;
 
       const elementAbsoluteZ = index * ITEM_SPACING;
-      let dist = (elementAbsoluteZ - o) % totalLength;
-      
-      // Keep coordinates in continuous mapping around the 0 center
-      if (dist < -totalLength / 2) dist += totalLength;
-      else if (dist > totalLength / 2) dist -= totalLength;
+      let dist = elementAbsoluteZ - o;
 
       // --- PHYSICS: GAVETA HORIZONTAL (Cover Flow Restrito) ---
       // absDist = 0: Focado (Desenclinado)
@@ -110,33 +99,51 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
       // Outside 1 ITEM_SPACING (dist > 250), they are fully tilted and packed.
       const transitionFactor = Math.min(absDist / ITEM_SPACING, 1);
 
-      // translateX: Stack tightly. 
       const pushOutBase = transitionFactor * 140; 
       const tightStackSpacing = absDist * 0.35; 
-      let translateX = Math.sign(dist) * (pushOutBase + tightStackSpacing);
-
+      
       // Física de Hover (Mola Suave 60FPS)
       const isHovered = selectedExamIdRef.current === displayExams[index].id;
-      const targetHover = isHovered ? 1 : 0;
+      const isFocused = absDist < 50;
+      const targetHover = (isHovered || isFocused) ? 1 : 0;
       hoverPhysicsRef.current[index] += (targetHover - hoverPhysicsRef.current[index]) * 0.15; // Velocidade da mola
       const hoverFactor = hoverPhysicsRef.current[index];
 
-      // translateY: Sobe quando hoverado (puxando a pasta pra cima)
-      let translateY = -60 * hoverFactor; 
+      const isMobile = window.innerWidth <= 768;
       
-      // translateZ: Leve empurrão pra trás para efeito 3D, hover puxa pra frente
+      let translateX, translateY, rotateY, rotateX;
+
+      if (isMobile) {
+        // --- GAVETA VERTICAL (Mobile) ---
+        translateY = Math.sign(dist) * (pushOutBase + tightStackSpacing);
+        translateX = 20 * hoverFactor; // Puxa levemente pro lado no hover
+        rotateX = (Math.sign(dist) * transitionFactor * 25) * (1 - (hoverFactor * 0.5));
+        rotateY = 0;
+        
+        // Adiciona flag na DOM pra Aba de Pasta
+        if (dist < -50) node.setAttribute('data-drawer-side', 'top');
+        else if (dist > 50) node.setAttribute('data-drawer-side', 'bottom');
+        else node.setAttribute('data-drawer-side', 'center');
+
+      } else {
+        // --- GAVETA HORIZONTAL (Desktop) ---
+        translateX = Math.sign(dist) * (pushOutBase + tightStackSpacing);
+        translateY = -60 * hoverFactor; // Sobe quando hoverado
+        rotateY = (Math.sign(dist) * transitionFactor * -25) * (1 - (hoverFactor * 0.5));
+        rotateX = 0;
+        
+        // Adiciona flag na DOM pra Aba de Pasta
+        if (dist < -50) node.setAttribute('data-drawer-side', 'left');
+        else if (dist > 50) node.setAttribute('data-drawer-side', 'right');
+        else node.setAttribute('data-drawer-side', 'center');
+      }
+
       let translateZ = -transitionFactor * 150 + (40 * hoverFactor); 
-      
-      // rotateY: Inclinação FIXA para as cartas laterais (como pastas)
-      // O hover também "desentorta" levemente a carta pra você conseguir ler
-      let rotateY = (Math.sign(dist) * transitionFactor * -25) * (1 - (hoverFactor * 0.5)); 
       
       let opacity = 1;
       let dormancyDarkness = transitionFactor * 0.5 * (1 - hoverFactor); // Clareia ao passar o mouse
-      let isFocused = false;
 
-      if (absDist < 50) {
-        isFocused = true;
+      if (isFocused) {
         dormancyDarkness = 0;
       }
 
@@ -146,18 +153,12 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
       } else {
         opacity = Math.max(1 - (absDist / 1000), 0);
       }
-
-      // Adiciona flag na DOM pra Aba de Pasta
-      if (dist < -50) {
-        node.setAttribute('data-drawer-side', 'left');
-      } else if (dist > 50) {
-        node.setAttribute('data-drawer-side', 'right');
-      } else {
-        node.setAttribute('data-drawer-side', 'center');
-      }
+      
+      // Override: Se o mouse estiver em cima, a opacidade sobrepõe o fading da distância
+      opacity = Math.max(opacity, hoverFactor);
 
       // DIRECT DOM MANIPULATION (Zero React Reflows)
-      node.style.transform = `translate3d(${translateX}px, ${translateY}px, ${translateZ}px) rotateY(${rotateY}deg)`;
+      node.style.transform = `translate3d(${translateX}px, ${translateY}px, ${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
       node.style.opacity = opacity.toString();
       node.style.setProperty('--dormancy-darkness', dormancyDarkness.toString());
       
@@ -192,26 +193,50 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
     };
   }, []);
 
-  // Event Hijacking
-  const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    
-    const now = Date.now();
-    // Cooldown de 250ms: Impede que mouses infinitos ou trackpads spamem o scroll e "teleportem" a galeria
-    if (now - lastWheelTimeRef.current < 250) return;
-    lastWheelTimeRef.current = now;
+  // Event Hijacking (Nativo para garantir bloqueio do body scroll)
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
 
-    // Desliga a flag de toque manual para a Física de Mola assumir o controle
-    isScrollingRef.current = false;
+    const onNativeWheel = (e: globalThis.WheelEvent) => {
+      // Pega o elemento exato onde o mouse está em cima
+      const target = e.target as HTMLElement;
+      const isOverTrack = target.closest('.flip-drawer-track');
 
-    const direction = Math.sign(e.deltaY);
-    const currentSnap = Math.round(offsetRef.current / ITEM_SPACING) * ITEM_SPACING;
-    
-    // Manda a física rolar exatamente 1 carta de distância
-    scrollToTargetRef.current = currentSnap + (direction * ITEM_SPACING);
-  };
+      // Se não estiver em cima da trilha, OU se só houver 1 carta, deixa a página rolar normalmente
+      if (!isOverTrack || exams.length <= 1) return;
+
+      const direction = Math.sign(e.deltaY);
+      const maxOffsetLimit = Math.max(0, (exams.length - 1) * ITEM_SPACING);
+
+      // Permite o scroll da página se já estiver no limite e tentar rolar para fora
+      if (direction < 0 && offsetRef.current <= 0) return;
+      if (direction > 0 && offsetRef.current >= maxOffsetLimit) return;
+
+      e.preventDefault(); // Bloqueia o scroll da página apenas se estiver focado na área da galeria
+      
+      const now = Date.now();
+      // Cooldown de 250ms: Impede mouses soltos de "teleportarem"
+      if (now - lastWheelTimeRef.current < 250) return;
+      lastWheelTimeRef.current = now;
+
+      // Desliga a flag manual para a Física de Mola assumir o controle
+      isScrollingRef.current = false;
+
+      const currentSnap = Math.round(offsetRef.current / ITEM_SPACING) * ITEM_SPACING;
+      
+      // Manda a física rolar exatamente 1 carta de distância
+      scrollToTargetRef.current = currentSnap + (direction * ITEM_SPACING);
+    };
+
+    container.addEventListener('wheel', onNativeWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', onNativeWheel);
+    };
+  }, [ITEM_SPACING, exams.length]);
 
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    if (exams.length <= 1) return;
     touchStartY.current = e.touches[0].clientY;
     isScrollingRef.current = true;
     scrollToTargetRef.current = null; // Interrompe scroll autônomo
@@ -219,6 +244,7 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
   };
   
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (exams.length <= 1) return;
     const currentY = e.touches[0].clientY;
     const delta = (touchStartY.current - currentY) * 2.0; // Voltou pro multiplicador seguro
     touchStartY.current = currentY;
@@ -293,7 +319,6 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
       <div 
         className="flip-drawer-wrapper"
         ref={containerRef}
-        onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -318,11 +343,8 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
                   onClick={() => {
                     const targetOffset = index * ITEM_SPACING;
                     const currentSnap = Math.round(offsetRef.current / ITEM_SPACING) * ITEM_SPACING;
-                    
-                    // Lógica de distância circular para achar o caminho mais curto no loop infinito
-                    let dist = (targetOffset - currentSnap) % totalLength;
-                    if (dist < -totalLength / 2) dist += totalLength;
-                    else if (dist > totalLength / 2) dist -= totalLength;
+                    // Distância linear simples, já que a galeria não é mais infinita/circular
+                    let dist = targetOffset - currentSnap;
 
                     if (Math.abs(dist) < 10) {
                       // Está cravada no centro! Pode abrir o exame.

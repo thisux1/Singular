@@ -1,8 +1,10 @@
 .flip-drawer-wrapper {
   position: relative;
-  width: 100%;
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
   height: 600px;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,7 +94,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ─── FLAT HUD OVERLAY (Outside 3D Perspective) ─── */
@@ -164,8 +166,8 @@
 .fui-dots span:first-child { background: rgba(250, 204, 21, 0.8); box-shadow: 0 0 5px rgba(250, 204, 21, 0.8); }
 
 .fui-radar { width: 40px; height: 40px; border: 1px solid rgba(234, 88, 12, 0.4); border-radius: 50%; position: relative; margin-left: auto; overflow: hidden; }
-.fui-radar-sweep { position: absolute; inset: 0; background: conic-gradient(from 0deg, transparent 70%, rgba(234, 88, 12, 0.8) 100%); animation: fui-radar-spin 2s linear infinite; }
-@keyframes fui-radar-spin { 100% { transform: rotate(360deg); } }
+.fui-radar-sweep { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(from 0deg, transparent 70%, rgba(234, 88, 12, 0.8) 100%); animation: fui-radar-spin 2s linear infinite; }
+@keyframes fui-radar-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* BRACKETS */
 .fui-top-bracket {
@@ -208,3 +210,9 @@
 
 .fui-scanline { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(250, 204, 21, 0.6); box-shadow: 0 0 10px rgba(250, 204, 21, 0.8); animation: fui-laser-scan 4s ease-in-out infinite alternate; }
 @keyframes fui-laser-scan { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(640px); opacity: 0; } }
+
+@media (max-width: 768px) {
+  .flip-drawer-wrapper {
+    height: 800px;
+  }
+}
