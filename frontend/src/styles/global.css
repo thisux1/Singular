@@ -11,6 +11,11 @@ html, body {
   overflow-x: hidden;
 }
 
+html {
+  /* Solução moderna e elegante para simetria: reserva espaço igual ao da scrollbar no lado esquerdo */
+  scrollbar-gutter: stable both-edges;
+}
+
 /* ─── Custom Scrollbar ─── */
 ::-webkit-scrollbar {
   width: 6px;
@@ -96,7 +101,8 @@ html, body {
 .page-container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--page-padding);
+  /* Espaçamento responsivo inteligente: 16px no mobile, até 48px no desktop para isolar da scrollbar */
+  padding: 0 clamp(16px, 5vw, 48px);
 }
 
 .page-container--narrow {
@@ -104,7 +110,8 @@ html, body {
 }
 
 .page {
-  padding: var(--space-8) 0;
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
   animation: fade-in-up var(--duration-slow) var(--ease-out) both;
 }
 

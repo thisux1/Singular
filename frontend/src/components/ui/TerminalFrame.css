@@ -27,6 +27,7 @@
   background: rgba(10, 5, 5, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  clip-path: polygon(0 0, calc(100% - var(--terminal-cut) - 2px) 0, 100% calc(var(--terminal-cut) + 2px), 100% 100%, calc(var(--terminal-cut) + 2px) 100%, 0 calc(100% - var(--terminal-cut) - 2px));
   z-index: -1;
 }
 
@@ -79,7 +80,7 @@
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.2);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
   z-index: -1;
   pointer-events: none;
 }

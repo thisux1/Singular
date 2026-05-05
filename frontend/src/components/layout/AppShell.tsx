@@ -1,4 +1,6 @@
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
+import { AnimatePresence } from 'framer-motion';
+import { PageTransition } from '../effects/PageTransition';
 import { GrainOverlay } from '../effects/GrainOverlay';
 import { ToastContainer } from '../ui/Toast';
 import { useMousePosition } from '../../hooks/useMousePosition';
@@ -59,6 +61,8 @@ function DomCursor() {
 }
 
 export function AppShell() {
+  const location = useLocation();
+
   return (
     <div className="app-shell">
       <SingularityCanvas />
@@ -67,7 +71,11 @@ export function AppShell() {
       <div className="app-shell__content">
         <Navbar />
         <main className="app-shell__main">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <PageTransition locationKey={location.pathname}>
+              <Outlet />
+            </PageTransition>
+          </AnimatePresence>
         </main>
       </div>
       <DomCursor />
