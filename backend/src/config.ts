@@ -30,7 +30,7 @@ function clampNumber(value: number, min: number, max: number): number {
 export const config = {
   port: parseNumber(process.env.PORT, 3001),
   redisUrl: process.env.REDIS_URL ?? 'redis://localhost:6379',
-  databaseUrl: process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/quizsaber',
+  databaseUrl: process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/singular',
   uploadDir: process.env.UPLOAD_DIR ?? './uploads',
   maxUploadSizeBytes: parseNumber(process.env.MAX_UPLOAD_SIZE_MB, 25) * 1024 * 1024,
   syncFallback: process.env.SYNC_FALLBACK === 'true',

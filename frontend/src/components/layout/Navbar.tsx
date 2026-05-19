@@ -34,7 +34,7 @@ export function Navbar() {
       <div className="navbar__inner page-container">
         <Link className="navbar__brand heading-3" to="/">
           <span className="navbar__brand-icon">⌘</span>
-          QuizSaber
+          Singular
         </Link>
 
         <nav className="navbar__nav" aria-label="Navegação principal">

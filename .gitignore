@@ -62,3 +62,7 @@ screenshot_parallax_actions.png
 screenshot.png
 screenshot_bugfix.png
 screenshot_sidebadge.png
+
+# Editor / Tooling local configs
+opencode.json
+HOLISTIC_PARSER_PLAN.md

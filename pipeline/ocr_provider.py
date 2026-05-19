@@ -58,7 +58,7 @@ def _pdf_to_images(
 
     images = convert_from_path(file_path, **convert_kwargs)
     paths: list[str] = []
-    tmp_dir = tempfile.mkdtemp(prefix="quizsaber_ocr_")
+    tmp_dir = tempfile.mkdtemp(prefix="singular_ocr_")
     for i, img in enumerate(images):
         p = os.path.join(tmp_dir, f"page_{i:03d}.png")
         img.save(p, "PNG")

@@ -6,6 +6,6 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/quizsaber',
+    url: process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/singular',
   },
 });
