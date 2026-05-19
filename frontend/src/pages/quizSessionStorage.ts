@@ -1,5 +1,5 @@
-const EXAM_SESSION_MAP_KEY = 'quizsaber:exam-session-map';
-const SESSION_EXAM_MAP_KEY = 'quizsaber:session-exam-map';
+const EXAM_SESSION_MAP_KEY = 'singular:exam-session-map';
+const SESSION_EXAM_MAP_KEY = 'singular:session-exam-map';
 
 type MapShape = Record<string, string>;
 

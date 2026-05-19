@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:16-alpine
-    container_name: quizsaber-db
+    container_name: singular-db
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -16,7 +16,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: quizsaber-redis
+    container_name: singular-redis
     restart: always
     ports:
       - '6379:6379'
@@ -25,7 +25,7 @@ services:
   # Start with: docker compose --profile local-ocr up
   ollama:
     image: ollama/ollama
-    container_name: quizsaber-ollama
+    container_name: singular-ollama
     profiles:
       - local-ocr
     restart: unless-stopped
