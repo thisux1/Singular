@@ -116,7 +116,7 @@
   --max-width-wide: 1440px;
   --navbar-height: 64px;
   --page-padding: var(--space-10);
-  --terminal-cut-card: 16px;
+  --terminal-cut-card: var(--terminal-cut);
   --btn-cut: 12px;
   --terminal-padding-h: clamp(20px, 4vw, 48px);
   --terminal-padding-v: clamp(24px, 3vw, 32px);

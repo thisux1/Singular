@@ -122,7 +122,7 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
 
     client = instructor.from_genai(
         client=genai.Client(api_key=api_key),
-        mode=instructor.Mode.GEMINI_JSON,
+        mode=instructor.Mode.GENAI_STRUCTURED_OUTPUTS,
     )
 
     prompt = (
