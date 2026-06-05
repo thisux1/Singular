@@ -140,6 +140,25 @@ class OllamaOCRProvider(OCRProvider):
     ) -> tuple[str, float]:
         _log_stderr(f"Ollama OCR: model={self.model}, file={file_path}")
 
+        # Try direct text extraction first if PDF has selectable text
+        if file_path.lower().endswith(".pdf"):
+            try:
+                import fitz  # type: ignore  # PyMuPDF
+
+                _log_stderr("Attempting direct text extraction via PyMuPDF...")
+                doc = fitz.open(file_path)
+                start_index = max((page_start or 1) - 1, 0)
+                end_index = min((page_end or len(doc)), len(doc))
+                pages_text = [doc[i].get_text() for i in range(start_index, end_index)]
+                doc.close()
+                combined = "\n\n".join(pages_text)
+                if len(_normalize_whitespace(combined)) > 100:
+                    _log_stderr(f"Direct text extraction successful! Extracted {len(combined)} chars.")
+                    return combined, 1.0
+                _log_stderr("Direct text extraction returned insufficient text. Falling back to VLM OCR.")
+            except Exception as exc:
+                _log_stderr(f"Direct text extraction failed/skipped: {exc}. Falling back to VLM OCR.")
+
         # Prepare images from input file
         if file_path.lower().endswith(".pdf"):
             image_paths = _pdf_to_images(

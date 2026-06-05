@@ -20,7 +20,7 @@
   border: none;
   display: flex;
   flex-direction: column;
-  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  clip-path: polygon(var(--terminal-cut) 0, 100% 0, 100% calc(100% - var(--terminal-cut)), calc(100% - var(--terminal-cut)) 100%, 0 100%, 0 var(--terminal-cut));
 }
 
 .exam-detail__terminal::before {
@@ -28,8 +28,8 @@
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.2);
-  /* Sculpted continuous border without top-right cut */
-  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  /* Sculpted continuous border */
+  clip-path: polygon(var(--terminal-cut) 0, 100% 0, 100% calc(100% - var(--terminal-cut)), calc(100% - var(--terminal-cut)) 100%, 0 100%, 0 var(--terminal-cut));
   z-index: -2;
   transition: background 0.3s ease;
 }
@@ -42,7 +42,7 @@
   background: rgba(10, 5, 5, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  clip-path: polygon(0 0, calc(100% - var(--terminal-cut)) 0, 100% var(--terminal-cut), 100% 100%, var(--terminal-cut) 100%, 0 calc(100% - var(--terminal-cut)));
+  clip-path: polygon(var(--terminal-cut) 0, 100% 0, 100% calc(100% - var(--terminal-cut)), calc(100% - var(--terminal-cut)) 100%, 0 100%, 0 var(--terminal-cut));
   z-index: -1;
 }
 

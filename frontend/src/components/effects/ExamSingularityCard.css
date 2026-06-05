@@ -12,12 +12,16 @@
   transform-style: preserve-3d;
   transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+
+  /* Concentric bevel system */
+  --card-outer-cut: var(--terminal-cut-card);
+  --card-inner-cut: max(8px, calc(var(--card-outer-cut) - 24px));
 }
 
 .exam-singularity__hole-mask {
   position: absolute;
   inset: 0;
-  clip-path: polygon(var(--terminal-cut-card) 0, 100% 0, 100% calc(100% - var(--terminal-cut-card)), calc(100% - var(--terminal-cut-card)) 100%, 0 100%, 0 var(--terminal-cut-card));
+  clip-path: polygon(var(--card-outer-cut) 0, 100% 0, 100% calc(100% - var(--card-outer-cut)), calc(100% - var(--card-outer-cut)) 100%, 0 100%, 0 var(--card-outer-cut));
   box-shadow: 
     inset 0 20px 50px rgba(0, 0, 0, 0.9),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -209,7 +213,7 @@
 .exam-singularity__glass-panel::after {
   content: '';
   position: absolute;
-  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  clip-path: polygon(var(--card-inner-cut) 0, 100% 0, 100% calc(100% - var(--card-inner-cut)), calc(100% - var(--card-inner-cut)) 100%, 0 100%, 0 var(--card-inner-cut));
   pointer-events: none;
 }
 
@@ -286,7 +290,7 @@
   animation: examScanData 2s linear infinite;
   pointer-events: none;
   z-index: -1;
-  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  clip-path: polygon(var(--card-inner-cut) 0, 100% 0, 100% calc(100% - var(--card-inner-cut)), calc(100% - var(--card-inner-cut)) 100%, 0 100%, 0 var(--card-inner-cut));
 }
 
 @keyframes examScanData {
@@ -327,7 +331,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 15;
-  clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px);
+  clip-path: polygon(var(--card-outer-cut) 0, 100% 0, 100% calc(100% - var(--card-outer-cut)), calc(100% - var(--card-outer-cut)) 100%, 0 100%, 0 var(--card-outer-cut));
 }
 
 /* We cancel mouse tracking in the glitch copies to make them disjointed */
@@ -557,7 +561,7 @@
   background: rgba(10, 5, 5, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  clip-path: polygon(var(--terminal-cut-card) 0, 100% 0, 100% calc(100% - var(--terminal-cut-card)), calc(100% - var(--terminal-cut-card)) 100%, 0 100%, 0 var(--terminal-cut-card));
+  clip-path: polygon(var(--card-outer-cut) 0, 100% 0, 100% calc(100% - var(--card-outer-cut)), calc(100% - var(--card-outer-cut)) 100%, 0 100%, 0 var(--card-outer-cut));
   display: flex;
   flex-direction: column;
   justify-content: center;
