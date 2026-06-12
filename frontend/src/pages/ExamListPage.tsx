@@ -2,12 +2,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
 import { useNavigate } from 'react-router';
 import { ApiError } from '../api/client';
-import { fetchCargoTemplates, fetchExams, uploadExam } from '../api/exams';
+import { deleteExam, fetchCargoTemplates, fetchExams, uploadExam } from '../api/exams';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Skeleton } from '../components/ui/Skeleton';
 import { toast } from '../components/ui/ToastUtils';
-import { GravitationalCard } from '../components/effects/GravitationalCard';
 import { ExamSingularityCard } from '../components/effects/ExamSingularityCard';
 import { FlipDrawerGallery } from '../components/effects/FlipDrawerGallery';
 import { AnimatedFileIcon } from '../components/ui/AnimatedIcons';
@@ -76,6 +75,17 @@ export function ExamListPage() {
         return;
       }
       toast('Erro de rede ao enviar prova.', 'error');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteExam(id),
+    onSuccess: async () => {
+      toast('Dados dissipados do núcleo.', 'info');
+      await examsQuery.refetch();
+    },
+    onError: (error) => {
+      toast(error instanceof Error ? error.message : 'Falha ao dissipar dados.', 'error');
     },
   });
 
@@ -182,7 +192,7 @@ export function ExamListPage() {
     cargoTemplateId: cargoTemplateId || null,
   };
 
-  const logs = [];
+  const logs: string[] = [];
   if (provaFile) logs.push(`> [FILE] ${provaFile.name} (VALID)`);
   if (gabaritoFile) logs.push(`> [GAB] ${gabaritoFile.name} (VALID)`);
   if (title) logs.push(`> [TITLE] ${title}`);
@@ -476,11 +486,18 @@ export function ExamListPage() {
           <FlipDrawerGallery
             exams={examsQuery.data}
             onExamClick={(exam) => navigate(`/exam/${exam.id}`)}
-            onExamEdit={() => {
-              toast('Módulo de edição em desenvolvimento.', 'info');
+            onExamEdit={(exam) => {
+              if (exam.status === 'reviewing' || exam.status === 'completed') {
+                navigate(`/exam/${exam.id}/review`);
+              } else {
+                navigate(`/exam/${exam.id}`);
+              }
             }}
-            onExamDelete={() => {
-              toast('Módulo de exclusão em desenvolvimento.', 'info');
+            onExamDelete={(exam) => {
+              const confirmed = window.confirm(`Deseja realmente dissipar os dados da prova "${exam.title}"?`);
+              if (confirmed) {
+                deleteMutation.mutate(exam.id);
+              }
             }}
           />
         )}

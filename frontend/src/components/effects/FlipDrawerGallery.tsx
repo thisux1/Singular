@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState, WheelEvent, TouchEvent } from 'react';
+import { useEffect, useRef } from 'react';
+import type { TouchEvent } from 'react';
 import type { Exam } from '../../api/exams';
 import { ExamSingularityCard } from './ExamSingularityCard';
 import './FlipDrawerGallery.css';
@@ -20,9 +21,9 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
   // BYPASS REACT RENDER: We store scroll offset in a mutable ref
   const offsetRef = useRef(0);
   const touchStartY = useRef(0);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | null>(null);
   const isScrollingRef = useRef(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const scrollTimeoutRef = useRef<any>(null);
   // Controle de auto-scroll
   const scrollToTargetRef = useRef<number | null>(null);
   const lastWheelTimeRef = useRef<number>(0);
@@ -37,7 +38,6 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
     hoverPhysicsRef.current = new Array(displayExams.length).fill(0);
   }
 
-  const ITEM_SPACING = 250;
   // O tamanho exato do universo
   const maxOffset = Math.max(0, (displayExams.length - 1) * ITEM_SPACING);
 
@@ -355,8 +355,8 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
                       isScrollingRef.current = false; // Garante que a mola assuma o controle
                     }
                   }}
-                  onEdit={(e) => onExamEdit?.(exam, e)}
-                  onDelete={(e) => onExamDelete?.(exam, e)}
+                  onEdit={() => onExamEdit?.(exam)}
+                  onDelete={() => onExamDelete?.(exam)}
                 />
               </div>
             </div>

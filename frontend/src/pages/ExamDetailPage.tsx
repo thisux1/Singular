@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router';
 import { ApiError } from '../api/client';
-import { deleteExam, fetchExam, fetchExamQuestions, publishExam } from '../api/exams';
+import { deleteExam, fetchExam, fetchExamQuestions, publishExam, reprocessExam } from '../api/exams';
 import { startQuiz } from '../api/quiz';
 import { Button } from '../components/ui/Button';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -102,6 +102,17 @@ export function ExamDetailPage() {
     },
     onError: (error) => {
       toast(error instanceof Error ? error.message : 'Falha ao dissipar dados.', 'error');
+    },
+  });
+
+  const reprocessMutation = useMutation({
+    mutationFn: () => reprocessExam(id),
+    onSuccess: async () => {
+      toast('Processamento reiniciado.', 'success');
+      await examQuery.refetch();
+    },
+    onError: (error) => {
+      toast(error instanceof Error ? error.message : 'Falha ao reprocessar.', 'error');
     },
   });
 
@@ -248,6 +259,16 @@ export function ExamDetailPage() {
           >
             Consolidar Evento
           </Button>
+
+          {exam.status === 'failed' && (
+            <Button
+              variant="primary"
+              onClick={() => reprocessMutation.mutate()}
+              loading={reprocessMutation.isPending}
+            >
+              Reprocessar
+            </Button>
+          )}
 
           <div className="exam-detail__footer-spacer" />
 

@@ -75,6 +75,14 @@ export interface ProcessClassificationJobData {
 
 export async function enqueueExamProcessing(data: ProcessExamJobData): Promise<void> {
   const queue = ensureQueue();
+  try {
+    const job = await queue.getJob(data.examId);
+    if (job) {
+      await job.remove();
+    }
+  } catch (err) {
+    // ignore
+  }
   await queue.add('process-exam', data, {
     jobId: data.examId,
   });
