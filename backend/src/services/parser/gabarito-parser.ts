@@ -68,31 +68,45 @@ export function parseGabarito(
     return result;
   }
 
-  // Multiple sections — pick preferred or section with higher pair density
-  let targetSection: GabaritoSection | null = null;
+  // Multiple sections
   const normalizedPreferredType = normalizeProvaType(preferredProvaType);
+  let candidateSections = sections;
 
   if (normalizedPreferredType) {
-    targetSection = sections.find((s) => s.provaType === normalizedPreferredType) ?? null;
-    if (targetSection) {
-      log('info', `Usando seção da Prova ${normalizedPreferredType}`);
+    const matching = sections.filter((s) => s.provaType === normalizedPreferredType);
+    if (matching.length > 0) {
+      log('info', `Filtrando seções para Prova ${normalizedPreferredType} (encontradas: ${matching.length})`);
+      candidateSections = matching;
     } else {
-      log('warning', `Prova ${normalizedPreferredType} não encontrada nas seções. Selecionando seção com maior cobertura.`);
+      log('warning', `Prova ${normalizedPreferredType} não encontrada. Usando todas as seções.`);
     }
   }
 
-  if (!targetSection) {
-    targetSection = sections
+  // Check if there are different non-null provaTypes among candidateSections
+  const nonNullTypes = new Set(candidateSections.map((s) => s.provaType).filter(Boolean));
+
+  if (nonNullTypes.size > 1) {
+    // Conflicting non-null types (e.g. 'A' and 'B'). We must pick the best single section.
+    log('info', `Detectadas seções conflitantes (${Array.from(nonNullTypes).join(', ')}). Selecionando a de maior cobertura.`);
+    const targetSection = candidateSections
       .map((section) => ({ section, pairCount: countPairsInLines(section.lines) }))
-      .sort((a, b) => b.pairCount - a.pairCount)[0]?.section ?? sections[0];
+      .sort((a, b) => b.pairCount - a.pairCount)[0]?.section ?? candidateSections[0];
+
+    log(
+      'info',
+      `Seção única selecionada: ${targetSection.headerText || 'sem header'} (prova ${targetSection.provaType || '?'})`,
+    );
+    return parseGabaritoSection(targetSection.lines, targetSection.provaType, parsingLog);
+  } else {
+    // All candidates have the same type or are null. We can safely merge all their lines!
+    log('info', `Mesclando ${candidateSections.length} seções não-conflitantes.`);
+    const mergedLines: LayoutLine[] = [];
+    candidateSections.forEach((s) => {
+      mergedLines.push(...s.lines);
+    });
+    const finalProvaType = candidateSections[0]?.provaType || null;
+    return parseGabaritoSection(mergedLines, finalProvaType, parsingLog);
   }
-
-  log(
-    'info',
-    `Seção selecionada: ${targetSection.headerText || 'sem header'} (prova ${targetSection.provaType || '?'})`,
-  );
-
-  return parseGabaritoSection(targetSection.lines, targetSection.provaType, parsingLog);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -174,7 +188,7 @@ function parseGabaritoSection(
   lines.forEach((line) => {
     if (CESGRANRIO_PATTERNS.GABARITO_ANNULLED.test(line.text)) {
       // Try to find nearby question number
-      const nearby = line.text.match(/(\d{1,2})/);
+      const nearby = line.text.match(/(\d{1,3})/);
       if (nearby) {
         const qId = parseInt(nearby[1], 10);
         if (!annulled.includes(qId)) {
@@ -194,7 +208,7 @@ function parseGabaritoSection(
   });
 
   const count = Object.keys(gabaritoMap).length + annulled.length;
-  log('info', `Gabarito extraído: ${Object.keys(gabaritoMap).length} respostas + ${annulled.length} anuladas (total ${count})`);
+  log('info', `Gabarito e parcial: ${Object.keys(gabaritoMap).length} respostas + ${annulled.length} anuladas (total ${count})`);
 
   if (count < 10) {
     log('warning', `Poucas respostas encontradas (${count}). O formato do PDF pode ser diferente do esperado.`);

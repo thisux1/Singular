@@ -161,7 +161,6 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
             <div className="exam-singularity__glitch-layer glitch-layer-1">
               <div className="exam-singularity__content-layer glitch-content-layer">
                 <div className="exam-singularity__glass-panel">
-                  {exam.status === 'processing' && <div className="exam-singularity__scan-line" />}
                   <CardContent />
                 </div>
               </div>
@@ -169,7 +168,6 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
             <div className="exam-singularity__glitch-layer glitch-layer-2">
               <div className="exam-singularity__content-layer glitch-content-layer">
                 <div className="exam-singularity__glass-panel">
-                  {exam.status === 'processing' && <div className="exam-singularity__scan-line" />}
                   <CardContent />
                 </div>
               </div>

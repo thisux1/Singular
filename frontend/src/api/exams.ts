@@ -131,3 +131,9 @@ export async function fetchExamQuestions(id: string): Promise<Question[]> {
   const data = await apiFetch<QuestionsResponse>(`/exams/${id}/questions`);
   return data.questions;
 }
+
+export function reprocessExam(id: string): Promise<{ exam_id: string; status: ExamStatus }> {
+  return apiFetch<{ exam_id: string; status: ExamStatus }>(`/exams/${id}/reprocess`, {
+    method: 'POST',
+  });
+}

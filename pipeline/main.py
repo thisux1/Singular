@@ -117,6 +117,7 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
     try:
         from google import genai  # type: ignore
         import instructor
+        import time
     except ImportError as exc:
         raise RuntimeError(f"IMPORT_ERROR:{exc}") from exc
 
@@ -125,22 +126,102 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
         mode=instructor.Mode.GENAI_STRUCTURED_OUTPUTS,
     )
 
-    prompt = (
-        "Extraia as questões objetivas do texto fornecido. "
-        "Mantenha a numeração original e extraia as alternativas.\n\n"
-        f"Texto:\n{source_text[:12000]}"
-    )
+    def chunk_text(text: str, max_chars: int = 30000) -> list[str]:
+        if "\n\n---\n\n" in text:
+            parts = text.split("\n\n---\n\n")
+            chunks = []
+            current_chunk = []
+            current_len = 0
+            for part in parts:
+                if current_len + len(part) > max_chars and current_chunk:
+                    chunks.append("\n\n---\n\n".join(current_chunk))
+                    current_chunk = [part]
+                    current_len = len(part)
+                else:
+                    current_chunk.append(part)
+                    current_len += len(part) + 7
+            if current_chunk:
+                chunks.append("\n\n---\n\n".join(current_chunk))
+            return chunks
+        else:
+            lines = text.split("\n")
+            chunks = []
+            current_chunk = []
+            current_len = 0
+            for line in lines:
+                if current_len + len(line) > max_chars and current_chunk:
+                    chunks.append("\n".join(current_chunk))
+                    current_chunk = [line]
+                    current_len = len(line)
+                else:
+                    current_chunk.append(line)
+                    current_len += len(line) + 1
+            if current_chunk:
+                chunks.append("\n".join(current_chunk))
+            return chunks
 
-    try:
-        response = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model=payload.gemini_model,
-            response_model=QuestionsPayload,
-            max_retries=2,
+    chunks = chunk_text(source_text, max_chars=30000)
+    _log_stderr(f"Split source text into {len(chunks)} chunks for parallel processing")
+
+    all_questions = []
+    seen_orders = set()
+
+    def process_chunk(idx: int, chunk: str) -> list[Question]:
+        _log_stderr(f"Processing chunk {idx + 1}/{len(chunks)} ({len(chunk)} chars)...")
+        prompt = (
+            "Extraia as questões objetivas do texto fornecido. "
+            "Mantenha a numeração original e extraia as alternativas.\n\n"
+            f"Texto:\n{chunk}"
         )
-        return response
-    except Exception as exc:
-        raise RuntimeError(f"GEMINI_EXTRACTION_FAILED: {str(exc)}") from exc
+
+        models_to_try = [payload.gemini_model]
+        if payload.gemini_model == "gemini-2.5-flash":
+            models_to_try.append("gemini-2.5-flash-lite")
+        elif payload.gemini_model == "gemini-2.5-flash-lite":
+            models_to_try.append("gemini-2.5-flash")
+
+        chunk_questions = []
+        last_exception = None
+        for model in models_to_try:
+            try:
+                _log_stderr(f"  [Chunk {idx + 1}] Attempting Gemini extraction with model: {model}")
+                response = client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model=model,
+                    response_model=QuestionsPayload,
+                    max_retries=3,
+                )
+                chunk_questions = response.questions
+                break
+            except Exception as exc:
+                _log_stderr(f"  [Chunk {idx + 1}] Extraction failed with model {model}: {exc}")
+                last_exception = exc
+
+        if not chunk_questions and last_exception:
+            raise RuntimeError(f"GEMINI_EXTRACTION_FAILED on chunk {idx + 1}: {str(last_exception)}") from last_exception
+
+        return chunk_questions
+
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+        futures = {executor.submit(process_chunk, idx, chunk): idx for idx, chunk in enumerate(chunks)}
+        results = {}
+        for future in concurrent.futures.as_completed(futures):
+            idx = futures[future]
+            try:
+                results[idx] = future.result()
+            except Exception as exc:
+                _log_stderr(f"Parallel processing failed on chunk {idx + 1}: {exc}")
+                raise exc
+
+    for idx in sorted(results.keys()):
+        for q in results[idx]:
+            if q.order not in seen_orders:
+                all_questions.append(q)
+                seen_orders.add(q.order)
+
+    all_questions.sort(key=lambda x: x.order)
+    return QuestionsPayload(questions=all_questions)
 
 def build_success(
     *,
