@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 380" width="100%" height="100%">
+  <defs>
+    <!-- Background grid pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(234, 88, 12, 0.04)" stroke-width="1"/>
+      <circle cx="40" cy="0" r="1" fill="rgba(234, 88, 12, 0.15)"/>
+    </pattern>
+
+    <!-- Glow filters for the singularity and text -->
+    <filter id="glow-orange" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15" result="blur1"/>
+      <feGaussianBlur stdDeviation="30" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="25" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Linear Gradients -->
+    <linearGradient id="grad-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="50%" stop-color="#b91c1c"/>
+      <stop offset="100%" stop-color="#facc15"/>
+    </linearGradient>
+
+    <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    /* CSS Animations for high-fidelity interactive elements */
+    
+    @keyframes orbit-cw {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes orbit-ccw {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    @keyframes pulse-core {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      100% { transform: scale(1.05); opacity: 1; }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.9; }
+    }
+
+    @keyframes scanner {
+      0% { transform: translateY(-10px); opacity: 0; }
+      10% { opacity: 0.8; }
+      90% { opacity: 0.8; }
+      100% { transform: translateY(390px); opacity: 0; }
+    }
+
+    @keyframes glitch-text {
+      0%, 100% { transform: translate(0); }
+      92% { transform: translate(0); }
+      93% { transform: translate(-2px, 1px); }
+      94% { transform: translate(1px, -1px); }
+      95% { transform: translate(0); }
+    }
+
+    /* Target classes */
+    .bg-main { fill: #050202; }
+    .grid-bg { fill: url(#grid); }
+    
+    .singularity-core {
+      transform-origin: 300px 190px;
+      animation: pulse-core 3s ease-in-out infinite alternate;
+    }
+
+    .ring-outer {
+      transform-origin: 300px 190px;
+      animation: orbit-cw 25s linear infinite;
+    }
+
+    .ring-inner {
+      transform-origin: 300px 190px;
+      animation: orbit-ccw 15s linear infinite;
+    }
+
+    .star {
+      animation: twinkle 4s ease-in-out infinite;
+    }
+    .star-delay-1 { animation-delay: 1s; }
+    .star-delay-2 { animation-delay: 2.5s; }
+
+    .scan-line {
+      animation: scanner 6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+    }
+
+    .glitch-active {
+      animation: glitch-text 5s infinite;
+    }
+
+    .font-tech {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+
+    .font-title {
+      font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+      font-weight: 800;
+      letter-spacing: 12px;
+    }
+  </style>
+
+  <!-- BACKGROUND -->
+  <rect class="bg-main" width="100%" height="100%"/>
+  <rect class="grid-bg" width="100%" height="100%"/>
+
+  <!-- GLOWING SPATIAL DUST & STARS -->
+  <g opacity="0.6">
+    <circle class="star" cx="150" cy="80" r="1.5" fill="#fff" />
+    <circle class="star star-delay-1" cx="80" cy="220" r="1" fill="#facc15" />
+    <circle class="star star-delay-2" cx="240" cy="310" r="1.5" fill="#38bdf8" />
+    <circle class="star star-delay-1" cx="480" cy="90" r="1" fill="#fff" />
+    <circle class="star star-delay-2" cx="520" cy="280" r="2" fill="#ea580c" />
+    <circle class="star" cx="1100" cy="70" r="1" fill="#fff" />
+    <circle class="star star-delay-1" cx="1050" cy="290" r="1.5" fill="#38bdf8" />
+    <circle class="star star-delay-2" cx="950" cy="110" r="1" fill="#facc15" />
+  </g>
+
+  <!-- SCANNER LINE EFFECT -->
+  <rect class="scan-line" x="0" y="0" width="1200" height="2" fill="rgba(234, 88, 12, 0.25)" filter="url(#glow-orange)" />
+
+  <!-- DECAL CORNER BORDERS -->
+  <path d="M 20,40 L 20,20 L 40,20" fill="none" stroke="rgba(234, 88, 12, 0.4)" stroke-width="2"/>
+  <path d="M 1180,40 L 1180,20 L 1160,20" fill="none" stroke="rgba(234, 88, 12, 0.4)" stroke-width="2"/>
+  <path d="M 20,340 L 20,360 L 40,360" fill="none" stroke="rgba(234, 88, 12, 0.4)" stroke-width="2"/>
+  <path d="M 1180,340 L 1180,360 L 1160,360" fill="none" stroke="rgba(234, 88, 12, 0.4)" stroke-width="2"/>
+
+  <!-- DECAL TECH MEASURES -->
+  <text x="30" y="45" class="font-tech" fill="rgba(255,255,255,0.2)" font-size="9" letter-spacing="1">LATENCY: 12MS</text>
+  <text x="30" y="60" class="font-tech" fill="rgba(255,255,255,0.2)" font-size="9" letter-spacing="1">GRID_SYS: ACTIVE</text>
+  <text x="1080" y="45" class="font-tech" fill="rgba(255,255,255,0.2)" font-size="9" letter-spacing="1" text-anchor="end">SYS_LOC: [0x7F_ORBIT]</text>
+  <text x="1170" y="45" class="font-tech" fill="#ea580c" font-size="9" font-weight="bold" letter-spacing="1" text-anchor="end">● LIVE</text>
+  
+  <!-- LEFT: THE SINGULARITY (3D BLACK HOLE EFFECT) -->
+  <g transform="translate(0, 0)">
+    <!-- Nebula Background Glow -->
+    <circle cx="300" cy="190" r="140" fill="url(#grad-accent)" opacity="0.12" filter="url(#glow-red)" />
+    
+    <!-- External Accretion Disk (Deformed Oval in 3D Perspective) -->
+    <g transform="translate(300, 190) rotate(-22) scale(1, 0.35) translate(-300, -190)">
+      <!-- Outer Ring 1 -->
+      <circle class="ring-outer" cx="300" cy="190" r="150" fill="none" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="100 20 50 15 200 40" filter="url(#glow-orange)" opacity="0.8"/>
+      <!-- Inner Ring 2 -->
+      <circle class="ring-inner" cx="300" cy="190" r="110" fill="none" stroke="#facc15" stroke-width="1" stroke-dasharray="80 40 120 20" filter="url(#glow-orange)" opacity="0.9"/>
+      <!-- Cyan Calibration Ring -->
+      <circle class="ring-outer" cx="300" cy="190" r="180" fill="none" stroke="#38bdf8" stroke-width="0.75" stroke-dasharray="5 15 10 30" filter="url(#glow-cyan)" opacity="0.4"/>
+    </g>
+
+    <!-- Calibration Bounding Box -->
+    <rect x="190" y="80" width="220" height="220" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" stroke-dasharray="4 8"/>
+    <!-- Compass ticks -->
+    <path d="M 300,70 L 300,80 M 300,300 L 300,310 M 180,190 L 190,190 M 410,190 L 420,190" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+    <text x="305" y="65" class="font-tech" fill="rgba(255,255,255,0.3)" font-size="8">0.00° N</text>
+
+    <!-- Event Horizon / Black Hole Core -->
+    <circle class="singularity-core" cx="300" cy="190" r="38" fill="#000" stroke="#ea580c" stroke-width="2" filter="url(#glow-orange)"/>
+    <circle cx="300" cy="190" r="35" fill="#000"/>
+  </g>
+
+  <!-- CENTER DIVIDER -->
+  <line x1="530" y1="80" x2="530" y2="300" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1" stroke-dasharray="5 5" />
+  
+  <!-- RIGHT: BRANDING & HEADLINE -->
+  <g transform="translate(580, 0)">
+    <!-- Category decal -->
+    <rect x="0" y="95" width="125" height="18" fill="rgba(234, 88, 12, 0.1)" stroke="rgba(234, 88, 12, 0.3)" stroke-width="1"/>
+    <text x="8" y="107" class="font-tech" fill="#ea580c" font-size="9" font-weight="bold" letter-spacing="1.5">OCR PIPELINE v2.0</text>
+
+    <!-- Title "SINGULAR" -->
+    <text x="0" y="170" class="font-title glitch-active" fill="#ffffff" font-size="52" filter="drop-shadow(0px 4px 12px rgba(0,0,0,0.8))">SINGULAR</text>
+    
+    <!-- Neon Dot -->
+    <circle cx="380" cy="150" r="4" fill="#ea580c" filter="url(#glow-orange)" />
+
+    <!-- Subtitle -->
+    <text x="0" y="210" class="font-tech" fill="rgba(255, 255, 255, 0.85)" font-size="16" font-weight="600" letter-spacing="0.5">Geração Inteligente de Quizzes com IA</text>
+    
+    <!-- Description / Bullet Decals -->
+    <g transform="translate(0, 245)">
+      <!-- Bullet 1 -->
+      <rect x="0" y="0" width="6" height="6" fill="#38bdf8" filter="url(#glow-cyan)"/>
+      <text x="18" y="8" class="font-tech" fill="rgba(255,255,255,0.6)" font-size="11" letter-spacing="0.5">Parser de Documentos Híbrido (Local Ollama / Gemini)</text>
+      
+      <!-- Bullet 2 -->
+      <rect x="0" y="22" width="6" height="6" fill="#ea580c" filter="url(#glow-orange)"/>
+      <text x="18" y="30" class="font-tech" fill="rgba(255,255,255,0.6)" font-size="11" letter-spacing="0.5">UX Premium Imersiva &quot;A Singularidade&quot; em CSS Puro</text>
+      
+      <!-- Bullet 3 -->
+      <rect x="0" y="44" width="6" height="6" fill="#facc15" />
+      <text x="18" y="52" class="font-tech" fill="rgba(255,255,255,0.6)" font-size="11" letter-spacing="0.5">Arquitetura de Alta Escala (Hono + Redis + BullMQ)</text>
+    </g>
+  </g>
+
+  <!-- BOTTOM DECAL STATS BAR -->
+  <rect x="20" y="325" width="1160" height="1" fill="rgba(255, 255, 255, 0.08)"/>
+  <text x="30" y="342" class="font-tech" fill="rgba(255,255,255,0.3)" font-size="9" letter-spacing="1">STATUS: COMPILING_TASKS</text>
+  <text x="350" y="342" class="font-tech" fill="rgba(255,255,255,0.3)" font-size="9" letter-spacing="1">CORES: ACTIVE</text>
+  <text x="600" y="342" class="font-tech" fill="rgba(255,255,255,0.3)" font-size="9" letter-spacing="1">DATABASE: DRIZZLE_POSTGRES</text>
+  <text x="1170" y="342" class="font-tech" fill="rgba(255,255,255,0.3)" font-size="9" letter-spacing="1" text-anchor="end">SYS_LEVEL: [CRITICAL_MASS]</text>
+</svg>
