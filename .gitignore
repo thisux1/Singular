@@ -43,7 +43,11 @@ __pycache__/
 
 # Planning and Strategy
 docplans/
-docs/
+docs/*
+!docs/banner.svg
+!docs/architecture.svg
+!docs/demo.webp
+!docs/demo.webm
 # Application Data
 data/
 .data/
