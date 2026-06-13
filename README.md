@@ -27,7 +27,9 @@
 Abaixo está uma demonstração visual do funcionamento do ecossistema e sua interface imersiva em tempo real:
 
 <p align="center">
-  <img src="docs/demo.webp" alt="Demonstração da Singularidade" width="100%" style="border: 1px solid rgba(234, 88, 12, 0.3); border-radius: 8px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9); max-width: 900px; background-color: #050202;" />
+  <video src="docs/demo.webm" width="100%" poster="docs/banner.svg" controls autoplay loop muted playsinline style="border: 1px solid rgba(234, 88, 12, 0.3); border-radius: 8px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9); max-width: 900px; background-color: #050202;">
+    Seu navegador não suporta a reprodução de vídeo em HTML5.
+  </video>
 </p>
 
 ---
