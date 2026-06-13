@@ -16,15 +16,15 @@
 
 ---
 
-## 🌌 Visão Geral
+## Visão Geral
 
-**Singular** é uma plataforma web premium para geração automatizada de quizzes e exames a partir de documentos (PDFs, imagens e exames escaneados). Ele utiliza pipelines de IA de ponta para extração estruturada de conteúdo e apresenta uma experiência visual ultra-imersiva baseada na estética **"A Singularidade"** (Dark mode profundo, linhas elegantes de alta precisão e micro-transições de alto desempenho a 60fps).
+**Singular** é uma plataforma web para geração automatizada de quizzes e exames a partir de documentos (PDFs, imagens e exames escaneados). Utiliza pipelines de OCR e LLM/VLM para extração estruturada de conteúdo, apresentando os resultados em uma interface imersiva baseada em React e Three.js.
 
 ---
 
-## 🎬 Demonstração em Órbita
+## Demonstração
 
-Abaixo está uma demonstração visual do funcionamento do ecossistema e sua interface imersiva em tempo real:
+Abaixo está uma demonstração em vídeo do funcionamento do ecossistema e de sua interface em tempo real:
 
 <p align="center">
   <video src="https://github.com/user-attachments/assets/021c2bf6-4fed-4eda-addb-9ddb637e6944" width="100%" controls autoplay loop muted playsinline></video>
@@ -32,46 +32,58 @@ Abaixo está uma demonstração visual do funcionamento do ecossistema e sua int
 
 ---
 
-## 🛠️ Arquitetura e Fluxo de Dados
+## Arquitetura e Fluxo de Dados
 
-Abaixo está o mapeamento visual de como a plataforma processa um documento bruto até renderizá-lo em uma interface interativa:
+Abaixo está o mapeamento visual do processamento de um documento bruto até a renderização na interface:
 
 <p align="center">
   <img src="docs/architecture.svg" alt="Fluxo da Singularidade" width="100%" style="border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);" />
 </p>
 
-O ecossistema é projetado em uma arquitetura moderna dividida em três camadas principais:
+### Ciclo de Vida do Processamento de Documentos
 
-*   **Frontend (React + Vite)**: Interface estruturada com **Vanilla CSS** e um robusto sistema de tokens de design. Foco em UX fluida, interações dinâmicas e zero dependências de utilitários como TailwindCSS.
-*   **Backend (Hono + Drizzle + BullMQ)**: API ultrarrápida desenvolvida em Node.js utilizando **Hono**, com persistência em PostgreSQL através do **Drizzle ORM** e processamento de tarefas assíncronas em segundo plano via **BullMQ** (com Redis).
-*   **Pipeline (Python OCR)**: Pipeline inteligente em Python para processamento pesado de documentos, suportando OCR híbrido local e em nuvem para estruturação automatizada de exames em JSON pydantic.
+1. **Upload**: O cliente envia o arquivo (PDF ou imagem) pela interface web.
+2. **Recepção e Enfileiramento**: A API backend em Hono recebe o upload, armazena temporariamente o arquivo, persiste os metadados iniciais no banco PostgreSQL via Drizzle ORM e enfileira um job de processamento no Redis.
+3. **Consumo e Execução de Tarefa**: O worker de processamento de exames (`process-exam.ts`) consome o job através do BullMQ e faz uma chamada IPC ao script Python da pipeline.
+4. **Extração OCR**:
+   - **Caso PDF**: O pipeline tenta extrair o texto diretamente usando a biblioteca PyMuPDF. Se não houver texto selecionável, o PDF é convertido para imagens via `pdf2image`.
+   - **OCR Multimodal (VLM)**: As imagens são enviadas ao provedor configurado. No modo `local`, o Ollama executa um modelo visual (por padrão `glm-ocr` ou `qwen2.5vl:3b`). No modo `api`, as imagens são enviadas diretamente à API do Google Gemini.
+5. **Estruturação de Dados**: O texto bruto extraído é enviado ao modelo da família Gemini (via API) junto com o framework `instructor` para extrair questões, enunciados e alternativas de forma tipada, gerando um payload JSON estruturado sob validação do Pydantic.
+6. **Persistência**: O worker recebe o JSON validado e atualiza a base de dados com as questões e alternativas extraídas.
+7. **Consumo**: O frontend atualiza a interface via React Query assim que o status da tarefa é concluído, permitindo a visualização e interação imediata.
 
 ---
 
-## 💫 Grade de Recursos (Grid de Funcionalidades)
+## Arquitetura de Componentes e Tecnologias
 
-| Recurso | Decal / Status | Descrição |
+A tabela a seguir apresenta os detalhes técnicos de cada módulo do ecossistema:
+
+| Módulo / Componente | Tecnologias Utilizadas | Papel no Sistema |
 | :--- | :--- | :--- |
-| **OCR Inteligente** | `[ SYS_READY ]` | Processamento híbrido com Ollama local (modelo `glm-ocr`) ou Google Gemini API. |
-| **Estrutura com IA** | `[ IA_COMPILED ]` | Extração de questões e gabaritos em JSON tipado utilizando validação com Pydantic. |
-| **Fila Assíncrona** | `[ QUEUED_JOBS ]` | Orquestração robusta de processamento em segundo plano alimentada por Redis e BullMQ. |
-| **Card Gravitacional** | `[ Orbit_3D ]` | Card interativo com cálculos de física de órbita do mouse, nebula de partículas e efeitos de glitch em tempo de execução. |
-| **Configuração Dinâmica** | `[ ENV_SYNC ]` | Chaveamento instantâneo entre processamento local 100% gratuito ou nuvem pública. |
+| **Interface do Usuário (Frontend)** | React 19, Vite, Three.js (R3F), Zustand, Framer Motion | SPA otimizada com renderização interativa 3D, controle de estado via Zustand, e estilização nativa baseada em CSS3 Vanilla (Design Tokens). |
+| **Servidor de API (Backend)** | Hono, Node.js, TypeScript | API RESTful rápida e modular responsável por gerenciar uploads de arquivos, persistência básica e orquestração de filas. |
+| **Orquestração de Filas (Workers)** | BullMQ, Redis, Node.js | Gerenciamento e execução paralela de tarefas assíncronas em segundo plano, divididas entre processamento de exames e classificação de questões. |
+| **Engine de Extração (Pipeline)** | Python, Instructor, Pydantic, pdf2image, PyMuPDF | Pipeline Python executado isoladamente para OCR e análise estruturada de documentos brutos em JSON tipado. |
+| **Banco de Dados** | PostgreSQL, Drizzle ORM | Persistência de dados relacionais com migrações gerenciadas declarativamente por meio do Drizzle Kit. |
+| **Provedores de OCR** | Ollama (GLM-OCR / Qwen), Google Gemini API | Mecanismo de OCR híbrido permitindo comutação entre modelo local privado (custo zero) e nuvem (máxima velocidade e acurácia). |
 
 ---
 
-## ⚡ Como Iniciar (Instalação Rápida)
+## Como Iniciar
 
-Para manter a interface limpa, os detalhes completos de instalação estão organizados em módulos expansíveis abaixo. Clique em cada seção para visualizar os comandos.
+### Pré-requisitos
+*   **Node.js** (v18+)
+*   **Docker** e **Docker Compose** (para Redis e PostgreSQL)
+*   **Python** (v3.10+)
 
 <details>
-<summary><b>1. Clonar e Instalar Dependências JS</b></summary>
+<summary><b>1. Clonar e Instalar Dependências JavaScript</b></summary>
 <br />
 
-Instale as dependências JavaScript do ecossistema e configure o ambiente virtual do Python:
+Instale as dependências na raiz do projeto e nos sub-projetos:
 
 ```bash
-# Instale as dependências da raiz (gerenciador de processos concomitantes)
+# Instale as dependências da raiz (gerenciador de processos simultâneos)
 npm install
 
 # Instale as dependências de cada sub-projeto
@@ -95,12 +107,12 @@ source .venv/bin/activate
 # No Windows:
 .venv\Scripts\activate
 
-# Instale os requerimentos
+# Instale as dependências
 pip install -r pipeline/requirements.txt
 ```
 
 > [!NOTE]
-> No Linux, o processador de arquivos PDF (`pdf2image`) depende do utilitário `poppler`. Caso ocorra algum erro ao processar PDFs, instale-o pelo terminal:
+> No Linux, o processamento de arquivos PDF (`pdf2image`) depende do utilitário de sistema `poppler`. Caso ocorra algum erro ao processar PDFs, instale-o pelo terminal do sistema:
 > *   **Ubuntu/Debian:** `sudo apt-get install poppler-utils`
 > *   **macOS:** `brew install poppler`
 </details>
@@ -116,7 +128,7 @@ cp .env.example .env
 ```
 
 Abra o arquivo `.env` gerado e configure o modo do provedor de OCR (`OCR_PROVIDER`):
-*   **Modo Local (`local`)**: Utiliza o **Ollama** instalado no seu computador para extração de OCR a custo zero.
+*   **Modo Local (`local`)**: Utiliza o **Ollama** instalado localmente para extração de OCR a custo zero.
 *   **Modo API (`api`)**: Utiliza os modelos **Google Gemini** em nuvem (Requer que você insira sua chave `GEMINI_API_KEY`).
 </details>
 
@@ -124,7 +136,7 @@ Abra o arquivo `.env` gerado e configure o modo do provedor de OCR (`OCR_PROVIDE
 <summary><b>4. Setup do OCR Local (Opcional - Ollama)</b></summary>
 <br />
 
-Se você optar por utilizar o OCR Local gratuito, certifique-se de que o Ollama está rodando e execute o script automatizado para baixar os modelos adequados:
+Caso opte por utilizar o OCR Local gratuito, certifique-se de que o Ollama está rodando e execute o script automatizado para baixar e configurar os modelos recomendados:
 
 ```bash
 bash scripts/setup-local-ocr.sh
@@ -132,42 +144,42 @@ bash scripts/setup-local-ocr.sh
 *Este script baixará o modelo otimizado `glm-ocr` de alta performance e configurará o seu ambiente local.*
 </details>
 
-### Iniciar Tudo com um Único Comando 🚀
+### Execução do Projeto Completo
 
-Com o Docker aberto, inicie todo o ecossistema (Banco de dados PostgreSQL, Cache Redis, Migrações do Drizzle, Worker assíncrono BullMQ, Backend API e Frontend React) com um único comando na raiz:
+Inicie o banco de dados PostgreSQL, o Redis, execute as migrações e rode todos os serviços (API backend, workers e frontend) com um único comando na raiz do projeto:
 
 ```bash
 npm run all
 ```
 
-Após o carregamento, as aplicações estarão disponíveis em:
+Após o carregamento, os serviços estarão disponíveis em:
 *   **Frontend Web**: `http://localhost:5173`
 *   **Backend API**: `http://localhost:3001`
 
 ---
 
-## 📂 Organização do Repositório
+## Estrutura do Repositório
 
 ```path
 ├── backend/          # Servidor HTTP Hono, esquemas Drizzle e workers BullMQ
-├── frontend/         # App React com design tokens e UI "Vazio Oculto"
-├── pipeline/         # Engine Python OCR para parsing inteligente de exames/documentos
+├── frontend/         # App React com design tokens e UI interativa
+├── pipeline/         # Engine Python OCR para parsing inteligente de exames e documentos
 ├── scripts/          # Shell scripts utilitários de setup local
-├── docs/             # Documentação técnica e design do projeto (Gitignored)
-│   ├── banner.svg    # Banner animado da Singularidade
+├── docs/             # Arquivos de documentação visual e diagramas
+│   ├── banner.svg    # Banner da Singularidade
 │   └── architecture.svg # Fluxograma do ciclo de vida dos dados
-├── docker-compose.yml# Configuração do Redis e PostgreSQL locais
+├── docker-compose.yml# Configuração dos contêineres Redis e PostgreSQL
 └── .gitignore        # Arquivos protegidos e configs locais ignorados
 ```
 
 ---
 
-## 🌌 Estética Visual: A Singularidade
+## Design System e Estética Visual
 
-A interface do Singular implementa conceitos avançados de design com foco em imersão espacial. Em vez de temas escuros genéricos, utilizamos uma paleta HSL balanceada com pretos absolutos, gradientes profundos, bordas neon sutis e animações de física espacial. Todo o design é implementado usando CSS nativo puro para garantir o máximo desempenho de renderização a 60fps.
+A interface do Singular implementa conceitos modernos de UI baseados em pretos absolutos, gradientes profundos, bordas neon sutis e animações espaciais interativas. Todo o design é implementado usando CSS nativo puro para garantir o máximo desempenho de renderização a 60fps, evitando frameworks pesados de estilização.
 
 ---
 
-## ⚖️ Licença
+## Licença
 
-Este projeto é de código aberto e está licenciado sob os termos da [Licença MIT](LICENSE). Sinta-se livre para usar, estudar, modificar e distribuir o código de forma responsável.
+Este projeto é de código aberto e está licensed sob os termos da [Licença MIT](LICENSE). Sinta-se livre para usar, estudar, modificar e distribuir o código.
