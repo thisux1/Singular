@@ -176,7 +176,7 @@ Após o carregamento, os serviços estarão disponíveis em:
 
 ## Design System e Estética Visual
 
-A interface do Singular implementa conceitos modernos de UI baseados em pretos absolutos, gradientes profundos, bordas neon sutis e animações espaciais interativas. Todo o design é implementado usando CSS nativo puro para garantir o máximo desempenho de renderização a 60fps, evitando frameworks pesados de estilização.
+A interface do Singular implementa uma estética espacial imersiva baseada em pretos absolutos, gradientes e efeitos de iluminação neon. Para evitar dependências adicionais de estilização, todo o layout utiliza CSS nativo puro (Vanilla CSS com Design Tokens), sem frameworks utilitários como o Tailwind CSS. A renderização tridimensional interativa e as transições utilizam bibliotecas dedicadas de 3D e animação (Three.js/R3F e Framer Motion).
 
 ---
 
