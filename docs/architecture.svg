@@ -1,119 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 240" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 400" width="920" height="400">
   <defs>
-    <!-- Glowing filters -->
-    <filter id="glow-orange" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <filter id="sg-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="glow-yellow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <radialGradient id="sg-disk" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E36002" stop-opacity="0.9"/>
+      <stop offset="55%" stop-color="#E36002" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#E36002" stop-opacity="0"/>
+    </radialGradient>
+    <path id="sg-orbit" d="M 190 196 m -118 0 a 118 52 0 1 1 236 0 a 118 52 0 1 1 -236 0" fill="none"/>
   </defs>
+  <rect width="920" height="400" fill="#09090B"/>
+  <rect x="0.5" y="0.5" width="919" height="399" fill="none" stroke="#2a2a30"/>
 
-  <style>
-    .bg { fill: #070303; }
-    .title { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: rgba(255, 255, 255, 0.4); letter-spacing: 2px; }
-    .node-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: bold; }
-    .node-subtext { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: rgba(255, 255, 255, 0.5); }
-    .conn-line { fill: none; stroke-width: 1.5; stroke-dasharray: 4 4; }
-    .flow-arrow { fill: none; stroke-width: 1.5; }
-    
-    /* Animation for active flow lines */
-    @keyframes dash {
-      to {
-        stroke-dashoffset: -20;
-      }
-    }
-    .flow-active {
-      animation: dash 1s linear infinite;
-    }
-  </style>
+  <text x="48" y="46" font-family="ui-monospace,'Fira Code',monospace" font-size="12.5" letter-spacing="3" fill="#8B5CF6">PIPELINE — DOCUMENTO CAI, QUIZ SAI</text>
+  <line x1="48" y1="60" x2="872" y2="60" stroke="#2a2a30"/>
 
-  <!-- Background -->
-  <rect class="bg" width="100%" height="100%"/>
-  <rect x="1" y="1" width="1078" height="238" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+  <!-- the singularity: accretion disk swallowing documents -->
+  <ellipse cx="190" cy="196" rx="140" ry="64" fill="url(#sg-disk)"/>
+  <g fill="none" stroke-width="2">
+    <ellipse cx="190" cy="196" rx="118" ry="52" stroke="#E36002" stroke-opacity="0.8" stroke-dasharray="60 30" filter="url(#sg-glow)">
+      <animateTransform attributeName="transform" type="rotate" from="0 190 196" to="360 190 196" dur="14s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="190" cy="196" rx="86" ry="38" stroke="#F97316" stroke-opacity="0.6" stroke-dasharray="30 22">
+      <animateTransform attributeName="transform" type="rotate" from="360 190 196" to="0 190 196" dur="10s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="190" cy="196" rx="56" ry="24" stroke="#8B5CF6" stroke-opacity="0.7" stroke-dasharray="18 14">
+      <animateTransform attributeName="transform" type="rotate" from="0 190 196" to="360 190 196" dur="7s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>
+  <circle cx="190" cy="196" r="26" fill="#000000" stroke="#E36002" stroke-width="2" filter="url(#sg-glow)"/>
 
-  <!-- GRID DECORATION -->
-  <line x1="0" y1="40" x2="1080" y2="40" stroke="rgba(255, 255, 255, 0.03)" stroke-width="1"/>
-  <text x="20" y="25" class="title">ARQUITETURA DE DADOS E FLUXO DA SINGULARIDADE</text>
-  
-  <!-- ==================== NODE 1: INPUT ==================== -->
-  <g transform="translate(40, 70)">
-    <!-- Box border -->
-    <polygon points="10,0 150,0 160,10 160,80 150,90 10,90 0,80 0,10" fill="rgba(255, 255, 255, 0.02)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="1.5"/>
-    <text x="20" y="30" class="node-text" fill="#ffffff">01. DOCUMENTO</text>
-    <text x="20" y="50" class="node-subtext">PDF escaneado</text>
-    <text x="20" y="65" class="node-subtext">Imagem de exame</text>
-    <rect x="15" y="75" width="45" height="1" fill="#ea580c" filter="url(#glow-orange)"/>
+  <!-- documents falling in -->
+  <g font-family="ui-monospace,monospace" font-size="10" font-weight="bold">
+    <g>
+      <animateMotion dur="5s" repeatCount="indefinite" path="M 60 90 Q 140 120 168 172" fill="freeze"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="5s" repeatCount="indefinite"/>
+      <rect x="-18" y="-11" width="36" height="22" rx="4" fill="#111115" stroke="#E36002"/>
+      <text x="0" y="4" fill="#F97316" text-anchor="middle">PDF</text>
+    </g>
+    <g>
+      <animateMotion dur="6.5s" begin="1.8s" repeatCount="indefinite" path="M 320 80 Q 250 130 218 170" fill="freeze"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="6.5s" begin="1.8s" repeatCount="indefinite"/>
+      <rect x="-18" y="-11" width="36" height="22" rx="4" fill="#111115" stroke="#8B5CF6"/>
+      <text x="0" y="4" fill="#8B5CF6" text-anchor="middle">IMG</text>
+    </g>
+    <g>
+      <animateMotion dur="5.8s" begin="3.4s" repeatCount="indefinite" path="M 190 320 Q 190 260 190 224" fill="freeze"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="5.8s" begin="3.4s" repeatCount="indefinite"/>
+      <rect x="-18" y="-11" width="36" height="22" rx="4" fill="#111115" stroke="#E36002"/>
+      <text x="0" y="4" fill="#F97316" text-anchor="middle">DOC</text>
+    </g>
   </g>
 
-  <!-- Flow 1 -> 2 -->
-  <path class="conn-line flow-active" d="M 200,115 L 250,115" stroke="#ea580c" />
-  <path class="flow-arrow" d="M 245,110 L 250,115 L 245,120" stroke="#ea580c" />
+  <!-- beam out -->
+  <line x1="216" y1="196" x2="380" y2="196" stroke="#E36002" stroke-width="2" stroke-opacity="0.7" stroke-dasharray="8 6">
+    <animate attributeName="stroke-dashoffset" from="0" to="28" dur="1.2s" repeatCount="indefinite"/>
+  </line>
 
-  <!-- ==================== NODE 2: PYTHON OCR ==================== -->
-  <g transform="translate(250, 70)">
-    <polygon points="10,0 150,0 160,10 160,80 150,90 10,90 0,80 0,10" fill="rgba(234, 88, 12, 0.02)" stroke="#ea580c" stroke-width="1.5" filter="url(#glow-orange)"/>
-    <text x="20" y="30" class="node-text" fill="#ffffff">02. PIPELINE OCR</text>
-    <text x="20" y="50" class="node-subtext">Engine em Python</text>
-    <text x="20" y="65" class="node-subtext">Ollama / Gemini API</text>
-    <text x="20" y="80" class="node-subtext" fill="#ea580c" font-size="8">[ JSON PYDANTIC ]</text>
+  <!-- stages -->
+  <g font-family="ui-monospace,'Fira Code',monospace">
+    <g>
+      <rect x="380" y="130" width="150" height="132" rx="10" fill="#111115" stroke="#8B5CF6" stroke-width="1.5"/>
+      <text x="396" y="158" font-size="12" fill="#8B5CF6">01</text>
+      <text x="396" y="182" font-size="15" font-weight="bold" fill="#e4e4e7">ocr · python</text>
+      <text x="396" y="206" font-size="11.5" fill="#71717a">tesseract</text>
+      <text x="396" y="226" font-size="11.5" fill="#71717a">→ texto limpo</text>
+      <text x="396" y="248" font-size="10.5" fill="#52525b">instructor / pydantic</text>
+    </g>
+    <g>
+      <rect x="556" y="130" width="150" height="132" rx="10" fill="#111115" stroke="#E36002" stroke-width="1.5"/>
+      <text x="572" y="158" font-size="12" fill="#E36002">02</text>
+      <text x="572" y="182" font-size="15" font-weight="bold" fill="#e4e4e7">llm · ollama</text>
+      <text x="572" y="206" font-size="11.5" fill="#71717a">gera questões</text>
+      <text x="572" y="226" font-size="11.5" fill="#71717a">json validado</text>
+      <text x="572" y="248" font-size="10.5" fill="#52525b">fila bullmq + redis</text>
+    </g>
+    <g>
+      <rect x="732" y="130" width="140" height="132" rx="10" fill="#111115" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="748" y="158" font-size="12" fill="#38bdf8">03</text>
+      <text x="748" y="182" font-size="15" font-weight="bold" fill="#e4e4e7">api · hono</text>
+      <text x="748" y="206" font-size="11.5" fill="#71717a">drizzle · pg</text>
+      <text x="748" y="226" font-size="11.5" fill="#71717a">react pwa</text>
+      <text x="748" y="248" font-size="10.5" fill="#52525b">docker</text>
+    </g>
+  </g>
+  <line x1="530" y1="196" x2="556" y2="196" stroke="#52525b" stroke-width="1.5"/>
+  <line x1="706" y1="196" x2="732" y2="196" stroke="#52525b" stroke-width="1.5"/>
+  <circle r="4" fill="#E36002"><animateMotion dur="1.8s" repeatCount="indefinite" path="M 216 196 L 380 196"/></circle>
+  <circle r="3" fill="#8B5CF6"><animateMotion dur="1.4s" repeatCount="indefinite" path="M 530 196 L 556 196"/></circle>
+  <circle r="3" fill="#38bdf8"><animateMotion dur="1.4s" repeatCount="indefinite" path="M 706 196 L 732 196"/></circle>
+
+  <!-- quiz output card -->
+  <g>
+    <rect x="380" y="292" width="492" height="76" rx="10" fill="#0d0d10" stroke="#2a2a30"/>
+    <text x="400" y="322" font-family="ui-monospace,monospace" font-size="12" fill="#71717a">saída:</text>
+    <text x="460" y="322" font-family="ui-monospace,monospace" font-size="13" fill="#e4e4e7">quiz renderizado — pergunta + 4 alternativas + gabarito</text>
+    <text x="400" y="348" font-family="ui-monospace,monospace" font-size="11.5" fill="#52525b">horizon: fila pública · sangha: revisão humana</text>
   </g>
 
-  <!-- Flow 2 -> 3 -->
-  <path class="conn-line flow-active" d="M 410,115 L 460,115" stroke="#facc15" />
-  <path class="flow-arrow" d="M 455,110 L 460,115 L 455,120" stroke="#facc15" />
-
-  <!-- ==================== NODE 3: BACKEND API ==================== -->
-  <g transform="translate(460, 70)">
-    <polygon points="10,0 150,0 160,10 160,80 150,90 10,90 0,80 0,10" fill="rgba(250, 204, 21, 0.02)" stroke="#facc15" stroke-width="1.5" filter="url(#glow-yellow)"/>
-    <text x="20" y="30" class="node-text" fill="#ffffff">03. HONO BACKEND</text>
-    <text x="20" y="50" class="node-subtext">Node.js API + Redis</text>
-    <text x="20" y="65" class="node-subtext">BullMQ Workers</text>
-    <text x="20" y="80" class="node-subtext" fill="#facc15" font-size="8">[ FILAS ASSÍNCRONAS ]</text>
-  </g>
-
-  <!-- Flow 3 -> 4 -->
-  <path class="conn-line flow-active" d="M 620,115 L 670,115" stroke="#38bdf8" />
-  <path class="flow-arrow" d="M 665,110 L 670,115 L 665,120" stroke="#38bdf8" />
-
-  <!-- ==================== NODE 4: PERSISTENCE ==================== -->
-  <g transform="translate(670, 70)">
-    <polygon points="10,0 150,0 160,10 160,80 150,90 10,90 0,80 0,10" fill="rgba(56, 189, 248, 0.02)" stroke="#38bdf8" stroke-width="1.5" filter="url(#glow-cyan)"/>
-    <text x="20" y="30" class="node-text" fill="#ffffff">04. PERSISTÊNCIA</text>
-    <text x="20" y="50" class="node-subtext">PostgreSQL DB</text>
-    <text x="20" y="65" class="node-subtext">Drizzle ORM</text>
-    <text x="20" y="80" class="node-subtext" fill="#38bdf8" font-size="8">[ TRANSAÇÕES / HISTÓRICO ]</text>
-  </g>
-
-  <!-- Flow 4 -> 5 -->
-  <path class="conn-line flow-active" d="M 830,115 L 880,115" stroke="#ffffff" />
-  <path class="flow-arrow" d="M 875,110 L 880,115 L 875,120" stroke="#ffffff" />
-
-  <!-- ==================== NODE 5: FRONTEND ==================== -->
-  <g transform="translate(880, 70)">
-    <polygon points="10,0 150,0 160,10 160,80 150,90 10,90 0,80 0,10" fill="rgba(255, 255, 255, 0.02)" stroke="rgba(255, 255, 255, 0.6)" stroke-width="1.5"/>
-    <text x="20" y="30" class="node-text" fill="#ffffff">05. REACTION UI</text>
-    <text x="20" y="50" class="node-subtext">Vite + React App</text>
-    <text x="20" y="65" class="node-subtext">Vanilla CSS puro</text>
-    <text x="20" y="80" class="node-subtext" fill="#ffffff" font-size="8">[ 60FPS EFFECTS ]</text>
-  </g>
-
-  <!-- Decal coordinates at the bottom -->
-  <text x="20" y="210" class="node-subtext" fill="rgba(255, 255, 255, 0.2)">SEC_COORD_A: [0xFD89] // SYSTEM: STEADY</text>
-  <text x="1060" y="210" class="node-subtext" fill="rgba(255, 255, 255, 0.2)" text-anchor="end">OCR_THRESHOLD: 98.6%</text>
+  <text x="48" y="382" font-family="ui-monospace,monospace" font-size="11" fill="#52525b">documento cru entra pela esquerda · sai questão estruturada · tudo assíncrono, nada bloqueia a request</text>
 </svg>
