@@ -1,104 +1,218 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 400" width="920" height="400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" height="420" role="img" aria-label="Singular: fluxo de dados do documento ao quiz">
   <defs>
-    <filter id="sg-glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="5" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
     <radialGradient id="sg-disk" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#E36002" stop-opacity="0.9"/>
-      <stop offset="55%" stop-color="#E36002" stop-opacity="0.25"/>
+      <stop offset="0%" stop-color="#E36002" stop-opacity="0.75"/>
+      <stop offset="45%" stop-color="#E36002" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="#E36002" stop-opacity="0"/>
     </radialGradient>
-    <path id="sg-orbit" d="M 190 196 m -118 0 a 118 52 0 1 1 236 0 a 118 52 0 1 1 -236 0" fill="none"/>
+    <radialGradient id="sg-violet-haze" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sg-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- elliptical orbits travelled via animateMotion (no ellipse rotation) -->
+    <path id="sg-orbit-outer" d="M 264 190 a 112 40 0 1 1 224 0 a 112 40 0 1 1 -224 0" fill="none"/>
+    <path id="sg-orbit-inner" d="M 318 190 a 58 21 0 1 1 116 0 a 58 21 0 1 1 -116 0" fill="none"/>
+    <path id="sg-chip-path" d="M 216 260 H 228 V 190 C 272 158 344 154 376 190" fill="none"/>
   </defs>
-  <rect width="920" height="400" fill="#09090B"/>
-  <rect x="0.5" y="0.5" width="919" height="399" fill="none" stroke="#2a2a30"/>
 
-  <text x="48" y="46" font-family="ui-monospace,'Fira Code',monospace" font-size="12.5" letter-spacing="3" fill="#8B5CF6">PIPELINE — DOCUMENTO CAI, QUIZ SAI</text>
-  <line x1="48" y1="60" x2="872" y2="60" stroke="#2a2a30"/>
+  <rect width="900" height="420" fill="#09090B"/>
+  <rect x="0.5" y="0.5" width="899" height="419" fill="none" stroke="rgba(255,255,255,0.07)"/>
 
-  <!-- the singularity: accretion disk swallowing documents -->
-  <ellipse cx="190" cy="196" rx="140" ry="64" fill="url(#sg-disk)"/>
-  <g fill="none" stroke-width="2">
-    <ellipse cx="190" cy="196" rx="118" ry="52" stroke="#E36002" stroke-opacity="0.8" stroke-dasharray="60 30" filter="url(#sg-glow)">
-      <animateTransform attributeName="transform" type="rotate" from="0 190 196" to="360 190 196" dur="14s" repeatCount="indefinite"/>
-    </ellipse>
-    <ellipse cx="190" cy="196" rx="86" ry="38" stroke="#F97316" stroke-opacity="0.6" stroke-dasharray="30 22">
-      <animateTransform attributeName="transform" type="rotate" from="360 190 196" to="0 190 196" dur="10s" repeatCount="indefinite"/>
-    </ellipse>
-    <ellipse cx="190" cy="196" rx="56" ry="24" stroke="#8B5CF6" stroke-opacity="0.7" stroke-dasharray="18 14">
-      <animateTransform attributeName="transform" type="rotate" from="0 190 196" to="360 190 196" dur="7s" repeatCount="indefinite"/>
-    </ellipse>
-  </g>
-  <circle cx="190" cy="196" r="26" fill="#000000" stroke="#E36002" stroke-width="2" filter="url(#sg-glow)"/>
-
-  <!-- documents falling in -->
-  <g font-family="ui-monospace,monospace" font-size="10" font-weight="bold">
-    <g>
-      <animateMotion dur="5s" repeatCount="indefinite" path="M 60 90 Q 140 120 168 172" fill="freeze"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="5s" repeatCount="indefinite"/>
-      <rect x="-18" y="-11" width="36" height="22" rx="4" fill="#111115" stroke="#E36002"/>
-      <text x="0" y="4" fill="#F97316" text-anchor="middle">PDF</text>
-    </g>
-    <g>
-      <animateMotion dur="6.5s" begin="1.8s" repeatCount="indefinite" path="M 320 80 Q 250 130 218 170" fill="freeze"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="6.5s" begin="1.8s" repeatCount="indefinite"/>
-      <rect x="-18" y="-11" width="36" height="22" rx="4" fill="#111115" stroke="#8B5CF6"/>
-      <text x="0" y="4" fill="#8B5CF6" text-anchor="middle">IMG</text>
-    </g>
-    <g>
-      <animateMotion dur="5.8s" begin="3.4s" repeatCount="indefinite" path="M 190 320 Q 190 260 190 224" fill="freeze"/>
-      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.8;1" dur="5.8s" begin="3.4s" repeatCount="indefinite"/>
-      <rect x="-18" y="-11" width="36" height="22" rx="4" fill="#111115" stroke="#E36002"/>
-      <text x="0" y="4" fill="#F97316" text-anchor="middle">DOC</text>
-    </g>
+  <!-- sparse void dust -->
+  <g fill="#EDEDED">
+    <circle cx="708" cy="34" r="1.2" opacity="0.28"/>
+    <circle cx="852" cy="58" r="1" opacity="0.2"/>
+    <circle cx="606" cy="22" r="1" opacity="0.18"/>
+    <circle cx="884" cy="330" r="1.2" opacity="0.16"/>
+    <circle cx="28" cy="352" r="1" opacity="0.2"/>
+    <circle cx="560" cy="74" r="1" opacity="0.14"/>
   </g>
 
-  <!-- beam out -->
-  <line x1="216" y1="196" x2="380" y2="196" stroke="#E36002" stroke-width="2" stroke-opacity="0.7" stroke-dasharray="8 6">
-    <animate attributeName="stroke-dashoffset" from="0" to="28" dur="1.2s" repeatCount="indefinite"/>
-  </line>
+  <!-- ══════ HEADER ══════ -->
+  <text x="40" y="46" font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace" font-size="20" font-weight="700" letter-spacing="1" fill="#EDEDED">&gt; fluxo_de_dados</text>
+  <text x="258" y="46" font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace" font-size="13" fill="#7C7C86">· do documento ao quiz publicado</text>
+  <text x="864" y="46" text-anchor="end" font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace" font-size="13" fill="#7C7C86">assíncrono ponta a ponta</text>
+  <line x1="40" y1="64" x2="864" y2="64" stroke="rgba(255,255,255,0.07)"/>
 
-  <!-- stages -->
-  <g font-family="ui-monospace,'Fira Code',monospace">
-    <g>
-      <rect x="380" y="130" width="150" height="132" rx="10" fill="#111115" stroke="#8B5CF6" stroke-width="1.5"/>
-      <text x="396" y="158" font-size="12" fill="#8B5CF6">01</text>
-      <text x="396" y="182" font-size="15" font-weight="bold" fill="#e4e4e7">ocr · python</text>
-      <text x="396" y="206" font-size="11.5" fill="#71717a">tesseract</text>
-      <text x="396" y="226" font-size="11.5" fill="#71717a">→ texto limpo</text>
-      <text x="396" y="248" font-size="10.5" fill="#52525b">instructor / pydantic</text>
-    </g>
-    <g>
-      <rect x="556" y="130" width="150" height="132" rx="10" fill="#111115" stroke="#E36002" stroke-width="1.5"/>
-      <text x="572" y="158" font-size="12" fill="#E36002">02</text>
-      <text x="572" y="182" font-size="15" font-weight="bold" fill="#e4e4e7">llm · ollama</text>
-      <text x="572" y="206" font-size="11.5" fill="#71717a">gera questões</text>
-      <text x="572" y="226" font-size="11.5" fill="#71717a">json validado</text>
-      <text x="572" y="248" font-size="10.5" fill="#52525b">fila bullmq + redis</text>
-    </g>
-    <g>
-      <rect x="732" y="130" width="140" height="132" rx="10" fill="#111115" stroke="#38bdf8" stroke-width="1.5"/>
-      <text x="748" y="158" font-size="12" fill="#38bdf8">03</text>
-      <text x="748" y="182" font-size="15" font-weight="bold" fill="#e4e4e7">api · hono</text>
-      <text x="748" y="206" font-size="11.5" fill="#71717a">drizzle · pg</text>
-      <text x="748" y="226" font-size="11.5" fill="#71717a">react pwa</text>
-      <text x="748" y="248" font-size="10.5" fill="#52525b">docker</text>
-    </g>
-  </g>
-  <line x1="530" y1="196" x2="556" y2="196" stroke="#52525b" stroke-width="1.5"/>
-  <line x1="706" y1="196" x2="732" y2="196" stroke="#52525b" stroke-width="1.5"/>
-  <circle r="4" fill="#E36002"><animateMotion dur="1.8s" repeatCount="indefinite" path="M 216 196 L 380 196"/></circle>
-  <circle r="3" fill="#8B5CF6"><animateMotion dur="1.4s" repeatCount="indefinite" path="M 530 196 L 556 196"/></circle>
-  <circle r="3" fill="#38bdf8"><animateMotion dur="1.4s" repeatCount="indefinite" path="M 706 196 L 732 196"/></circle>
-
-  <!-- quiz output card -->
-  <g>
-    <rect x="380" y="292" width="492" height="76" rx="10" fill="#0d0d10" stroke="#2a2a30"/>
-    <text x="400" y="322" font-family="ui-monospace,monospace" font-size="12" fill="#71717a">saída:</text>
-    <text x="460" y="322" font-family="ui-monospace,monospace" font-size="13" fill="#e4e4e7">quiz renderizado — pergunta + 4 alternativas + gabarito</text>
-    <text x="400" y="348" font-family="ui-monospace,monospace" font-size="11.5" fill="#52525b">horizon: fila pública · sangha: revisão humana</text>
+  <!-- ══════ STAGE 01 · UPLOAD (cliente) ══════ -->
+  <g font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace">
+    <rect x="40" y="84" width="176" height="100" rx="10" fill="#111115" stroke="rgba(255,255,255,0.08)"/>
+    <text x="54" y="110" font-size="13" font-weight="700" fill="#F97316">01</text>
+    <text x="74" y="110" font-size="15" font-weight="700" fill="#EDEDED">upload</text>
+    <text x="202" y="110" text-anchor="end" font-size="13" fill="#7C7C86">cliente</text>
+    <text x="54" y="134" font-size="13" fill="#8A8A93">react 19 · pwa</text>
+    <text x="54" y="152" font-size="13" fill="#8A8A93">pdf ou imagem</text>
+    <text x="54" y="170" font-size="13" fill="#8A8A93">+ gabarito (opc.)</text>
   </g>
 
-  <text x="48" y="382" font-family="ui-monospace,monospace" font-size="11" fill="#52525b">documento cru entra pela esquerda · sai questão estruturada · tudo assíncrono, nada bloqueia a request</text>
+  <!-- connector 01 → 02 -->
+  <line x1="128" y1="186" x2="128" y2="194" stroke="#55555E" stroke-width="1.5"/>
+  <polygon points="124,194 132,194 128,200" fill="#55555E"/>
+
+  <!-- ══════ STAGE 02 · API (servidor) ══════ -->
+  <g font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace">
+    <rect x="40" y="200" width="176" height="120" rx="10" fill="#111115" stroke="rgba(255,255,255,0.08)"/>
+    <text x="54" y="226" font-size="13" font-weight="700" fill="#F97316">02</text>
+    <text x="74" y="226" font-size="15" font-weight="700" fill="#EDEDED">api rest</text>
+    <text x="202" y="226" text-anchor="end" font-size="13" fill="#7C7C86">node</text>
+    <text x="54" y="250" font-size="13" fill="#8A8A93">hono 4.6</text>
+    <text x="54" y="268" font-size="13" fill="#8A8A93">POST /exams</text>
+    <text x="54" y="286" font-size="13" fill="#8A8A93">drizzle → postgres</text>
+    <text x="54" y="304" font-size="13" fill="#8A8A93">bullmq → redis</text>
+  </g>
+  <text x="40" y="342" font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace" font-size="13" fill="#7C7C86">fila: exam-process</text>
+
+  <!-- beam: job into the core (enqueue) -->
+  <path d="M 216 260 H 228 V 190 H 262" fill="none" stroke="#F97316" stroke-width="1.5" stroke-opacity="0.55" stroke-dasharray="7 6">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26" dur="1.1s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- ══════ STAGE 03 · NÚCLEO (worker + pipeline) ══════ -->
+  <rect x="236" y="84" width="280" height="268" rx="12" fill="rgba(139,92,246,0.04)" stroke="rgba(139,92,246,0.42)" stroke-width="1.2" stroke-dasharray="5 5"/>
+  <ellipse cx="376" cy="190" rx="138" ry="56" fill="url(#sg-violet-haze)"/>
+
+  <g font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace">
+    <text x="252" y="110" font-size="13" font-weight="700" fill="#A78BFA">03</text>
+    <text x="272" y="110" font-size="15" font-weight="700" fill="#EDEDED">núcleo</text>
+    <text x="502" y="110" text-anchor="end" font-size="13" fill="#7C7C86">→ questões</text>
+    <text x="252" y="128" font-size="13" fill="#8A8A93">process-exam.ts · bullmq</text>
+  </g>
+
+  <!-- the singularity: accretion disk (circles spun inside a squashed group — never ellipse rotation) -->
+  <ellipse cx="376" cy="190" rx="140" ry="54" fill="url(#sg-disk)"/>
+  <g transform="translate(376,190) scale(1,0.36)" fill="none">
+    <circle r="112" stroke="#E36002" stroke-width="2" stroke-opacity="0.85" stroke-dasharray="80 36 24 44">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="16s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="84" stroke="#F97316" stroke-width="1.5" stroke-opacity="0.6" stroke-dasharray="52 26 18 30">
+      <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="11s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="58" stroke="#8B5CF6" stroke-width="1.25" stroke-opacity="0.7" stroke-dasharray="36 20 14 22">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- particles orbiting on true elliptical paths -->
+  <circle r="2.6" fill="#F97316">
+    <animateMotion dur="6s" repeatCount="indefinite"><mpath href="#sg-orbit-outer"/></animateMotion>
+  </circle>
+  <circle r="2" fill="#EDEDED" opacity="0.8">
+    <animateMotion dur="6s" begin="3s" repeatCount="indefinite"><mpath href="#sg-orbit-outer"/></animateMotion>
+  </circle>
+  <circle r="2.2" fill="#A78BFA">
+    <animateMotion dur="4.2s" repeatCount="indefinite"><mpath href="#sg-orbit-inner"/></animateMotion>
+  </circle>
+
+  <!-- photon ring + event horizon -->
+  <circle cx="376" cy="190" r="26" fill="none" stroke="#F97316" stroke-width="1" opacity="0.55">
+    <animate attributeName="r" values="25;28;25" dur="3.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0.75;0.4" dur="3.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="376" cy="190" r="23" fill="#000000" stroke="#E36002" stroke-width="2" filter="url(#sg-glow)"/>
+
+  <!-- documents falling into the core -->
+  <g font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace" font-size="13" font-weight="700" text-anchor="middle">
+    <g opacity="0">
+      <animateMotion dur="4.5s" repeatCount="indefinite"><mpath href="#sg-chip-path"/></animateMotion>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.82;1" dur="4.5s" repeatCount="indefinite"/>
+      <rect x="-18" y="-11" width="36" height="21" rx="4" fill="#111115" stroke="#F97316"/>
+      <text y="4.5" fill="#F97316">pdf</text>
+    </g>
+    <g opacity="0">
+      <animateMotion dur="4.5s" begin="1.5s" repeatCount="indefinite"><mpath href="#sg-chip-path"/></animateMotion>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.82;1" dur="4.5s" begin="1.5s" repeatCount="indefinite"/>
+      <rect x="-18" y="-11" width="36" height="21" rx="4" fill="#111115" stroke="#A78BFA"/>
+      <text y="4.5" fill="#A78BFA">img</text>
+    </g>
+    <g opacity="0">
+      <animateMotion dur="4.5s" begin="3s" repeatCount="indefinite"><mpath href="#sg-chip-path"/></animateMotion>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.82;1" dur="4.5s" begin="3s" repeatCount="indefinite"/>
+      <rect x="-18" y="-11" width="36" height="21" rx="4" fill="#111115" stroke="#8A8A93"/>
+      <text y="4.5" fill="#8A8A93">gab</text>
+    </g>
+  </g>
+
+  <!-- extraction lanes inside the bay -->
+  <g font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace">
+    <text x="252" y="256" font-size="13"><tspan font-weight="700" fill="#F97316">fastpath</tspan><tspan fill="#8A8A93"> · pdfjs texto nativo</tspan></text>
+    <text x="252" y="272" font-size="13" fill="#7C7C86">conf ≥ 0.9 · custo $0 · sem ocr</text>
+    <text x="252" y="291" font-size="13"><tspan font-weight="700" fill="#A78BFA">fallback</tspan><tspan fill="#8A8A93"> · python stdio</tspan></text>
+    <text x="252" y="307" font-size="13" fill="#7C7C86">pdf2img → ocr → llm → pydantic</text>
+    <text x="252" y="323" font-size="13" fill="#7C7C86">ollama local · gemini api</text>
+    <text x="252" y="340" font-size="13" fill="#7C7C86">+ gabarito-parser · respostas</text>
+  </g>
+
+  <!-- beam: typed questions out -->
+  <path d="M 488 190 H 522 V 112 H 538" fill="none" stroke="#A78BFA" stroke-width="1.5" stroke-opacity="0.6" stroke-dasharray="7 6">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26" dur="1.1s" repeatCount="indefinite"/>
+  </path>
+  <polygon points="536,107 536,117 544,112" fill="#A78BFA" opacity="0.9"/>
+  <circle r="3" fill="#A78BFA">
+    <animateMotion dur="1.6s" repeatCount="indefinite" path="M 488 190 H 522 V 112 H 538"/>
+  </circle>
+  <circle r="3" fill="#F97316">
+    <animateMotion dur="2.4s" repeatCount="indefinite" path="M 216 260 H 228 V 190 H 262"/>
+  </circle>
+
+  <!-- ══════ STAGES 04–07 · DELIVERY RAIL ══════ -->
+  <g font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace">
+    <g>
+      <rect x="540" y="84" width="324" height="56" rx="10" fill="#111115" stroke="rgba(255,255,255,0.08)"/>
+      <text x="556" y="118" font-size="13" font-weight="700" fill="#A78BFA">04</text>
+      <text x="584" y="108" font-size="15" font-weight="700" fill="#EDEDED">persistir</text>
+      <text x="584" y="128" font-size="13" fill="#8A8A93">questões → postgres</text>
+      <text x="850" y="108" text-anchor="end" font-size="13" fill="#7C7C86">drizzle</text>
+    </g>
+    <g>
+      <rect x="540" y="152" width="324" height="56" rx="10" fill="#111115" stroke="rgba(255,255,255,0.08)"/>
+      <text x="556" y="186" font-size="13" font-weight="700" fill="#A78BFA">05</text>
+      <text x="584" y="176" font-size="15" font-weight="700" fill="#EDEDED">classificar</text>
+      <text x="584" y="196" font-size="13" fill="#8A8A93">fila 2 · gemini-2.5-flash</text>
+      <text x="850" y="176" text-anchor="end" font-size="13" fill="#7C7C86">subject</text>
+    </g>
+    <g>
+      <rect x="540" y="220" width="324" height="56" rx="10" fill="#111115" stroke="rgba(255,255,255,0.08)"/>
+      <text x="556" y="254" font-size="13" font-weight="700" fill="#8A8A93">06</text>
+      <text x="584" y="244" font-size="15" font-weight="700" fill="#EDEDED">revisão humana</text>
+      <text x="584" y="264" font-size="13" fill="#8A8A93">edita · POST /publish</text>
+      <text x="850" y="244" text-anchor="end" font-size="13" fill="#22C55E">→ completed</text>
+    </g>
+    <g>
+      <rect x="540" y="288" width="324" height="56" rx="10" fill="#111115" stroke="rgba(34,197,94,0.35)"/>
+      <text x="556" y="322" font-size="13" font-weight="700" fill="#22C55E">07</text>
+      <text x="584" y="312" font-size="15" font-weight="700" fill="#EDEDED">quiz jogável</text>
+      <text x="584" y="332" font-size="13" fill="#8A8A93">react query · polling</text>
+      <text x="850" y="312" text-anchor="end" font-size="13" fill="#7C7C86">pwa</text>
+    </g>
+    <line x1="556" y1="141" x2="556" y2="151" stroke="#55555E" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <line x1="556" y1="209" x2="556" y2="219" stroke="#55555E" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <line x1="556" y1="277" x2="556" y2="287" stroke="#55555E" stroke-width="1.2" stroke-dasharray="3 3"/>
+  </g>
+
+  <!-- ══════ FOOTER · EXAM STATUS STATE MACHINE (schema.ts enum) ══════ -->
+  <line x1="40" y1="368" x2="864" y2="368" stroke="rgba(255,255,255,0.07)"/>
+  <text x="40" y="394" font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace" font-size="13" fill="#7C7C86">status</text>
+  <line x1="120" y1="390" x2="860" y2="390" stroke="rgba(255,255,255,0.14)"/>
+  <g font-family="ui-monospace,'JetBrains Mono','Fira Code','DejaVu Sans Mono',monospace" font-size="13" text-anchor="middle">
+    <circle cx="180" cy="390" r="4.5" fill="#8A8A93"/>
+    <text x="180" y="410" fill="#8A8A93">queued</text>
+    <circle cx="370" cy="390" r="4.5" fill="#F97316"/>
+    <text x="370" y="410" fill="#F97316">processing</text>
+    <circle cx="580" cy="390" r="4.5" fill="#A78BFA"/>
+    <text x="580" y="410" fill="#A78BFA">reviewing</text>
+    <circle cx="790" cy="390" r="4.5" fill="#22C55E"/>
+    <text x="790" y="410" fill="#22C55E">completed</text>
+    <!-- failed branch off processing -->
+    <path d="M 474 390 V 383 H 508" fill="none" stroke="#F87171" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <circle cx="474" cy="390" r="2.5" fill="#F87171"/>
+    <text x="516" y="387" text-anchor="start" fill="#F87171">failed</text>
+  </g>
+  <circle r="3" fill="#EDEDED" opacity="0.85">
+    <animateMotion dur="6s" repeatCount="indefinite" path="M 120 390 H 860"/>
+    <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.9;1" dur="6s" repeatCount="indefinite"/>
+  </circle>
 </svg>

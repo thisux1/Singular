@@ -71,7 +71,7 @@ each extracted question by exam and role.
 ### ❯ pipeline
 
 <div align="center">
-  <img src="./docs/architecture.svg?v=2" alt="Singular data flow" width="100%"/>
+  <img src="./docs/architecture.svg?v=3" alt="Singular data flow" width="100%"/>
 </div>
 
 One document's trip through the system:

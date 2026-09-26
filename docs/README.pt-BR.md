@@ -71,7 +71,7 @@ worker classifica cada questão extraída por concurso e cargo.
 ### ❯ pipeline
 
 <div align="center">
-  <img src="./architecture.svg?v=2" alt="Fluxo de dados do Singular" width="100%"/>
+  <img src="./architecture.svg?v=3" alt="Fluxo de dados do Singular" width="100%"/>
 </div>
 
 O trajeto de um documento pelo sistema:
