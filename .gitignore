@@ -49,6 +49,7 @@ docs/*
 !docs/architecture.svg
 !docs/demo.webp
 !docs/demo.webm
+!docs/README.pt-BR.md
 # Application Data
 data/
 .data/

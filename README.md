@@ -1,30 +1,66 @@
-<!-- BANNER ANIMADO DA SINGULARIDADE -->
-<p align="center">
-  <img src="docs/banner.svg" alt="Singular Banner" width="100%" style="border-radius: 8px; border: 1px solid rgba(234, 88, 12, 0.15);" />
-</p>
+<div align="center">
+  <a href="#root"><img src="./docs/banner.svg?v=2" alt="Singular" width="100%"/></a>
+</div>
 
-<!-- TECH BADGES MINIMALISTAS E HIGH-TECH -->
-<p align="center">
-  <img src="https://img.shields.io/badge/React-18.3-black?style=flat-square&logo=react&logoColor=61DAFB&labelColor=050202" alt="React" />
-  <img src="https://img.shields.io/badge/CSS3-Vanilla-black?style=flat-square&logo=css3&logoColor=1572B6&labelColor=050202" alt="CSS" />
-  <img src="https://img.shields.io/badge/Hono-Node.js-black?style=flat-square&logo=hono&logoColor=E36002&labelColor=050202" alt="Hono" />
+> 🇧🇷 [Versão em Português](docs/README.pt-BR.md)
+
+<table width="100%">
+  <tr>
+    <td width="50%" valign="top">
+      <pre lang="bash"><code>$ singular / briefing
+----------------------------------------------
+• input    : scanned exams · pdf / images
+• output   : playable quizzes, typed JSON
+• ocr      : glm-ocr | qwen2.5vl:3b | gemini
+• schema   : instructor + pydantic (strict)
+• classify : exam/role tags, gemini-2.5-flash
+• fastpath : text PDFs skip OCR (conf ≥ 0.9)</code></pre>
+    </td>
+    <td width="50%" valign="top">
+      <pre lang="python"><code>class Stack:
+    frontend = ["react 19.2", "vite 8",
+                "three+r3f", "zustand",
+                "react-query", "framer-motion"]
+    backend  = ["hono 4.6", "bullmq 5.58",
+                "drizzle+pg", "pdfjs-dist"]
+    pipeline = ["pymupdf", "pdf2image", "ollama",
+                "genai", "instructor", "pydantic 2"]
+    infra    = "postgres16 + redis7 + ollama"</code></pre>
+    </td>
+  </tr>
+</table>
+
+### ❯ badges
+
+<p align="left">
+  <img src="https://img.shields.io/badge/React-19.2-black?style=flat-square&logo=react&logoColor=61DAFB&labelColor=050202" alt="React 19" />
+  <img src="https://img.shields.io/badge/Vite-8-black?style=flat-square&logo=vite&logoColor=646CFF&labelColor=050202" alt="Vite 8" />
+  <img src="https://img.shields.io/badge/Three.js-R3F-black?style=flat-square&logo=threedotjs&logoColor=white&labelColor=050202" alt="Three.js + R3F" />
+  <img src="https://img.shields.io/badge/Hono-4.6-black?style=flat-square&logo=hono&logoColor=E36002&labelColor=050202" alt="Hono" />
+  <img src="https://img.shields.io/badge/BullMQ-5.58-black?style=flat-square&logo=redis&logoColor=DC382D&labelColor=050202" alt="BullMQ" />
   <img src="https://img.shields.io/badge/Drizzle-PostgreSQL-black?style=flat-square&logo=postgresql&logoColor=336791&labelColor=050202" alt="Drizzle" />
-  <img src="https://img.shields.io/badge/BullMQ-Redis-black?style=flat-square&logo=redis&logoColor=DC382D&labelColor=050202" alt="BullMQ" />
-  <img src="https://img.shields.io/badge/Python-OCR_Engine-black?style=flat-square&logo=python&logoColor=3776AB&labelColor=050202" alt="Python" />
-  <img src="https://img.shields.io/badge/Ollama-GLM_OCR-black?style=flat-square&logo=ollama&logoColor=white&labelColor=050202" alt="Ollama" />
+  <img src="https://img.shields.io/badge/Python-OCR_Pipeline-black?style=flat-square&logo=python&logoColor=3776AB&labelColor=050202" alt="Python" />
+  <img src="https://img.shields.io/badge/Ollama-glm--ocr-black?style=flat-square&logo=ollama&logoColor=8B5CF6&labelColor=050202" alt="Ollama" />
+  <img src="https://img.shields.io/badge/License-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=22C55E&labelColor=050202" alt="MIT" />
 </p>
 
 ---
 
-## Visão Geral
+### ❯ what_it_does
 
-**Singular** é uma plataforma web para geração automatizada de quizzes e exames a partir de documentos (PDFs, imagens e exames escaneados). Utiliza pipelines de OCR e LLM/VLM para extração estruturada de conteúdo, apresentando os resultados em uma interface imersiva baseada em React e Three.js.
+Singular ingests scanned exams and documents (PDF or image) and turns them
+into playable quizzes. An upload lands on a Hono API, a BullMQ job runs on
+Redis, and a Python pipeline extracts the content: PyMuPDF pulls the text
+layer directly when the PDF has one, `pdf2image` rasterizes the rest, and a
+VLM does the OCR (Ollama `glm-ocr` / `qwen2.5vl:3b` locally, or Gemini over
+the API). Instructor + Pydantic coerce the raw text into typed question
+JSON, Drizzle persists it to PostgreSQL, and the React + Three.js frontend
+renders the result inside a "singularity" scene. A second worker classifies
+each extracted question by exam and role.
 
 ---
 
-## Demonstração
-
-Abaixo está uma demonstração em vídeo do funcionamento do ecossistema e de sua interface em tempo real:
+### ❯ demo
 
 <p align="center">
   <video src="https://github.com/user-attachments/assets/021c2bf6-4fed-4eda-addb-9ddb637e6944" width="100%" controls autoplay loop muted playsinline></video>
@@ -32,154 +68,121 @@ Abaixo está uma demonstração em vídeo do funcionamento do ecossistema e de s
 
 ---
 
-## Arquitetura e Fluxo de Dados
+### ❯ pipeline
 
-Abaixo está o mapeamento visual do processamento de um documento bruto até a renderização na interface:
+<div align="center">
+  <img src="./docs/architecture.svg?v=2" alt="Singular data flow" width="100%"/>
+</div>
 
-<p align="center">
-  <img src="docs/architecture.svg" alt="Fluxo da Singularidade" width="100%" style="border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);" />
-</p>
+One document's trip through the system:
 
-### Ciclo de Vida do Processamento de Documentos
-
-1. **Upload**: O cliente envia o arquivo (PDF ou imagem) pela interface web.
-2. **Recepção e Enfileiramento**: A API backend em Hono recebe o upload, armazena temporariamente o arquivo, persiste os metadados iniciais no banco PostgreSQL via Drizzle ORM e enfileira um job de processamento no Redis.
-3. **Consumo e Execução de Tarefa**: O worker de processamento de exames (`process-exam.ts`) consome o job através do BullMQ e faz uma chamada IPC ao script Python da pipeline.
-4. **Extração OCR**:
-   - **Caso PDF**: O pipeline tenta extrair o texto diretamente usando a biblioteca PyMuPDF. Se não houver texto selecionável, o PDF é convertido para imagens via `pdf2image`.
-   - **OCR Multimodal (VLM)**: As imagens são enviadas ao provedor configurado. No modo `local`, o Ollama executa um modelo visual (por padrão `glm-ocr` ou `qwen2.5vl:3b`). No modo `api`, as imagens são enviadas diretamente à API do Google Gemini.
-5. **Estruturação de Dados**: O texto bruto extraído é enviado ao modelo da família Gemini (via API) junto com o framework `instructor` para extrair questões, enunciados e alternativas de forma tipada, gerando um payload JSON estruturado sob validação do Pydantic.
-6. **Persistência**: O worker recebe o JSON validado e atualiza a base de dados com as questões e alternativas extraídas.
-7. **Consumo**: O frontend atualiza a interface via React Query assim que o status da tarefa é concluído, permitindo a visualização e interação imediata.
+1. **Upload:** the client posts the file (PDF or image) from the web UI.
+2. **Enqueue:** the Hono API stores the file, writes the initial metadata to
+   PostgreSQL via Drizzle, and pushes a processing job onto Redis.
+3. **Consume:** the `process-exam.ts` worker picks the job up through BullMQ
+   and calls the Python pipeline over IPC (JSON in, JSON out on stdio).
+4. **Extract:** text-layer PDFs go through PyMuPDF directly and can skip OCR
+   entirely when the fast path clears `FASTPATH_MIN_CONFIDENCE`. Otherwise
+   pages become images (`pdf2image`) and go to the configured provider:
+   Ollama locally (`glm-ocr`, fallback `qwen2.5vl:3b`) or Gemini in `api` mode.
+5. **Structure:** the extracted text goes to a Gemini-class model through
+   `instructor`, which returns questions, statements and alternatives as a
+   Pydantic-validated JSON payload.
+6. **Persist:** the worker writes the validated questions and options back
+   to the database; `process-classification.ts` tags them by exam/role.
+7. **Consume:** the frontend picks up the finished job via React Query and
+   the quiz becomes playable.
 
 ---
 
-## Arquitetura de Componentes e Tecnologias
+### ❯ modules
 
-A tabela a seguir apresenta os detalhes técnicos de cada módulo do ecossistema:
-
-| Módulo / Componente | Tecnologias Utilizadas | Papel no Sistema |
+| Module | Stack | Role |
 | :--- | :--- | :--- |
-| **Interface do Usuário (Frontend)** | React 19, Vite, Three.js (R3F), Zustand, Framer Motion | SPA otimizada com renderização interativa 3D, controle de estado via Zustand, e estilização nativa baseada em CSS3 Vanilla (Design Tokens). |
-| **Servidor de API (Backend)** | Hono, Node.js, TypeScript | API RESTful rápida e modular responsável por gerenciar uploads de arquivos, persistência básica e orquestração de filas. |
-| **Orquestração de Filas (Workers)** | BullMQ, Redis, Node.js | Gerenciamento e execução paralela de tarefas assíncronas em segundo plano, divididas entre processamento de exames e classificação de questões. |
-| **Engine de Extração (Pipeline)** | Python, Instructor, Pydantic, pdf2image, PyMuPDF | Pipeline Python executado isoladamente para OCR e análise estruturada de documentos brutos em JSON tipado. |
-| **Banco de Dados** | PostgreSQL, Drizzle ORM | Persistência de dados relacionais com migrações gerenciadas declarativamente por meio do Drizzle Kit. |
-| **Provedores de OCR** | Ollama (GLM-OCR / Qwen), Google Gemini API | Mecanismo de OCR híbrido permitindo comutação entre modelo local privado (custo zero) e nuvem (máxima velocidade e acurácia). |
+| Frontend | React 19.2, Vite 8, Three.js 0.183 (R3F 9 + drei), Zustand, React Query, Framer Motion | SPA with an interactive 3D singularity scene; vanilla CSS design tokens, no utility framework |
+| API server | Hono 4.6, Node.js, TypeScript | REST API: uploads (`routes/exams.ts`), questions, quiz sessions |
+| Workers | BullMQ 5.58, Redis (ioredis) | Async jobs: `process-exam` (OCR pipeline) and `process-classification` |
+| Extraction pipeline | Python 3.10+: instructor, Pydantic 2, PyMuPDF, pdf2image, typer | OCR and typed structuring of raw documents into question JSON |
+| Database | PostgreSQL 16, Drizzle ORM 0.39 | Relational storage, migrations via Drizzle Kit |
+| OCR providers | Ollama (glm-ocr / qwen2.5vl:3b) or Google Gemini | Local, zero-cost OCR or cloud API, switched by `OCR_PROVIDER` |
 
 ---
 
-## Como Iniciar
+### ❯ run_it
 
-### Pré-requisitos
-*   **Node.js** (v18+)
-*   **Docker** e **Docker Compose** (para Redis e PostgreSQL)
-*   **Python** (v3.10+)
+Prereqs: Node.js 18+, Docker + Compose, Python 3.10+.
 
-<details>
-<summary><b>1. Clonar e Instalar Dependências JavaScript</b></summary>
-<br />
-
-Instale as dependências na raiz do projeto e nos sub-projetos:
+**1. JS dependencies**
 
 ```bash
-# Instale as dependências da raiz (gerenciador de processos simultâneos)
 npm install
-
-# Instale as dependências de cada sub-projeto
 cd backend && npm install && cd ../frontend && npm install && cd ..
 ```
-</details>
 
-<details>
-<summary><b>2. Configurar o Ambiente Python (Pipeline de OCR)</b></summary>
-<br />
-
-Crie um ambiente virtual em Python na raiz do projeto e instale as bibliotecas necessárias para extração dos documentos:
+**2. Python environment (OCR pipeline)**
 
 ```bash
-# Crie o ambiente virtual (.venv) na raiz do projeto
 python3 -m venv .venv
-
-# Ative o ambiente virtual
-# No Linux/macOS:
-source .venv/bin/activate
-# No Windows:
-.venv\Scripts\activate
-
-# Instale as dependências
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r pipeline/requirements.txt
 ```
 
-> [!NOTE]
-> No Linux, o processamento de arquivos PDF (`pdf2image`) depende do utilitário de sistema `poppler`. Caso ocorra algum erro ao processar PDFs, instale-o pelo terminal do sistema:
-> *   **Ubuntu/Debian:** `sudo apt-get install poppler-utils`
-> *   **macOS:** `brew install poppler`
-</details>
+> On Linux, `pdf2image` needs the `poppler` system package:
+> Ubuntu/Debian `sudo apt-get install poppler-utils`, macOS `brew install poppler`.
 
-<details>
-<summary><b>3. Configurar Variáveis de Ambiente</b></summary>
-<br />
-
-Copie o arquivo de exemplo de variáveis de ambiente para a raiz do projeto e configure conforme o seu uso:
+**3. Environment**
 
 ```bash
 cp .env.example .env
 ```
 
-Abra o arquivo `.env` gerado e configure o modo do provedor de OCR (`OCR_PROVIDER`):
-*   **Modo Local (`local`)**: Utiliza o **Ollama** instalado localmente para extração de OCR a custo zero.
-*   **Modo API (`api`)**: Utiliza os modelos **Google Gemini** em nuvem (Requer que você insira sua chave `GEMINI_API_KEY`).
-</details>
+Set `OCR_PROVIDER`: `local` uses Ollama at zero cost; `api` uses Gemini and
+needs `GEMINI_API_KEY`. The classification model defaults to
+`gemini-2.5-flash` (`CLASSIFICATION_*` knobs in `.env.example`).
 
-<details>
-<summary><b>4. Setup do OCR Local (Opcional - Ollama)</b></summary>
-<br />
-
-Caso opte por utilizar o OCR Local gratuito, certifique-se de que o Ollama está rodando e execute o script automatizado para baixar e configurar os modelos recomendados:
+**4. Local OCR models (optional)**
 
 ```bash
 bash scripts/setup-local-ocr.sh
 ```
-*Este script baixará o modelo otimizado `glm-ocr` de alta performance e configurará o seu ambiente local.*
-</details>
 
-### Execução do Projeto Completo
+Pulls `glm-ocr` and the `qwen2.5vl:3b` fallback into Ollama. You can also run
+Ollama in Docker with `docker compose --profile local-ocr up`.
 
-Inicie o banco de dados PostgreSQL, o Redis, execute as migrações e rode todos os serviços (API backend, workers e frontend) com um único comando na raiz do projeto:
+**5. Everything at once**
 
 ```bash
 npm run all
 ```
 
-Após o carregamento, os serviços estarão disponíveis em:
-*   **Frontend Web**: `http://localhost:5173`
-*   **Backend API**: `http://localhost:3001`
+This boots postgres + redis via compose, runs the Drizzle migrations, and
+starts api + workers + frontend under `concurrently`.
+
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:3001`
 
 ---
 
-## Estrutura do Repositório
+### ❯ repo_map
 
-```path
-├── backend/          # Servidor HTTP Hono, esquemas Drizzle e workers BullMQ
-├── frontend/         # App React com design tokens e UI interativa
-├── pipeline/         # Engine Python OCR para parsing inteligente de exames e documentos
-├── scripts/          # Shell scripts utilitários de setup local
-├── docs/             # Arquivos de documentação visual e diagramas
-│   ├── banner.svg    # Banner da Singularidade
-│   └── architecture.svg # Fluxograma do ciclo de vida dos dados
-├── docker-compose.yml# Configuração dos contêineres Redis e PostgreSQL
-└── .gitignore        # Arquivos protegidos e configs locais ignorados
-```
+<pre lang="text"><code>backend/           Hono API, Drizzle schema, BullMQ workers
+  └── src/jobs/    process-exam.ts · process-classification.ts · queue.ts
+frontend/          React 19 SPA · three/ singularity canvas · quiz pages
+pipeline/          Python OCR engine · main.py, ocr_provider.py, requirements.txt
+scripts/           local setup helpers (setup-local-ocr.sh, ...)
+docs/              banner.svg · architecture.svg · plans, prototypes, qa
+docker-compose.yml postgres:16 · redis:7 · ollama (profile: local-ocr)</code></pre>
 
 ---
 
-## Design System e Estética Visual
+### ❯ design
 
-A interface do Singular implementa uma estética espacial imersiva baseada em pretos absolutos, gradientes e efeitos de iluminação neon. Para evitar dependências adicionais de estilização, todo o layout utiliza CSS nativo puro (Vanilla CSS com Design Tokens), sem frameworks utilitários como o Tailwind CSS. A renderização tridimensional interativa e as transições utilizam bibliotecas dedicadas de 3D e animação (Three.js/R3F e Framer Motion).
+The interface implements the "Singularity UI" language: void black surfaces
+(`#09090B`, `#111115`), an orange accretion flare (`#E36002`/`#F97316`) and a
+violet processing accent (`#8B5CF6`). All layout uses vanilla CSS with design
+tokens; 3D and motion go through React Three Fiber and Framer Motion, so no
+utility CSS framework ships with the bundle.
 
 ---
 
-## Licença
-
-Este projeto é de código aberto e está licensed sob os termos da [Licença MIT](LICENSE). Sinta-se livre para usar, estudar, modificar e distribuir o código.
+Released under the [MIT License](LICENSE).
