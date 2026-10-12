@@ -5,7 +5,7 @@ test.describe('fluxo de simulação', () => {
     const { examId } = getSeededExam();
 
     // ---- Setup ----
-    await page.goto(`/quiz/setup/${examId}`);
+    await page.goto(`/app/quiz/setup/${examId}`);
     await expect(page.locator('.quiz-setup__title')).toHaveText('Configurar Simulação');
 
     // Modo "Prova Completa" (radiogroup de mode-cards)
@@ -13,7 +13,7 @@ test.describe('fluxo de simulação', () => {
     await page.getByRole('button', { name: 'Iniciar Simulação' }).click();
 
     // ---- Player ----
-    await page.waitForURL(new RegExp(`/quiz/${examId}\\?session=`));
+    await page.waitForURL(new RegExp(`/app/quiz/${examId}\\?session=`));
     await expect(page.locator('.quiz-player__question')).toBeVisible();
     await expect(page.locator('.quiz-dots__dot')).toHaveCount(5);
     await expect(page.locator('.quiz-player__meta-label')).toContainText('Fragmento 1 de 5');
@@ -40,7 +40,7 @@ test.describe('fluxo de simulação', () => {
     }
 
     // ---- Resultado ----
-    await page.waitForURL(/\/quiz\/[0-9a-f-]+\/result/);
+    await page.waitForURL(/\/app\/quiz\/[0-9a-f-]+\/result/);
     await expect(page.locator('.quiz-result__title')).toHaveText('Diagnóstico da Simulação');
     await expect(page.locator('.quiz-result__score-value')).toContainText('%');
     await expect(page.locator('.quiz-result__score-summary')).toContainText('Taxa de Sucesso');

@@ -121,7 +121,7 @@ export function QuizSetupPage() {
       }),
     onSuccess: (session) => {
       saveExamSession(examId, session.sessionId, session.questionIds);
-      navigate(`/quiz/${examId}?session=${session.sessionId}`);
+      navigate(`/app/quiz/${examId}?session=${session.sessionId}`);
     },
     onError: (error) => {
       const code = getApiErrorCode(error);
@@ -168,7 +168,7 @@ export function QuizSetupPage() {
       <section className="quiz-setup page page-container">
         <div className="quiz-setup__terminal quiz-setup__terminal--error">
           <p>Simulação indisponível: os dados da prova não puderam ser lidos.</p>
-          <Button variant="ghost" onClick={() => navigate(`/exam/${examId}`)}>
+          <Button variant="ghost" onClick={() => navigate(`/app/exam/${examId}`)}>
             Voltar ao painel
           </Button>
         </div>
@@ -336,7 +336,7 @@ export function QuizSetupPage() {
             )}
           </div>
           <div className="quiz-setup__footer-actions">
-            <Button variant="ghost" onClick={() => navigate(`/exam/${examId}`)}>
+            <Button variant="ghost" onClick={() => navigate(`/app/exam/${examId}`)}>
               Abortar
             </Button>
             <Button

@@ -5,9 +5,17 @@ import { RequireAuth } from './components/auth/RequireAuth';
 import { AppShell } from './components/layout/AppShell';
 import { OnboardingDialog } from './components/onboarding/OnboardingDialog';
 import { useOnboarding } from './components/onboarding/useOnboarding';
+import { SingularityCanvas } from './components/three/SingularityCanvas';
 import { Skeleton } from './components/ui/Skeleton';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { LoginPage } from './pages/LoginPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { SignupPage } from './pages/SignupPage';
+import { VerifyEmailPage } from './pages/VerifyEmailPage';
 
+const LandingPage = lazy(() =>
+  import('./pages/LandingPage').then((module) => ({ default: module.LandingPage })),
+);
 const ExamListPage = lazy(() =>
   import('./pages/ExamListPage').then((module) => ({ default: module.ExamListPage })),
 );
@@ -28,6 +36,9 @@ const QuizResultPage = lazy(() =>
 );
 const BankPage = lazy(() =>
   import('./pages/BankPage').then((module) => ({ default: module.BankPage })),
+);
+const AccountPage = lazy(() =>
+  import('./pages/AccountPage').then((module) => ({ default: module.AccountPage })),
 );
 
 const queryClient = new QueryClient();
@@ -57,7 +68,7 @@ function NotFound() {
         Página não encontrada — a rota colapsou além do horizonte de eventos.
       </p>
       <Link
-        to="/"
+        to="/app"
         className="text-mono"
         style={{
           color: '#f97316',
@@ -77,8 +88,25 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        {/* Fundo Gargantua — canvas fixed global, visível em rotas públicas e no app. */}
+        <SingularityCanvas />
         <Routes>
+          {/* ─── Rotas públicas ─── */}
+          <Route
+            path="/"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <LandingPage />
+              </Suspense>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+          {/* ─── App autenticado (prefixo /app) ─── */}
           <Route element={<RequireAuth />}>
             <Route
               element={
@@ -89,7 +117,7 @@ export default function App() {
               }
             >
               <Route
-                index
+                path="/app"
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <ExamListPage />
@@ -97,7 +125,7 @@ export default function App() {
                 }
               />
               <Route
-                path="/exam/:id"
+                path="/app/exam/:id"
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <ExamDetailPage />
@@ -105,7 +133,7 @@ export default function App() {
                 }
               />
               <Route
-                path="/exam/:id/review"
+                path="/app/exam/:id/review"
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <ExamReviewPage />
@@ -113,7 +141,7 @@ export default function App() {
                 }
               />
               <Route
-                path="/quiz/setup/:examId"
+                path="/app/quiz/setup/:examId"
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <QuizSetupPage />
@@ -121,7 +149,7 @@ export default function App() {
                 }
               />
               <Route
-                path="/banco"
+                path="/app/banco"
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <BankPage />
@@ -129,7 +157,7 @@ export default function App() {
                 }
               />
               <Route
-                path="/quiz/:examId"
+                path="/app/quiz/:examId"
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <QuizPlayerPage />
@@ -137,10 +165,18 @@ export default function App() {
                 }
               />
               <Route
-                path="/quiz/:quizId/result"
+                path="/app/quiz/:quizId/result"
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <QuizResultPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/app/conta"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <AccountPage />
                   </Suspense>
                 }
               />

@@ -2,7 +2,7 @@ import { expect, test } from './base';
 
 test.describe('home (terminal de provas)', () => {
   test('carrega navbar/wordmark e lista a prova E2E semeada', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/app');
 
     // Wordmark + nav
     await expect(page.locator('.navbar__brand')).toContainText('Singular');

@@ -268,6 +268,11 @@
 }
 
 .navbar__menu-item:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.navbar__menu-item--danger:hover {
   background: var(--accent-incorrect-muted);
   color: #f87171;
 }
