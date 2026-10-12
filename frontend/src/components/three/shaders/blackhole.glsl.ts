@@ -466,19 +466,3 @@ export const starsFragmentShader = /* glsl */ `
     gl_FragColor = vec4(vColor, 1.0);
   }
 `;
-
-// ─── Noise generator shader ───
-// Renders a Perlin noise texture that tiles seamlessly.
-// Used as the noise lookup for the accretion disc.
-
-export const noiseVertexShader = /* glsl */ `
-  varying vec2 vUv;
-  
-  void main() {
-    vUv = uv;
-    gl_Position = vec4(position, 1.0);
-  }
-`;
-
-// Simplified noise for the texture — we'll generate it on CPU instead
-// to avoid needing GLSL 300 es in the noise generator

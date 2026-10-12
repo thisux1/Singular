@@ -20,7 +20,7 @@ function getStatusDisplay(status: string) {
 }
 
 export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: ExamSingularityCardProps) {
-  const cardRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 200, y: 200, px: 0, py: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -59,7 +59,7 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
     ? new Date(exam.examDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) 
     : 'Data Desconhecida';
 
-  const CardContent = () => (
+  const cardContent = (
     <>
       <div className="exam-singularity__meta-top">
         <span className="exam-singularity__id-label">{exam.id.split('-')[0]}</span>
@@ -91,13 +91,21 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
   );
 
   return (
-    <button
+    <div
       className={`exam-singularity ${statusClass}`}
       ref={cardRef}
+      role="button"
+      tabIndex={0}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={isMenuOpen ? undefined : onClick}
-      type="button"
+      onKeyDown={(e) => {
+        if (isMenuOpen) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
       style={{
         '--mx': `${mousePos.x}px`,
         '--my': `${mousePos.y}px`,
@@ -152,7 +160,7 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
               <div key={`wizard-scan-${step}`} className="exam-singularity__wizard-scan-line" />
             )}
             {exam.status === 'processing' && <div className="exam-singularity__scan-line" />}
-            <CardContent />
+            {cardContent}
           </div>
         </div>
 
@@ -161,14 +169,14 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
             <div className="exam-singularity__glitch-layer glitch-layer-1">
               <div className="exam-singularity__content-layer glitch-content-layer">
                 <div className="exam-singularity__glass-panel">
-                  <CardContent />
+                  {cardContent}
                 </div>
               </div>
             </div>
             <div className="exam-singularity__glitch-layer glitch-layer-2">
               <div className="exam-singularity__content-layer glitch-content-layer">
                 <div className="exam-singularity__glass-panel">
-                  <CardContent />
+                  {cardContent}
                 </div>
               </div>
             </div>
@@ -206,6 +214,6 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
           </Button>
         </div>
       )}
-    </button>
+    </div>
   );
 }

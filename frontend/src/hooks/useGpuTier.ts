@@ -35,15 +35,19 @@ function detectGpuTier(): GpuTier {
       return 'low';
     }
 
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    try {
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
 
-    if (debugInfo) {
-      const renderer = String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) ?? '');
-      return classifyRenderer(renderer);
+      if (debugInfo) {
+        const renderer = String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) ?? '');
+        return classifyRenderer(renderer);
+      }
+
+      const fallbackRenderer = String(gl.getParameter(gl.RENDERER) ?? '');
+      return classifyRenderer(fallbackRenderer);
+    } finally {
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
     }
-
-    const fallbackRenderer = String(gl.getParameter(gl.RENDERER) ?? '');
-    return classifyRenderer(fallbackRenderer);
   } catch {
     return 'medium';
   }
