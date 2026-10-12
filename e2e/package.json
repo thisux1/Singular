@@ -1,0 +1,6 @@
+{
+  "name": "singular-e2e",
+  "private": true,
+  "type": "module",
+  "description": "E2E tests (Playwright) — deps ficam no package.json raiz."
+}

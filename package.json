@@ -2,9 +2,17 @@
   "name": "singular",
   "version": "1.0.0",
   "scripts": {
-    "all": "docker compose up -d && npm run db:migrate --prefix backend && concurrently --names \"api,workers,frontend\" --prefix-colors \"blue,cyan,magenta\" \"npm run dev --prefix backend\" \"npm run dev:workers --prefix backend\" \"npm run dev --prefix frontend\""
+    "all": "docker compose up -d && npm run db:migrate --prefix backend && concurrently --names \"api,workers,frontend\" --prefix-colors \"blue,cyan,magenta\" \"npm run dev --prefix backend\" \"npm run dev:workers --prefix backend\" \"npm run dev --prefix frontend\"",
+    "test": "npm test --prefix backend",
+    "test:pipeline": ".venv/bin/python -m pytest pipeline/tests -q",
+    "e2e": "playwright test --config e2e/playwright.config.ts",
+    "e2e:seed": "node e2e/seed.mjs",
+    "test:all": "npm test && npm run test:pipeline && npm run e2e"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "@playwright/test": "^1.64.0",
+    "@types/pg": "^8.23.1",
+    "concurrently": "^9.0.0",
+    "pg": "^8.23.1"
   }
 }
