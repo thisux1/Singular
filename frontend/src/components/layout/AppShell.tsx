@@ -3,59 +3,92 @@ import { AnimatePresence } from 'framer-motion';
 import { PageTransition } from '../effects/PageTransition';
 import { GrainOverlay } from '../effects/GrainOverlay';
 import { ToastContainer } from '../ui/Toast';
-import { useMousePosition } from '../../hooks/useMousePosition';
+import { isTouchLikeEnvironment } from '../../hooks/useMousePosition';
 import { SingularityCanvas } from '../three/SingularityCanvas';
 import { Navbar } from './Navbar';
 import { FuiOverlay } from '../fui/FuiOverlay';
 import './AppShell.css';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function DomCursor() {
-  const mouse = useMousePosition(true);
-  const [trail, setTrail] = useState({ x: 0, y: 0 });
+  const [enabled, setEnabled] = useState(() => !isTouchLikeEnvironment());
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const trailRef = useRef<HTMLDivElement>(null);
+  const mouseRef = useRef({ x: 0, y: 0, active: false });
+  const trailPosRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (!mouse.active) return;
-    let animationFrameId: number;
+    if (typeof window === 'undefined') return;
+    const coarseQuery = window.matchMedia('(pointer: coarse)');
+    const hoverNoneQuery = window.matchMedia('(hover: none)');
+    const sync = () => setEnabled(!isTouchLikeEnvironment());
+    coarseQuery.addEventListener('change', sync);
+    hoverNoneQuery.addEventListener('change', sync);
+    return () => {
+      coarseQuery.removeEventListener('change', sync);
+      hoverNoneQuery.removeEventListener('change', sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType && event.pointerType !== 'mouse') return;
+      const mouse = mouseRef.current;
+      mouse.x = event.clientX;
+      mouse.y = event.clientY;
+      if (!mouse.active) {
+        mouse.active = true;
+        trailPosRef.current.x = mouse.x;
+        trailPosRef.current.y = mouse.y;
+        cursorRef.current?.classList.add('is-active');
+        trailRef.current?.classList.add('is-active');
+      }
+    };
+    const onPointerLeave = () => {
+      mouseRef.current.active = false;
+      cursorRef.current?.classList.remove('is-active');
+      trailRef.current?.classList.remove('is-active');
+    };
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerleave', onPointerLeave, { passive: true });
+    window.addEventListener('blur', onPointerLeave);
+
+    let animationFrameId = 0;
     const updateTrail = () => {
-      setTrail((prev) => {
-        const dx = mouse.x - prev.x;
-        const dy = mouse.y - prev.y;
-        return {
-          x: prev.x + dx * 0.15,
-          y: prev.y + dy * 0.15,
-        };
-      });
+      const { x, y } = mouseRef.current;
+      const trail = trailPosRef.current;
+      trail.x += (x - trail.x) * 0.15;
+      trail.y += (y - trail.y) * 0.15;
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) translate3d(-50%, -50%, 0)`;
+      }
+      if (trailRef.current) {
+        trailRef.current.style.transform = `translate3d(${trail.x}px, ${trail.y}px, 0) translate3d(-50%, -50%, 0)`;
+      }
       animationFrameId = requestAnimationFrame(updateTrail);
     };
     updateTrail();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [mouse.x, mouse.y, mouse.active]);
 
-  if (!mouse.enabled) {
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerleave', onPointerLeave);
+      window.removeEventListener('blur', onPointerLeave);
+    };
+  }, [enabled]);
+
+  if (!enabled) {
     return null;
   }
 
-  const fallbackX = typeof window === 'undefined' ? 0 : window.innerWidth * 0.5;
-  const fallbackY = typeof window === 'undefined' ? 0 : window.innerHeight * 0.5;
-  const cursorX = mouse.active ? mouse.x : fallbackX;
-  const cursorY = mouse.active ? mouse.y : fallbackY;
-  const trailX = mouse.active ? trail.x : fallbackX;
-  const trailY = mouse.active ? trail.y : fallbackY;
-
   return (
     <>
-      <div
-        className={`app-shell__cursor ${mouse.active ? 'is-active' : ''}`}
-        style={{ transform: `translate3d(${cursorX}px, ${cursorY}px, 0) translate3d(-50%, -50%, 0)` }}
-        aria-hidden="true"
-      />
-      <div
-        className={`app-shell__cursor-trail ${mouse.active ? 'is-active' : ''}`}
-        style={{ transform: `translate3d(${trailX}px, ${trailY}px, 0) translate3d(-50%, -50%, 0)` }}
-        aria-hidden="true"
-      />
+      <div ref={cursorRef} className="app-shell__cursor" aria-hidden="true" />
+      <div ref={trailRef} className="app-shell__cursor-trail" aria-hidden="true" />
     </>
   );
 }
