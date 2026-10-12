@@ -1,0 +1,98 @@
+# Self-host completo: app + postgres + redis (+ ollama opcional via --profile local-ocr)
+# Uso: docker compose -f docker-compose.prod.yml up -d --build
+# Requer .env com POSTGRES_USER/POSTGRES_PASSWORD/POSTGRES_DB e vars do app (.env.example)
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: singular-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-singular}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    container_name: singular-redis
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  api:
+    build: .
+    container_name: singular-api
+    restart: unless-stopped
+    command: ['node', 'dist/index.js']
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-singular}
+      REDIS_URL: redis://redis:6379
+      PORT: 3001
+      UPLOAD_DIR: /data/uploads
+      PIPELINE_ENTRYPOINT: /app/pipeline/main.py
+      PIPELINE_PYTHON_BIN: /usr/local/bin/python3.12
+    ports:
+      - '3001:3001'
+    volumes:
+      - uploads_data:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  workers:
+    build: .
+    container_name: singular-workers
+    restart: unless-stopped
+    command: ['node', 'dist/worker.js']
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-singular}
+      REDIS_URL: redis://redis:6379
+      UPLOAD_DIR: /data/uploads
+      PIPELINE_ENTRYPOINT: /app/pipeline/main.py
+      PIPELINE_PYTHON_BIN: /usr/local/bin/python3.12
+    volumes:
+      - uploads_data:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Frontend estatico (build do Vite) servido por nginx com proxy /api
+  frontend:
+    build: ./frontend
+    container_name: singular-frontend
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+
+  ollama:
+    image: ollama/ollama
+    container_name: singular-ollama
+    profiles:
+      - local-ocr
+    restart: unless-stopped
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  postgres_data:
+  uploads_data:
+  ollama_data:

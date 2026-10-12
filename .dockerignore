@@ -1,0 +1,16 @@
+.git
+node_modules
+**/node_modules
+**/dist
+.venv
+**/__pycache__
+uploads
+backend/uploads
+backend/tmp
+videos
+docs
+docplans
+.env
+.env.*
+frontend
+*.log
