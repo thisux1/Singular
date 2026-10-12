@@ -52,6 +52,16 @@ function findOrCreateLocalUser(): Promise<AuthUser> {
 }
 
 /**
+ * Invalida o cache do stub 'local' — chamado por DELETE /api/account:
+ * em AUTH_DISABLED a exclusão apaga a row stub (e cascateia os dados dev);
+ * sem reset, o cache continuaria servindo um usuário que não existe mais e
+ * novos inserts (exams.user_id FK) falhariam. Próxima request re-cria.
+ */
+export function invalidateLocalUserCache(): void {
+  localUserPromise = null;
+}
+
+/**
  * Guard de rotas /api/* (D6/D14).
  *
  * - AUTH_DISABLED=true (dev/self-host single-user): injeta o usuário stub

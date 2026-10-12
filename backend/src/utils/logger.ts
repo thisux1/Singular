@@ -6,6 +6,14 @@ export function logInfo(event: string, payload?: Record<string, unknown>): void 
   console.log(`[INFO] ${event}`);
 }
 
+export function logWarn(event: string, payload?: Record<string, unknown>): void {
+  if (payload) {
+    console.warn(`[WARN] ${event}`, payload);
+    return;
+  }
+  console.warn(`[WARN] ${event}`);
+}
+
 export function logError(event: string, payload?: Record<string, unknown>): void {
   if (payload) {
     console.error(`[ERROR] ${event}`, payload);

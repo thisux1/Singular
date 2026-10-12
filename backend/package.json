@@ -30,6 +30,7 @@
     "ioredis": "^5.4.1",
     "pdfjs-dist": "^4.10.38",
     "pg": "^8.13.1",
+    "resend": "6.32.0",
     "zod": "^4.6.6"
   },
   "devDependencies": {
