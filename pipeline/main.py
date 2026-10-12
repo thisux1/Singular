@@ -3,21 +3,20 @@
 
 Contract:
 - Reads JSON payload from stdin.
-- Writes JSON result to stdout.
-- Never writes non-JSON to stdout.
+- Writes exactly one JSON result to stdout; logs go to stderr only.
+- Always exits 0; failures surface as status="error"/"needs_review" payloads.
 
-OCR Provider:
-- Controlled by OCR_PROVIDER env var: "local" | "api" | "docling"
-- "local" uses Ollama (GLM-OCR / Qwen2.5-VL) — cost $0
-- "api" uses Gemini Flash — cost ~$0.001/page
-- "docling" uses Docling library — cost $0 (legacy default)
+OCR Provider (OCR_PROVIDER env var): "local" (Ollama, $0) | "api" (Gemini).
+
+No-hallucination rule (D11): when extracted text < extract_min_chars or
+structuring returns zero questions, emit status="needs_review" — never send
+stub text to the LLM.
 """
 
 from __future__ import annotations
 
-import json
+import concurrent.futures
 import os
-import re
 import sys
 from pathlib import Path
 from typing import Literal
@@ -51,24 +50,42 @@ class PipelineInput(BaseModel):
             raise ValueError("page_end must be greater than or equal to page_start")
 
 
-
 class Question(BaseModel):
     order: int = Field(ge=1)
     questionText: str = Field(min_length=1)
     options: list[str] = Field(default_factory=list)
+    correctAnswer: str | None = None
+    sourcePage: int | None = Field(default=None, ge=1)
+    contextText: str | None = None
+    requiresFigure: bool | None = None
 
 
 class QuestionsPayload(BaseModel):
-    questions: list[Question] = Field(min_length=1)
+    questions: list[Question] = Field(default_factory=list)
+
+
+class PageError(BaseModel):
+    page: int = Field(ge=1)
+    error: str = Field(min_length=1)
 
 
 class PipelineSuccessResult(BaseModel):
     status: Literal["ok"]
-    usedPath: str  # Now accepts any provider name
+    usedPath: str
     fallbackTriggered: bool
     fallbackReason: str | None = None
     totalQuestions: int = Field(ge=1)
     questions: list[Question] = Field(min_length=1)
+    extractionChars: int = Field(ge=0)
+    pageErrors: list[PageError] | None = None
+    pagesProcessed: int | None = Field(default=None, ge=0)
+    pagesFailed: int | None = Field(default=None, ge=0)
+
+
+class PipelineNeedsReviewResult(BaseModel):
+    status: Literal["needs_review"]
+    errorCode: Literal["PIPELINE_INSUFFICIENT_CONTENT", "PIPELINE_NO_QUESTIONS"]
+    message: str
     extractionChars: int = Field(ge=0)
 
 
@@ -78,7 +95,7 @@ class PipelineErrorResult(BaseModel):
     message: str
 
 
-def emit(result: PipelineSuccessResult | PipelineErrorResult) -> None:
+def emit(result: PipelineSuccessResult | PipelineNeedsReviewResult | PipelineErrorResult) -> None:
     sys.stdout.write(result.model_dump_json())
     sys.stdout.flush()
 
@@ -100,13 +117,6 @@ def read_input() -> PipelineInput:
     return PipelineInput.model_validate_json(raw)
 
 
-
-
-
-def normalize_whitespace(text: str) -> str:
-    return re.sub(r"\s+", " ", text).strip()
-
-
 def gemini_extract_questions(payload: PipelineInput, source_text: str) -> QuestionsPayload:
     """Use Gemini API with Instructor to extract structured questions from raw text."""
 
@@ -117,7 +127,6 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
     try:
         from google import genai  # type: ignore
         import instructor
-        import time
     except ImportError as exc:
         raise RuntimeError(f"IMPORT_ERROR:{exc}") from exc
 
@@ -127,21 +136,22 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
     )
 
     def chunk_text(text: str, max_chars: int = 30000) -> list[str]:
-        if "\n\n---\n\n" in text:
-            parts = text.split("\n\n---\n\n")
+        sep = "\n\n---\n\n"
+        if sep in text:
+            parts = text.split(sep)
             chunks = []
             current_chunk = []
             current_len = 0
             for part in parts:
                 if current_len + len(part) > max_chars and current_chunk:
-                    chunks.append("\n\n---\n\n".join(current_chunk))
+                    chunks.append(sep.join(current_chunk))
                     current_chunk = [part]
                     current_len = len(part)
                 else:
                     current_chunk.append(part)
-                    current_len += len(part) + 7
+                    current_len += len(part) + len(sep)
             if current_chunk:
-                chunks.append("\n\n---\n\n".join(current_chunk))
+                chunks.append(sep.join(current_chunk))
             return chunks
         else:
             lines = text.split("\n")
@@ -163,14 +173,20 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
     chunks = chunk_text(source_text, max_chars=30000)
     _log_stderr(f"Split source text into {len(chunks)} chunks for parallel processing")
 
-    all_questions = []
-    seen_orders = set()
+    prova_hint = f"Tipo de prova: {payload.prova_type}. " if payload.prova_type else ""
 
     def process_chunk(idx: int, chunk: str) -> list[Question]:
         _log_stderr(f"Processing chunk {idx + 1}/{len(chunks)} ({len(chunk)} chars)...")
         prompt = (
             "Extraia as questões objetivas do texto fornecido. "
-            "Mantenha a numeração original e extraia as alternativas.\n\n"
+            "Mantenha a numeração original e extraia as alternativas. "
+            f"{prova_hint}"
+            "Quando evidente no texto, preencha também: correctAnswer (letra do "
+            "gabarito), sourcePage (número indicado pelos marcadores [Página N] "
+            "— não inclua os marcadores em questionText), contextText (trecho "
+            "base quando a questão referencia um texto/estímulo) e "
+            "requiresFigure (true se a questão depende de figura, imagem ou "
+            "tabela).\n\n"
             f"Texto:\n{chunk}"
         )
 
@@ -202,8 +218,7 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
 
         return chunk_questions
 
-    import concurrent.futures
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(4, len(chunks))) as executor:
         futures = {executor.submit(process_chunk, idx, chunk): idx for idx, chunk in enumerate(chunks)}
         results = {}
         for future in concurrent.futures.as_completed(futures):
@@ -214,6 +229,8 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
                 _log_stderr(f"Parallel processing failed on chunk {idx + 1}: {exc}")
                 raise exc
 
+    all_questions = []
+    seen_orders = set()
     for idx in sorted(results.keys()):
         for q in results[idx]:
             if q.order not in seen_orders:
@@ -223,6 +240,7 @@ def gemini_extract_questions(payload: PipelineInput, source_text: str) -> Questi
     all_questions.sort(key=lambda x: x.order)
     return QuestionsPayload(questions=all_questions)
 
+
 def build_success(
     *,
     used_path: str,
@@ -230,6 +248,9 @@ def build_success(
     fallback_reason: str,
     extraction_chars: int,
     questions_payload: QuestionsPayload,
+    page_errors: list[dict],
+    pages_processed: int,
+    pages_failed: int,
 ) -> PipelineSuccessResult:
     return PipelineSuccessResult(
         status="ok",
@@ -239,10 +260,13 @@ def build_success(
         totalQuestions=len(questions_payload.questions),
         questions=questions_payload.questions,
         extractionChars=extraction_chars,
+        pageErrors=page_errors or None,
+        pagesProcessed=pages_processed,
+        pagesFailed=pages_failed,
     )
 
 
-def run(payload: PipelineInput) -> PipelineSuccessResult:
+def run(payload: PipelineInput) -> PipelineSuccessResult | PipelineNeedsReviewResult:
     if not Path(payload.file_path).exists():
         raise FileNotFoundError(f"FILE_NOT_FOUND:{payload.file_path}")
 
@@ -250,60 +274,64 @@ def run(payload: PipelineInput) -> PipelineSuccessResult:
     ocr_provider = create_ocr_provider(api_key=payload.gemini_api_key)
     _log_stderr(f"OCR provider: {ocr_provider.name}")
 
-    text, confidence = ocr_provider.extract_text(
+    ocr = ocr_provider.extract_text(
         payload.file_path,
         page_start=payload.page_start,
         page_end=payload.page_end,
     )
-    _log_stderr(f"Primary OCR: {len(text)} chars, confidence={confidence:.2f}")
+    _log_stderr(f"Primary OCR: {len(ocr.text)} chars, confidence={ocr.confidence:.2f}")
+
+    used_path = ocr_provider.name
+    fallback_triggered = False
 
     # --- Step 2: Try fallback local provider if primary was insufficient ---
-    if len(text) < payload.extract_min_chars:
+    if len(ocr.text) < payload.extract_min_chars:
         fallback_provider = create_ocr_fallback_provider()
         if fallback_provider is not None:
             _log_stderr(f"Primary OCR insufficient, trying fallback: {fallback_provider.name}")
-            fb_text, fb_confidence = fallback_provider.extract_text(
+            fb = fallback_provider.extract_text(
                 payload.file_path,
                 page_start=payload.page_start,
                 page_end=payload.page_end,
             )
-            if len(fb_text) > len(text):
-                text = fb_text
-                confidence = fb_confidence
-                _log_stderr(f"Fallback OCR: {len(text)} chars, confidence={confidence:.2f}")
+            _log_stderr(f"Fallback OCR: {len(fb.text)} chars, confidence={fb.confidence:.2f}")
+            if len(fb.text) > len(ocr.text):
+                ocr = fb
+                used_path = fallback_provider.name
+                fallback_triggered = True
 
-    # --- Step 3: If we have enough text, extract questions ---
-    if len(text) >= payload.extract_min_chars:
-        # For local/docling modes: use Gemini to structure the raw text into questions
-        # For api mode: text was already extracted by Gemini, still need structuring
-        questions = gemini_extract_questions(payload, text)
-
-        return build_success(
-            used_path=ocr_provider.name,
-            fallback_triggered=True,
-            fallback_reason=payload.fallback_reason,
-            extraction_chars=len(text),
-            questions_payload=questions,
+    # --- Step 3: Insufficient content → needs_review, never stub the LLM ---
+    if len(ocr.text) < payload.extract_min_chars:
+        return PipelineNeedsReviewResult(
+            status="needs_review",
+            errorCode="PIPELINE_INSUFFICIENT_CONTENT",
+            message=(
+                f"OCR extraiu apenas {len(ocr.text)} chars "
+                f"(mínimo {payload.extract_min_chars}). Arquivo pode ser "
+                "imagem sem camada de texto ou OCR indisponível."
+            ),
+            extractionChars=len(ocr.text),
         )
 
-    # --- Step 4: Last resort — send whatever we have to Gemini for structuring ---
-    source_text = text if text else (
-        f"Arquivo: {Path(payload.file_path).name}. OCR não extraiu conteúdo suficiente."
-    )
-
-    fallback_reason = payload.fallback_reason
-    if len(text) < payload.extract_min_chars:
-        fallback_reason = f"{fallback_reason}|LOW_EXTRACTION_CHARS:{len(text)}"
-
-    _log_stderr(f"All OCR providers insufficient. Attempting Gemini structuring with available text.")
-    questions = gemini_extract_questions(payload, source_text)
+    # --- Step 4: Structure extracted text into questions via Gemini ---
+    questions = gemini_extract_questions(payload, ocr.text)
+    if not questions.questions:
+        return PipelineNeedsReviewResult(
+            status="needs_review",
+            errorCode="PIPELINE_NO_QUESTIONS",
+            message="Estruturação não retornou nenhuma questão para o conteúdo extraído.",
+            extractionChars=len(ocr.text),
+        )
 
     return build_success(
-        used_path="gemini-structuring-fallback",
-        fallback_triggered=True,
-        fallback_reason=fallback_reason,
-        extraction_chars=len(text),
+        used_path=used_path,
+        fallback_triggered=fallback_triggered,
+        fallback_reason=payload.fallback_reason,
+        extraction_chars=len(ocr.text),
         questions_payload=questions,
+        page_errors=ocr.page_errors,
+        pages_processed=ocr.pages_processed,
+        pages_failed=ocr.pages_failed,
     )
 
 
@@ -316,8 +344,6 @@ def main() -> None:
         emit_error("PIPELINE_VALIDATION_ERROR", exc.json())
     except FileNotFoundError as exc:
         emit_error("PIPELINE_FILE_NOT_FOUND", str(exc))
-    except json.JSONDecodeError as exc:
-        emit_error("PIPELINE_JSON_PARSE_ERROR", str(exc))
     except ValueError as exc:
         emit_error("PIPELINE_INPUT_ERROR", str(exc))
     except RuntimeError as exc:
