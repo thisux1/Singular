@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useAuth } from '../api/auth';
 import './LandingPage.css';
 
-const GITHUB_URL = 'https://github.com/thisux1/Quizsaber';
+const GITHUB_URL = 'https://github.com/thisux1/singular';
 
 type Step = { num: string; title: string; text: string; icon: ReactNode };
 
