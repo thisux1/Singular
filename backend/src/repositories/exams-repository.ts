@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, ne } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from '../db/client.js';
 import { exams } from '../db/schema.js';
@@ -20,6 +20,7 @@ interface CreateExamInput {
   cargoTemplateId?: string;
   edital?: string;
   examDate?: string;
+  banca?: string;
   gabaritoPath?: string;
 }
 
@@ -72,6 +73,8 @@ function toExamRecord(row: typeof exams.$inferSelect): StoredExamRecord {
     fileHash: row.fileHash ?? undefined,
     fileType: row.fileType,
     status: row.status,
+    kind: row.kind,
+    banca: row.banca ?? undefined,
     errorMessage: row.errorMessage ?? undefined,
     totalQuestions: row.totalQuestions ?? undefined,
     pageOffset: row.pageOffset ?? undefined,
@@ -109,6 +112,7 @@ class ExamsRepository {
         cargoTemplateId: input.cargoTemplateId,
         edital: input.edital,
         examDate: input.examDate,
+        banca: input.banca,
         gabaritoPath: input.gabaritoPath,
         status: 'queued',
       })
@@ -153,14 +157,16 @@ class ExamsRepository {
 
   /**
    * Lista paginada. `userId === undefined` → sem filtro (dev single-user).
+   * Exames `kind='bank'` (sintéticos do banco de questões) são EXCLUÍDOS da
+   * lista padrão — não são provas navegáveis pelo usuário.
    */
   async listByUser(
     userId: string | undefined,
     options: ListOptions,
   ): Promise<StoredExamRecord[]> {
     const baseQuery = userId === undefined
-      ? db.select().from(exams)
-      : db.select().from(exams).where(eq(exams.userId, userId));
+      ? db.select().from(exams).where(ne(exams.kind, 'bank'))
+      : db.select().from(exams).where(and(eq(exams.userId, userId), ne(exams.kind, 'bank')));
 
     const rows = await baseQuery
       .orderBy(desc(exams.createdAt))
@@ -186,6 +192,30 @@ class ExamsRepository {
       .select()
       .from(exams)
       .where(where)
+      .orderBy(desc(exams.createdAt))
+      .limit(1);
+
+    if (!row) {
+      return undefined;
+    }
+
+    return toExamRecord(row);
+  }
+
+  /**
+   * Dedup global (camada 2): exame de QUALQUER usuário, kind='exam',
+   * status='completed' com este fileHash — fonte para clonar questions
+   * sem reprocessar. Retorna o mais recente quando houver vários.
+   */
+  async findCompletedByFileHash(fileHash: string): Promise<StoredExamRecord | undefined> {
+    const [row] = await db
+      .select()
+      .from(exams)
+      .where(and(
+        eq(exams.fileHash, fileHash),
+        eq(exams.status, 'completed'),
+        eq(exams.kind, 'exam'),
+      ))
       .orderBy(desc(exams.createdAt))
       .limit(1);
 

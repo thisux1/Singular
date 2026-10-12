@@ -11,6 +11,7 @@ import {
   type StoredExamRecord,
 } from '../repositories/exams-repository.js';
 import { questionsRepository } from '../repositories/questions-repository.js';
+import { quizRepository } from '../repositories/quiz-repository.js';
 import type { NewQuestionRow } from '../db/schema.js';
 import { getUser, ownershipUserId } from '../middleware/auth.js';
 import {
@@ -18,6 +19,7 @@ import {
   listCargoTemplateCatalog,
 } from '../services/config/cargo-templates.js';
 import { getExamProgress } from '../services/job-progress.js';
+import { completeExamFromClone, resolveUploadDedup } from '../services/exam-dedup.js';
 import { mimeForKey, storage } from '../services/storage.js';
 import {
   readAndValidateUpload,
@@ -38,6 +40,7 @@ const MAX_FIELD_LENGTHS = {
   title: 500,
   edital: 500,
   provaType: 16,
+  banca: 120,
 } as const;
 
 function isUuid(value: string): boolean {
@@ -134,6 +137,8 @@ function toExamDTO(exam: StoredExamRecord) {
     cargoTemplateId: exam.cargoTemplateId ?? null,
     edital: exam.edital ?? null,
     examDate: exam.examDate ?? null,
+    banca: exam.banca ?? null,
+    kind: exam.kind,
     extractionTier: exam.extractionTier ?? null,
     hasGabarito: Boolean(exam.gabaritoKey ?? exam.gabaritoPath),
     parsingLog: exam.parsingLog ?? null,
@@ -198,8 +203,19 @@ examsRoutes.get('/', async (c) => {
   }
 
   const exams = await examsRepository.listByUser(ownershipUserId(c), { limit, offset });
+
+  // Stats por exame em UMA query group by (sem N+1): sessões finalizadas do
+  // usuário → sessionsCount + bestScore (null quando nunca jogou).
+  const statsByExam = await quizRepository.statsByExamIds(
+    ownershipUserId(c),
+    exams.map((exam) => exam.id),
+  );
+
   return c.json({
-    exams: exams.map((exam) => toExamDTO(exam)),
+    exams: exams.map((exam) => ({
+      ...toExamDTO(exam),
+      stats: statsByExam.get(exam.id) ?? { sessionsCount: 0, bestScore: null },
+    })),
     limit,
     offset,
   });
@@ -242,6 +258,7 @@ examsRoutes.post(
     const title = parseOptionalString(formData.get('title'));
     const edital = parseOptionalString(formData.get('edital'));
     const examDate = parseOptionalString(formData.get('examDate'));
+    const banca = parseOptionalString(formData.get('banca'));
     const provaType = parseOptionalString(formData.get('provaType'))?.toUpperCase();
     const cargoTemplateId = parseOptionalString(formData.get('cargoTemplateId'));
     const pageStartRaw = formData.get('pageStart');
@@ -259,6 +276,9 @@ examsRoutes.post(
     }
     if (provaType !== undefined && provaType.length > MAX_FIELD_LENGTHS.provaType) {
       return validationError(c, 'provaType', `provaType excede ${MAX_FIELD_LENGTHS.provaType} caracteres`);
+    }
+    if (banca !== undefined && banca.length > MAX_FIELD_LENGTHS.banca) {
+      return validationError(c, 'banca', `banca excede ${MAX_FIELD_LENGTHS.banca} caracteres`);
     }
 
     if (!(file instanceof File)) {
@@ -310,14 +330,18 @@ examsRoutes.post(
 
     const userId = getUser(c).id;
 
-    // --- Dedup (D24): mesmo conteúdo + usuário → exame existente, sem regravar.
-    const existing = await examsRepository.findByFileHash(ownershipUserId(c), validatedFile.fileHash);
-    if (existing) {
+    // --- Dedup em camadas (D24 + global): ---
+    // a) mesmo usuário + mesmo hash → exame existente, sem regravar;
+    // b) outro usuário já completou o mesmo hash → cria exame e CLONA as
+    //    questions do exame-fonte, sem enfileirar processamento;
+    // c) hash inédito/não-completado → fluxo normal.
+    const dedup = await resolveUploadDedup(ownershipUserId(c), validatedFile.fileHash);
+    if (dedup.type === 'same-user') {
       logInfo('exam.upload.deduped', {
-        examId: existing.id,
+        examId: dedup.exam.id,
         fileHash: validatedFile.fileHash,
       });
-      return c.json({ exam_id: existing.id, deduped: true }, 200);
+      return c.json({ exam_id: dedup.exam.id, deduped: true }, 200);
     }
 
     const examId = randomUUID();
@@ -351,6 +375,7 @@ examsRoutes.post(
         cargoTemplateId,
         edital,
         examDate,
+        banca,
         gabaritoPath: savedGabarito?.filePath,
       });
     } catch (error) {
@@ -370,6 +395,24 @@ examsRoutes.post(
       size: validatedFile.sizeBytes,
       storage: storage.kind,
     });
+
+    // Camada (b): outro usuário já processou este hash com sucesso — clona as
+    // questions para o exame recém-criado e finaliza sem enfileirar job.
+    if (dedup.type === 'clone') {
+      try {
+        await completeExamFromClone(exam, dedup.source);
+      } catch (error) {
+        // Sem exame 'queued' órfão (nenhum job foi enfileirado): rollback do
+        // insert + storage para o cliente poder tentar de novo.
+        await examsRepository.delete(exam.id).catch(() => undefined);
+        await storage.delete(saved.fileKey).catch(() => undefined);
+        if (savedGabarito) {
+          await storage.delete(savedGabarito.fileKey).catch(() => undefined);
+        }
+        throw error;
+      }
+      return c.json({ exam_id: exam.id, deduped: true, cloned: true }, 200);
+    }
 
     try {
       if (config.syncFallback) {

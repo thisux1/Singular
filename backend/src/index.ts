@@ -8,6 +8,8 @@ import { requireAuth, getUser, type AuthVariables } from './middleware/auth.js';
 import { examsRoutes } from './routes/exams.js';
 import { quizRoutes } from './routes/quiz.js';
 import { questionsRoutes } from './routes/questions.js';
+import { bankRoutes } from './routes/bank.js';
+import { statsRoutes } from './routes/stats.js';
 import { config } from './config.js';
 import { pool } from './db/client.js';
 import { closeQueues } from './jobs/queue.js';
@@ -87,6 +89,8 @@ app.get('/health', async (c) => {
 app.route('/api/exams', examsRoutes);
 app.route('/api/quiz', quizRoutes);
 app.route('/api/questions', questionsRoutes);
+app.route('/api/bank', bankRoutes);
+app.route('/api/stats', statsRoutes);
 
 // --- Error handling (D14) ----------------------------------------------------
 

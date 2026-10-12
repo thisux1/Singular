@@ -4,6 +4,14 @@ import { questions, quizAnswers, quizSessions } from '../db/schema.js';
 
 export type QuizMode = 'all' | 'subjects' | 'random' | 'wrong';
 
+/**
+ * Modo persistido em quiz_sessions.mode: os QuizMode selecionáveis via
+ * POST /quiz/start MAIS 'bank' (sessão do banco de questões, criada apenas
+ * via POST /api/bank/session — `isQuizMode` continua rejeitando 'bank'
+ * no /quiz/start).
+ */
+export type SessionMode = QuizMode | 'bank';
+
 export const QUIZ_MODES: readonly QuizMode[] = ['all', 'subjects', 'random', 'wrong'];
 
 /** Random mode: default 30 questões, clamp em [5, total] (BACKEND-SCHEMA §2). */
@@ -35,7 +43,7 @@ export function computeScorePercent(correctAnswers: number, totalQuestions: numb
 interface CreateSessionInput {
   examId: string;
   userId: string;
-  mode: QuizMode;
+  mode: SessionMode;
   modeParams: Record<string, unknown>;
   totalQuestions: number;
 }
@@ -280,15 +288,23 @@ class QuizRepository {
    * Estado completo do conjunto de questões da sessão (snapshot em
    * modeParams.questionIds) com left join nas respostas — base para score,
    * perSubject e result.
+   *
+   * `examId === null` → sem filtro de exame: usado por sessões mode='bank',
+   * cujo snapshot mistura questões de exames diferentes (session.examId é o
+   * exame sintético kind='bank', que não tem questions próprias).
    */
   async listSessionQuestionStates(
     sessionId: string,
-    examId: string,
+    examId: string | null,
     questionIds: string[],
   ): Promise<SessionQuestionState[]> {
     if (questionIds.length === 0) {
       return [];
     }
+
+    const where = examId === null
+      ? inArray(questions.id, questionIds)
+      : and(eq(questions.examId, examId), inArray(questions.id, questionIds));
 
     const rows = await db
       .select({
@@ -308,7 +324,7 @@ class QuizRepository {
         eq(quizAnswers.questionId, questions.id),
         eq(quizAnswers.sessionId, sessionId),
       ))
-      .where(and(eq(questions.examId, examId), inArray(questions.id, questionIds)))
+      .where(where)
       .orderBy(asc(questions.order));
 
     return rows;
@@ -328,6 +344,123 @@ class QuizRepository {
       .from(quizSessions)
       .where(and(...conditions))
       .orderBy(desc(quizSessions.startedAt));
+  }
+
+  /**
+   * Agregação por exame para GET /api/exams (T4): sessões FINALIZADAS do
+   * usuário agrupadas por examId — sessionsCount + bestScore (max score).
+   * `userId === undefined` → sem filtro (dev single-user).
+   */
+  async statsByExamIds(
+    userId: string | undefined,
+    examIds: string[],
+  ): Promise<Map<string, { sessionsCount: number; bestScore: number | null }>> {
+    const result = new Map<string, { sessionsCount: number; bestScore: number | null }>();
+    if (examIds.length === 0) {
+      return result;
+    }
+
+    const conditions = [
+      isNotNull(quizSessions.finishedAt),
+      inArray(quizSessions.examId, examIds),
+    ];
+    if (userId !== undefined) {
+      conditions.push(eq(quizSessions.userId, userId));
+    }
+
+    const rows = await db
+      .select({
+        examId: quizSessions.examId,
+        sessionsCount: count(),
+        bestScore: sql<number | null>`max(${quizSessions.score})`,
+      })
+      .from(quizSessions)
+      .where(and(...conditions))
+      .groupBy(quizSessions.examId);
+
+    for (const row of rows) {
+      result.set(row.examId, {
+        sessionsCount: row.sessionsCount,
+        bestScore: row.bestScore,
+      });
+    }
+
+    return result;
+  }
+
+  // --- Stats/gamificação (T4) ------------------------------------------------
+  // Escopo por usuário REAL (getUser.id) — mesmo padrão de listSessionsByUser.
+
+  /** Sessões finalizadas do usuário — base de xp/streak/badges/totalTimeMs. */
+  async finishedSessionsForStats(userId: string): Promise<Array<{
+    score: number | null;
+    totalQuestions: number;
+    finishedAt: Date;
+    totalTimeMs: number | null;
+  }>> {
+    const rows = await db
+      .select({
+        score: quizSessions.score,
+        totalQuestions: quizSessions.totalQuestions,
+        finishedAt: quizSessions.finishedAt,
+        totalTimeMs: quizSessions.totalTimeMs,
+      })
+      .from(quizSessions)
+      .where(and(eq(quizSessions.userId, userId), isNotNull(quizSessions.finishedAt)));
+
+    return rows
+      .filter((row): row is typeof row & { finishedAt: Date } => row.finishedAt !== null);
+  }
+
+  /**
+   * Totais de respostas do usuário (todas as sessões, inclusive em andamento):
+   * respondidas, corretas e soma de time_spent_ms.
+   */
+  async answerTotalsForUser(userId: string): Promise<{
+    total: number;
+    correct: number;
+    timeMs: number;
+  }> {
+    const [row] = await db
+      .select({
+        total: count(),
+        correct: sql<number>`count(*) filter (where ${quizAnswers.isCorrect})`,
+        timeMs: sql<number | null>`sum(${quizAnswers.timeSpentMs})`,
+      })
+      .from(quizAnswers)
+      .innerJoin(quizSessions, eq(quizSessions.id, quizAnswers.sessionId))
+      .where(eq(quizSessions.userId, userId));
+
+    return {
+      total: row?.total ?? 0,
+      correct: Number(row?.correct ?? 0),
+      timeMs: Number(row?.timeMs ?? 0),
+    };
+  }
+
+  /** Respostas agregadas por disciplina (null → 'Sem disciplina'). */
+  async perSubjectForUser(userId: string): Promise<Array<{
+    subject: string;
+    total: number;
+    correct: number;
+  }>> {
+    const rows = await db
+      .select({
+        subject: questions.subject,
+        total: count(),
+        correct: sql<number>`count(*) filter (where ${quizAnswers.isCorrect})`,
+      })
+      .from(quizAnswers)
+      .innerJoin(quizSessions, eq(quizSessions.id, quizAnswers.sessionId))
+      .innerJoin(questions, eq(questions.id, quizAnswers.questionId))
+      .where(eq(quizSessions.userId, userId))
+      .groupBy(questions.subject);
+
+    return rows.map((row) => ({
+      subject: row.subject ?? 'Sem disciplina',
+      total: row.total,
+      correct: Number(row.correct),
+    }));
   }
 
   async countAnswersBySessionId(sessionId: string): Promise<number> {

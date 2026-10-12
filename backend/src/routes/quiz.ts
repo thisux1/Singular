@@ -65,6 +65,26 @@ function sessionQuestionIds(session: { modeParams: Record<string, unknown> | nul
   return raw.filter((id): id is string => typeof id === 'string' && isUuid(id));
 }
 
+/**
+ * Sessões mode='bank' (T3) são ancoradas no exame sintético kind='bank',
+ * mas o snapshot mistura questões de exames reais diferentes — o lookup de
+ * questões NÃO pode filtrar por session.examId nesses casos.
+ */
+function isBankSession(session: { mode: string | null }): boolean {
+  return session.mode === 'bank';
+}
+
+/** Ordena states na ordem do snapshot — bank mistura exames/orders distintos. */
+function sortBySnapshotOrder(
+  states: SessionQuestionState[],
+  questionIds: string[],
+): SessionQuestionState[] {
+  const indexById = new Map(questionIds.map((id, index) => [id, index]));
+  return [...states].sort(
+    (a, b) => (indexById.get(a.questionId) ?? 0) - (indexById.get(b.questionId) ?? 0),
+  );
+}
+
 interface SubjectStat {
   subject: string;
   total: number;
@@ -420,7 +440,13 @@ quizRoutes.post('/:sessionId/answer', async (c) => {
     );
   }
 
-  const question = await questionsRepository.getByExamAndId(session.examId, questionId);
+  // Bank mode: question pertence à sessão se está no snapshot (qualquer exame);
+  // demais modos: precisa pertencer ao exame da sessão.
+  const question = isBankSession(session)
+    ? (sessionQuestionIds(session).includes(questionId)
+        ? await questionsRepository.getById(questionId)
+        : undefined)
+    : await questionsRepository.getByExamAndId(session.examId, questionId);
   if (!question) {
     return c.json(
       {
@@ -506,7 +532,11 @@ quizRoutes.post('/:sessionId/finish', async (c) => {
     questionIds = all;
   }
 
-  const states = await quizRepository.listSessionQuestionStates(sessionId, session.examId, questionIds);
+  const states = await quizRepository.listSessionQuestionStates(
+    sessionId,
+    isBankSession(session) ? null : session.examId,
+    questionIds,
+  );
 
   const correctCount = states.filter((s) => s.annulled || s.isCorrect === true).length;
   const answeredCount = states.filter((s) => s.selectedAnswer !== null).length;
@@ -579,7 +609,15 @@ quizRoutes.get('/:sessionId/result', async (c) => {
     });
   }
 
-  const states = await quizRepository.listSessionQuestionStates(sessionId, session.examId, questionIds);
+  let states = await quizRepository.listSessionQuestionStates(
+    sessionId,
+    isBankSession(session) ? null : session.examId,
+    questionIds,
+  );
+  if (isBankSession(session)) {
+    // Snapshot mistura exames — order de questions.order não faz sentido.
+    states = sortBySnapshotOrder(states, questionIds);
+  }
   const answered = states.filter((s) => s.selectedAnswer !== null);
 
   const correct = session.correctAnswers;

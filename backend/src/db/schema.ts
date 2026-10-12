@@ -115,6 +115,10 @@ export const exams = pgTable(
     examDate: varchar('exam_date', { length: 50 }),
     gabaritoPath: varchar('gabarito_path', { length: 1000 }),
     extractionTier: extractionTierEnum('extraction_tier'),
+    // Banca organizadora (Cesgranrio, FCC, Cebraspe...) — vem do multipart 'banca'.
+    banca: varchar('banca', { length: 120 }),
+    // 'exam' = prova upada; 'bank' = prova sintética do banco de questões (T3).
+    kind: varchar('kind', { length: 16 }).notNull().default('exam').$type<'exam' | 'bank'>(),
     parsingLog: jsonb('parsing_log').$type<Record<string, unknown>>(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     processedAt: timestamp('processed_at', { withTimezone: true }),
@@ -123,6 +127,8 @@ export const exams = pgTable(
     index('idx_exams_status').on(table.status),
     index('idx_exams_user_status').on(table.userId, table.status),
     index('idx_exams_file_hash').on(table.fileHash),
+    index('idx_exams_banca').on(table.banca),
+    index('idx_exams_user_kind').on(table.userId, table.kind),
   ],
 );
 
