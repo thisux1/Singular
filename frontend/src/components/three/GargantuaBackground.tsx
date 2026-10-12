@@ -41,7 +41,8 @@ export function GargantuaBackground({ tier, cursorStateRef }: GargantuaBackgroun
   const camRef = useRef({ azim: 0, elev: 0.115, dist: 12.5 });
   const tgtRef = useRef({ azim: 0, elev: 0.115, dist: 12.5 });
   const simTRef = useRef(0);
-  const qualityRef = useRef({ scale: baseScale, emaMs: 16.7, frames: 0 });
+  const qualityRef = useRef({ scale: baseScale, steps: maxSteps, emaMs: 16.7, frames: 0 });
+  const dbgRef = useRef<HTMLElement | null>(null);
 
   const hdrOK = useMemo(() => gl.extensions.has('EXT_color_buffer_float'), [gl]);
   const rtType = hdrOK ? THREE.HalfFloatType : THREE.UnsignedByteType;
@@ -245,17 +246,35 @@ export function GargantuaBackground({ tier, cursorStateRef }: GargantuaBackgroun
     const upy = rz * fx - rx * fz;
     const upz = rx * fy;
 
-    // Governor do original: EMA de frame time → escala dos RTs (0.4–1.0).
+    // Governor estendido: EMA de frame time → escala dos RTs (0.35–1.0)
+    // e steps do raymarch (200–maxSteps). Degrada resolução primeiro,
+    // steps depois; recupera steps primeiro (ganho invisível), resolução depois.
     const q = qualityRef.current;
     q.emaMs = q.emaMs * 0.94 + Math.min(dt * 1000, 50) * 0.06;
     q.frames += 1;
     if (q.frames % 24 === 0) {
-      if (q.emaMs > 21 && q.scale > 0.4) {
-        q.scale = Math.max(0.4, q.scale * 0.85);
-        resizeTargets();
-      } else if (q.emaMs < 11.5 && q.scale < baseScale) {
-        q.scale = Math.min(baseScale, q.scale * 1.12);
-        resizeTargets();
+      if (q.emaMs > 21) {
+        if (q.scale > 0.35) {
+          q.scale = Math.max(0.35, q.scale * 0.85);
+          resizeTargets();
+        } else if (q.steps > 200) {
+          q.steps = Math.max(200, q.steps - 80);
+        }
+      } else if (q.emaMs < 11.5) {
+        if (q.steps < maxSteps) {
+          q.steps = Math.min(maxSteps, q.steps + 60);
+        } else if (q.scale < baseScale) {
+          q.scale = Math.min(baseScale, q.scale * 1.12);
+          resizeTargets();
+        }
+      }
+    }
+
+    // ?gfxdbg → overlay com fps/emaMs/scale/steps (textContent direto, sem re-render)
+    if (q.frames % 10 === 0) {
+      const dbg = (dbgRef.current ??= document.getElementById('gargantua-dbg'));
+      if (dbg) {
+        dbg.textContent = `${(1000 / q.emaMs).toFixed(0)}fps · ${q.emaMs.toFixed(1)}ms · scale ${q.scale.toFixed(2)} · steps ${q.steps}`;
       }
     }
 
@@ -266,7 +285,7 @@ export function GargantuaBackground({ tier, cursorStateRef }: GargantuaBackgroun
     u.uFwd.value.set(fx, fy, fz);
     u.uRight.value.set(rx, 0, rz);
     u.uUp.value.set(upx, upy, upz);
-    u.uSteps.value = maxSteps;
+    u.uSteps.value = q.steps;
     quadMesh.material = raymarchMat;
     gl.setRenderTarget(targets.scene);
     gl.render(quadScene, quadCam);
