@@ -202,6 +202,102 @@
   margin-top: 24px;
 }
 
+/* ─── Progress real (stage + percent + páginas) ─── */
+.exam-detail__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.exam-detail__progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.exam-detail__progress-stage {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fb923c; /* TODO token (--accent-flare-hot) */
+}
+
+.exam-detail__progress-percent {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #facc15; /* TODO token (--signal-warn) */
+}
+
+.exam-detail__progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.exam-detail__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e36002, #facc15); /* TODO token */
+  box-shadow: 0 0 12px rgba(227, 96, 2, 0.5);
+  transition: width 0.5s var(--ease-out);
+}
+
+.exam-detail__hint--progress {
+  font-size: 0.9rem;
+}
+
+/* ─── Erro detalhado + parsing log ─── */
+.exam-detail__error-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.exam-detail__parsing-log {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.75rem;
+}
+
+.exam-detail__parsing-log summary {
+  cursor: pointer;
+  color: #a1a1aa;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.exam-detail__parsing-log summary:hover {
+  color: #fca5a5;
+}
+
+.exam-detail__parsing-log pre {
+  margin-top: 12px;
+  padding: 14px;
+  max-height: 260px;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── Modal actions ─── */
+.exam-detail__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* ─── Footer / Actions ─── */
 .exam-detail__footer {
   position: relative;

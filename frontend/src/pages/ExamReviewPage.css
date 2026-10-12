@@ -206,6 +206,106 @@
   text-transform: uppercase;
 }
 
+.exam-review__q-warning--annulled {
+  border-color: #facc15; /* TODO token (--signal-warn) */
+  color: #facc15;
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.2);
+}
+
+.exam-review__q-warning--image {
+  border-color: rgba(227, 96, 2, 0.5); /* TODO token (--accent-flare) */
+  color: #fb923c;
+  box-shadow: 0 0 10px rgba(227, 96, 2, 0.2);
+}
+
+/* ─── Indicador de save por questão ─── */
+.exam-review__save-indicator {
+  margin-left: auto;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #71717a;
+  min-width: 90px;
+  text-align: right;
+  transition: color 0.2s var(--ease-out);
+}
+
+.exam-review__save-indicator--pending,
+.exam-review__save-indicator--saving {
+  color: #facc15; /* TODO token */
+}
+
+.exam-review__save-indicator--saved {
+  color: #4ade80;
+}
+
+.exam-review__save-indicator--error {
+  color: #f87171;
+}
+
+/* ─── Filtros ─── */
+.exam-review__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.exam-review__filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #a1a1aa;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+
+.exam-review__filter-chip:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.exam-review__filter-chip--active {
+  border-color: rgba(227, 96, 2, 0.7); /* TODO token */
+  background: rgba(227, 96, 2, 0.12);
+  color: #fdba74;
+}
+
+.exam-review__filter-count {
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #a1a1aa;
+}
+
+.exam-review__filter-chip--active .exam-review__filter-count {
+  background: rgba(227, 96, 2, 0.25);
+  color: #fdba74;
+}
+
+.exam-review__empty {
+  font-family: 'Inter', sans-serif;
+  color: #71717a;
+  font-size: 0.95rem;
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.exam-review__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* ─── Forms & Inputs ─── */
 .exam-review__label {
   font-size: 0.8rem;

@@ -1,0 +1,165 @@
+/* ─── ExplainPanel — explicação gerada por IA por questão ─── */
+.explain-panel__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+
+.explain-panel__trigger:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.18);
+  border-color: rgba(139, 92, 246, 0.7);
+  color: #ddd6fe;
+}
+
+.explain-panel__trigger:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.explain-panel {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-left-width: 3px;
+  background: rgba(139, 92, 246, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.explain-panel--loading {
+  gap: 10px;
+}
+
+.explain-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.explain-panel__title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c4b5fd;
+}
+
+.explain-panel__cached {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.explain-panel__text {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #e2e8f0;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.explain-panel__steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.explain-panel__step {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.explain-panel__step::marker {
+  font-family: 'Geist Mono', monospace;
+  color: #a78bfa;
+}
+
+.explain-panel__mistakes {
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-top: 14px;
+}
+
+.explain-panel__mistakes-title {
+  display: block;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fca5a5;
+  margin-bottom: 10px;
+}
+
+.explain-panel__mistakes ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.explain-panel__mistakes li {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #fca5a5;
+}
+
+.explain-panel__mistakes li::marker {
+  color: #ef4444;
+}
+
+.explain-panel--limited {
+  border-color: rgba(250, 204, 21, 0.3);
+  border-left-width: 3px;
+  background: rgba(250, 204, 21, 0.05);
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.explain-panel__limited-icon {
+  font-size: 1.4rem;
+  color: #facc15; /* TODO token (--signal-warn) */
+}
+
+.explain-panel--limited p {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #fde68a;
+}
+
+.explain-panel--error {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.explain-panel--error p {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #fca5a5;
+}

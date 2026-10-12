@@ -1,20 +1,257 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { apiFetch } from '../api/client';
 import { fetchExam, fetchExamQuestions, type Question } from '../api/exams';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
 import { Skeleton } from '../components/ui/Skeleton';
 import { TerminalTab } from '../components/ui/TerminalTab';
 import { toast } from '../components/ui/ToastUtils';
 import './ExamReviewPage.css';
 
 type UpdateQuestionPayload = Partial<
-  Pick<Question, 'questionText' | 'options' | 'subject' | 'correctAnswer' | 'contextText'>
+  Pick<Question, 'questionText' | 'options' | 'subject' | 'correctAnswer'> & {
+    contextText: string | null;
+  }
 >;
+
+type ReviewFilter = 'all' | 'low-confidence' | 'no-answer' | 'has-image' | 'annulled';
+
+const LOW_CONFIDENCE_THRESHOLD = 60;
+
+const FILTERS: Array<{ id: ReviewFilter; label: string; match: (q: Question) => boolean }> = [
+  { id: 'all', label: 'Todas', match: () => true },
+  {
+    id: 'low-confidence',
+    label: '⚠ baixa confiança',
+    match: (q) => typeof q.confidence === 'number' && q.confidence < LOW_CONFIDENCE_THRESHOLD,
+  },
+  {
+    id: 'no-answer',
+    label: '🔴 sem gabarito',
+    match: (q) => !q.correctAnswer || q.correctAnswer.trim().length === 0,
+  },
+  {
+    id: 'has-image',
+    label: '📄 com imagem',
+    match: (q) => Boolean(q.hasImage || q.requiresPdf),
+  },
+  { id: 'annulled', label: 'anuladas', match: (q) => Boolean(q.annulled) },
+];
+
+type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error';
+
+type ReviewQuestionCardProps = {
+  examId: string;
+  question: Question;
+  onRequestDelete: (question: Question) => void;
+};
+
+/**
+ * Card de edição inline com PATCH debounced (300ms) — acumula campos
+ * alterados num único payload por flush. Indicador salvando…/salvo por card.
+ */
+function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestionCardProps) {
+  const [contextText, setContextText] = useState(question.contextText ?? '');
+  const [questionText, setQuestionText] = useState(question.questionText);
+  const [subject, setSubject] = useState(question.subject ?? '');
+  const [correctAnswer, setCorrectAnswer] = useState(question.correctAnswer ?? '');
+  const [options, setOptions] = useState<string[]>(question.options);
+  const [saveState, setSaveState] = useState<SaveState>('idle');
+
+  const pendingRef = useRef<UpdateQuestionPayload>({});
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const saveMutation = useMutation({
+    mutationFn: (payload: UpdateQuestionPayload) =>
+      apiFetch<{ success: boolean }>(`/exams/${examId}/questions/${question.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: () => {
+      setSaveState('saved');
+      if (savedTimerRef.current) {
+        clearTimeout(savedTimerRef.current);
+      }
+      savedTimerRef.current = setTimeout(() => setSaveState('idle'), 2000);
+    },
+    onError: (error) => {
+      setSaveState('error');
+      toast(error instanceof Error ? error.message : 'Falha na recalibração.', 'error');
+    },
+  });
+
+  const saveMutationRef = useRef(saveMutation);
+
+  useEffect(() => {
+    saveMutationRef.current = saveMutation;
+  });
+
+  // Flush pendente ao desmontar (evita perder a última edição ao trocar de filtro).
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      if (savedTimerRef.current) {
+        clearTimeout(savedTimerRef.current);
+      }
+      if (Object.keys(pendingRef.current).length > 0) {
+        const payload = pendingRef.current;
+        pendingRef.current = {};
+        saveMutationRef.current.mutate(payload);
+      }
+    };
+  }, []);
+
+  const scheduleSave = (patch: UpdateQuestionPayload) => {
+    pendingRef.current = { ...pendingRef.current, ...patch };
+    setSaveState((state) => (state === 'saving' ? 'saving' : 'pending'));
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    timerRef.current = setTimeout(() => {
+      const payload = pendingRef.current;
+      pendingRef.current = {};
+      if (Object.keys(payload).length === 0) {
+        return;
+      }
+      setSaveState('saving');
+      saveMutation.mutate(payload);
+    }, 300);
+  };
+
+  const saveIndicator =
+    saveState === 'pending' || saveState === 'saving'
+      ? 'salvando…'
+      : saveState === 'saved'
+        ? 'salvo ✓'
+        : saveState === 'error'
+          ? 'falha ao salvar'
+          : '';
+
+  return (
+    <div className="exam-review__question-card">
+      <div className="exam-review__question-header">
+        <span className="exam-review__q-number">#{question.order}</span>
+        {question.annulled ? (
+          <span className="exam-review__q-warning exam-review__q-warning--annulled">ANULADA</span>
+        ) : null}
+        {typeof question.confidence === 'number' && question.confidence < LOW_CONFIDENCE_THRESHOLD ? (
+          <span className="exam-review__q-warning">Sinal Fraco: {Math.round(question.confidence)}%</span>
+        ) : null}
+        {question.hasImage || question.requiresPdf ? (
+          <span className="exam-review__q-warning exam-review__q-warning--image">📄 página</span>
+        ) : null}
+        <span
+          className={`exam-review__save-indicator exam-review__save-indicator--${saveState}`}
+          role="status"
+          aria-live="polite"
+        >
+          {saveIndicator}
+        </span>
+      </div>
+
+      <label className="exam-review__label">Contexto Base</label>
+      <textarea
+        className="exam-review__textarea"
+        value={contextText}
+        placeholder="Ex: Leia o texto abaixo para responder à questão..."
+        onChange={(event) => {
+          setContextText(event.target.value);
+          const trimmed = event.target.value.trim();
+          scheduleSave({ contextText: trimmed.length > 0 ? trimmed : null });
+        }}
+      />
+
+      <label className="exam-review__label">Enunciado do Fragmento</label>
+      <textarea
+        className="exam-review__textarea exam-review__textarea--main"
+        value={questionText}
+        onChange={(event) => {
+          setQuestionText(event.target.value);
+          scheduleSave({ questionText: event.target.value });
+        }}
+      />
+
+      <div className="exam-review__grid">
+        <div className="exam-review__field-group">
+          <label className="exam-review__label">Setor (Disciplina)</label>
+          <input
+            className="exam-review__input"
+            value={subject}
+            placeholder="Ex: Matemática"
+            onChange={(event) => {
+              setSubject(event.target.value);
+              scheduleSave({ subject: event.target.value });
+            }}
+          />
+        </div>
+
+        <div className="exam-review__field-group">
+          <label className="exam-review__label">Vetor Correto (Gabarito)</label>
+          <select
+            className="exam-review__input exam-review__select"
+            value={correctAnswer}
+            onChange={(event) => {
+              setCorrectAnswer(event.target.value);
+              scheduleSave({ correctAnswer: event.target.value });
+            }}
+          >
+            <option value="">Indeterminado</option>
+            {['A', 'B', 'C', 'D', 'E'].map((letter) => (
+              <option key={letter} value={letter}>
+                Vetor {letter}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <label className="exam-review__label">Variações (Alternativas)</label>
+      <div className="exam-review__options">
+        {options.map((option, index) => {
+          const letter = String.fromCharCode(65 + index);
+          const isCorrect = letter === correctAnswer;
+          return (
+            <div key={`${question.id}-${index}`} className="exam-review__option-row">
+              <span
+                className={`exam-review__option-letter ${isCorrect ? 'exam-review__option-letter--correct' : ''}`}
+              >
+                {letter}
+              </span>
+              <input
+                className={`exam-review__input ${isCorrect ? 'exam-review__input--correct' : ''}`}
+                value={option}
+                onChange={(event) => {
+                  const updated = [...options];
+                  updated[index] = event.target.value;
+                  setOptions(updated);
+                  scheduleSave({ options: updated });
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="exam-review__question-footer">
+        <Button variant="danger" size="sm" onClick={() => onRequestDelete(question)}>
+          Dissipar
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export function ExamReviewPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
+  const [filter, setFilter] = useState<ReviewFilter>('all');
+  const [deleteTarget, setDeleteTarget] = useState<Question | null>(null);
 
   const examQuery = useQuery({
     queryKey: ['exam-review-detail', id],
@@ -37,21 +274,6 @@ export function ExamReviewPage() {
     },
   });
 
-  const updateQuestionMutation = useMutation({
-    mutationFn: ({ questionId, payload }: { questionId: string; payload: UpdateQuestionPayload }) =>
-      apiFetch<{ success: boolean }>(`/exams/${id}/questions/${questionId}`, {
-        method: 'PATCH',
-        body: JSON.stringify(payload),
-      }),
-    onSuccess: async () => {
-      toast('Fragmento recalibrado.', 'success');
-      await questionsQuery.refetch();
-    },
-    onError: (error) => {
-      toast(error instanceof Error ? error.message : 'Falha na recalibração.', 'error');
-    },
-  });
-
   const deleteQuestionMutation = useMutation({
     mutationFn: (questionId: string) =>
       apiFetch<{ success: boolean }>(`/exams/${id}/questions/${questionId}`, {
@@ -59,12 +281,28 @@ export function ExamReviewPage() {
       }),
     onSuccess: async () => {
       toast('Fragmento dissipado.', 'info');
+      setDeleteTarget(null);
       await questionsQuery.refetch();
     },
     onError: (error) => {
       toast(error instanceof Error ? error.message : 'Erro ao dissipar fragmento.', 'error');
     },
   });
+
+  const questions = useMemo(() => questionsQuery.data ?? [], [questionsQuery.data]);
+
+  const filterCounts = useMemo(() => {
+    const counts = {} as Record<ReviewFilter, number>;
+    for (const entry of FILTERS) {
+      counts[entry.id] = questions.filter(entry.match).length;
+    }
+    return counts;
+  }, [questions]);
+
+  const visibleQuestions = useMemo(() => {
+    const active = FILTERS.find((entry) => entry.id === filter) ?? FILTERS[0];
+    return questions.filter(active.match);
+  }, [filter, questions]);
 
   if (examQuery.isLoading || questionsQuery.isLoading) {
     return (
@@ -97,172 +335,94 @@ export function ExamReviewPage() {
     <section className="exam-review page page-container">
       <div className="exam-review__container">
         {/* Protruding Status Badge */}
-        <TerminalTab 
-          label={isPublished ? 'Consolidado' : 'Em Rascunho'} 
-          variant={isPublished ? 'completed' : 'reviewing'} 
+        <TerminalTab
+          label={isPublished ? 'Consolidado' : 'Em Rascunho'}
+          variant={isPublished ? 'completed' : 'reviewing'}
         />
 
         <div className="exam-review__terminal">
           <div className="exam-review__premium-glow" />
 
-        <header className="exam-review__header">
-          <div className="exam-review__header-content">
-            <h1 className="exam-review__title">Inspeção de Fragmentos</h1>
-            <p className="exam-review__subtitle">SYS.ID // {exam.title}</p>
-            {isPublished && (
-              <div className="exam-review__published-hint">
-                <span className="exam-review__hint-icon">⚠</span>
-                Alerta: Modificações feitas aqui alterarão diretamente a malha da prova publicada.
-              </div>
-            )}
-          </div>
-          
-          <div className="exam-review__header-actions">
-            <Button variant="ghost" onClick={() => navigate(`/exam/${id}`)}>
-              Abortar
-            </Button>
-            {!isPublished && (
-              <Button onClick={() => publishMutation.mutate()} loading={publishMutation.isPending}>
-                Consolidar Evento
+          <header className="exam-review__header">
+            <div className="exam-review__header-content">
+              <h1 className="exam-review__title">Inspeção de Fragmentos</h1>
+              <p className="exam-review__subtitle">SYS.ID // {exam.title}</p>
+              {isPublished && (
+                <div className="exam-review__published-hint">
+                  <span className="exam-review__hint-icon">⚠</span>
+                  Alerta: Modificações feitas aqui alterarão diretamente a malha da prova publicada.
+                </div>
+              )}
+            </div>
+
+            <div className="exam-review__header-actions">
+              <Button variant="ghost" onClick={() => navigate(`/exam/${id}`)}>
+                Abortar
               </Button>
-            )}
-          </div>
-        </header>
+              {!isPublished && (
+                <Button onClick={() => publishMutation.mutate()} loading={publishMutation.isPending}>
+                  Consolidar Evento
+                </Button>
+              )}
+            </div>
+          </header>
+        </div>
       </div>
+
+      <div className="exam-review__filters" role="tablist" aria-label="Filtros de fragmentos">
+        {FILTERS.map((entry) => (
+          <button
+            key={entry.id}
+            type="button"
+            role="tab"
+            aria-selected={filter === entry.id}
+            className={`exam-review__filter-chip ${filter === entry.id ? 'exam-review__filter-chip--active' : ''}`}
+            onClick={() => setFilter(entry.id)}
+          >
+            {entry.label}
+            <span className="exam-review__filter-count">{filterCounts[entry.id]}</span>
+          </button>
+        ))}
       </div>
 
       <div className="exam-review__list">
-        {questionsQuery.data?.map((question) => (
-          <div key={question.id} className="exam-review__question-card">
-            <div className="exam-review__question-header">
-              <span className="exam-review__q-number">#{question.order}</span>
-              {typeof question.confidence === 'number' && question.confidence < 80 ? (
-                <span className="exam-review__q-warning">
-                  Sinal Fraco: {Math.round(question.confidence)}%
-                </span>
-              ) : null}
-            </div>
+        {visibleQuestions.length === 0 ? (
+          <p className="exam-review__empty">Nenhum fragmento corresponde a este filtro.</p>
+        ) : (
+          visibleQuestions.map((question) => (
+            <ReviewQuestionCard
+              key={question.id}
+              examId={id}
+              question={question}
+              onRequestDelete={setDeleteTarget}
+            />
+          ))
+        )}
+      </div>
 
-              <label className="exam-review__label">Contexto Base</label>
-              <textarea
-                className="exam-review__textarea"
-                defaultValue={question.contextText ?? ''}
-                placeholder="Ex: Leia o texto abaixo para responder à questão..."
-                onBlur={(event) => {
-                  const newValue = event.target.value.trim();
-                  const currentValue = question.contextText ?? '';
-                  if (newValue !== currentValue) {
-                    updateQuestionMutation.mutate({
-                      questionId: question.id,
-                      payload: { contextText: newValue || null },
-                    });
-                  }
-                }}
-              />
-
-              <label className="exam-review__label">Enunciado do Fragmento</label>
-              <textarea
-                className="exam-review__textarea exam-review__textarea--main"
-                defaultValue={question.questionText}
-                onBlur={(event) => {
-                  if (event.target.value !== question.questionText) {
-                    updateQuestionMutation.mutate({
-                      questionId: question.id,
-                      payload: { questionText: event.target.value },
-                    });
-                  }
-                }}
-              />
-
-              <div className="exam-review__grid">
-                <div className="exam-review__field-group">
-                  <label className="exam-review__label">Setor (Disciplina)</label>
-                  <input
-                    className="exam-review__input"
-                    defaultValue={question.subject ?? ''}
-                    placeholder="Ex: Matemática"
-                    onBlur={(event) => {
-                      if (event.target.value !== (question.subject ?? '')) {
-                        updateQuestionMutation.mutate({
-                          questionId: question.id,
-                          payload: { subject: event.target.value },
-                        });
-                      }
-                    }}
-                  />
-                </div>
-
-                <div className="exam-review__field-group">
-                  <label className="exam-review__label">Vetor Correto (Gabarito)</label>
-                  <select
-                    className="exam-review__input exam-review__select"
-                    defaultValue={question.correctAnswer ?? ''}
-                    onChange={(event) => {
-                      if (event.target.value !== (question.correctAnswer ?? '')) {
-                        updateQuestionMutation.mutate({
-                          questionId: question.id,
-                          payload: { correctAnswer: event.target.value },
-                        });
-                      }
-                    }}
-                  >
-                    <option value="">Indeterminado</option>
-                    {['A', 'B', 'C', 'D', 'E'].map((letter) => (
-                      <option key={letter} value={letter}>
-                        Vetor {letter}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <label className="exam-review__label">Variações (Alternativas)</label>
-              <div className="exam-review__options">
-                {question.options.map((option, index) => {
-                  const letter = String.fromCharCode(65 + index);
-                  const isCorrect = letter === question.correctAnswer;
-                  return (
-                    <div key={`${question.id}-${index}`} className="exam-review__option-row">
-                      <span className={`exam-review__option-letter ${isCorrect ? 'exam-review__option-letter--correct' : ''}`}>
-                        {letter}
-                      </span>
-                      <input
-                        className={`exam-review__input ${isCorrect ? 'exam-review__input--correct' : ''}`}
-                        defaultValue={option}
-                        onBlur={(event) => {
-                          if (event.target.value !== option) {
-                            const updated = [...question.options];
-                            updated[index] = event.target.value;
-
-                            updateQuestionMutation.mutate({
-                              questionId: question.id,
-                              payload: { options: updated },
-                            });
-                          }
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="exam-review__question-footer">
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => {
-                    const confirmed = window.confirm('Deletar este fragmento causará perda permanente de dados. Prosseguir?');
-                    if (confirmed) {
-                      deleteQuestionMutation.mutate(question.id);
-                    }
-                  }}
-                >
-                  Dissipar
-                </Button>
-              </div>
-            </div>
-          ))}
+      <Modal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        title="Dissipar fragmento?"
+        description={
+          deleteTarget
+            ? `A questão #${deleteTarget.order} será removida permanentemente da malha da prova.`
+            : undefined
+        }
+      >
+        <div className="exam-review__modal-actions">
+          <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => deleteTarget && deleteQuestionMutation.mutate(deleteTarget.id)}
+            loading={deleteQuestionMutation.isPending}
+          >
+            Dissipar definitivamente
+          </Button>
         </div>
+      </Modal>
     </section>
   );
 }

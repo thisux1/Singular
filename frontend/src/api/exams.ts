@@ -1,4 +1,4 @@
-import { apiFetch } from './client';
+import { apiFetch, apiUrl } from './client';
 
 export type ExamStatus = 'queued' | 'processing' | 'reviewing' | 'completed' | 'failed';
 
@@ -16,6 +16,12 @@ export type Exam = {
   edital?: string | null;
   examDate?: string | null;
   createdAt?: string;
+  fileType?: string | null;
+  originalFilename?: string | null;
+  processedAt?: string | null;
+  extractionTier?: string | null;
+  hasGabarito?: boolean;
+  parsingLog?: unknown;
 };
 
 export type UploadExamPayload = {
@@ -49,9 +55,24 @@ export type Question = {
   difficulty?: string | null;
   subject?: string | null;
   topic?: string | null;
+  classificationStatus?: string | null;
   confidence?: number | null;
   correctAnswer?: string | null;
   contextText?: string | null;
+  annulled?: boolean;
+  requiresPdf?: boolean;
+  hasImage?: boolean;
+};
+
+export type ExamProgressStage = 'extracting' | 'structuring' | 'persisting' | 'classifying';
+
+export type ExamProgress = {
+  status: ExamStatus;
+  stage?: ExamProgressStage | string;
+  percent: number;
+  pageCurrent?: number;
+  pageTotal?: number;
+  error?: string;
 };
 
 type ExamsResponse = { exams: Exam[] };
@@ -136,4 +157,25 @@ export function reprocessExam(id: string): Promise<{ exam_id: string; status: Ex
   return apiFetch<{ exam_id: string; status: ExamStatus }>(`/exams/${id}/reprocess`, {
     method: 'POST',
   });
+}
+
+export function fetchExamProgress(id: string): Promise<ExamProgress> {
+  return apiFetch<ExamProgress>(`/exams/${id}/progress`);
+}
+
+/**
+ * Baixa o PDF original do exame como ArrayBuffer (auth via cookies).
+ * `GET /exams/:id/file` pode responder 302 para signed URL (GCS) — o fetch
+ * segue o redirect automaticamente.
+ */
+export async function fetchExamFileData(id: string): Promise<ArrayBuffer> {
+  const response = await fetch(apiUrl(`/exams/${id}/file`), {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Falha ao carregar arquivo da prova (HTTP ${response.status})`);
+  }
+
+  return response.arrayBuffer();
 }
