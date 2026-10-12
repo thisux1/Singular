@@ -8,6 +8,9 @@ export interface ExamRecord {
   filePath: string;
   fileType: 'pdf' | 'image';
   status: ExamStatus;
+  /** 'exam' = prova upada; 'bank' = exame sintético do banco de questões. */
+  kind: 'exam' | 'bank';
+  banca?: string;
   errorMessage?: string;
   totalQuestions?: number;
   pageOffset?: number;

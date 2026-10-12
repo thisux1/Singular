@@ -57,6 +57,13 @@
       "when": 1791771657623,
       "tag": "0007_busy_star_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791780982565,
+      "tag": "0008_supreme_lockheed",
+      "breakpoints": true
     }
   ]
 }

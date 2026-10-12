@@ -113,6 +113,50 @@ class QuestionsRepository {
     });
   }
 
+  /**
+   * Dedup global (camada 2): clona TODAS as questões de um exame-fonte para
+   * um exame-destino recém-criado — novos ids, examId=destino, demais campos
+   * preservados (texto, opções, gabarito, classificação, explicações).
+   * Retorna a quantidade clonada.
+   */
+  async cloneToExam(sourceExamId: string, targetExamId: string): Promise<number> {
+    const source = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.examId, sourceExamId))
+      .orderBy(asc(questions.order), asc(questions.createdAt));
+
+    if (source.length === 0) {
+      return 0;
+    }
+
+    const rows: NewQuestionRow[] = source.map((row) => ({
+      examId: targetExamId,
+      order: row.order,
+      questionText: row.questionText,
+      contextText: row.contextText,
+      options: row.options,
+      correctAnswer: row.correctAnswer,
+      explanation: row.explanation,
+      explanationSteps: row.explanationSteps,
+      commonMistakes: row.commonMistakes,
+      subject: row.subject,
+      topic: row.topic,
+      difficulty: row.difficulty,
+      classificationStatus: row.classificationStatus,
+      confidence: row.confidence,
+      contentHash: row.contentHash,
+      sourcePage: row.sourcePage,
+      gabaritoMatched: row.gabaritoMatched,
+      hasImage: row.hasImage,
+      annulled: row.annulled,
+      requiresPdf: row.requiresPdf,
+    }));
+
+    const inserted = await db.insert(questions).values(rows).returning({ id: questions.id });
+    return inserted.length;
+  }
+
   async getById(questionId: string): Promise<typeof questions.$inferSelect | undefined> {
     const [question] = await db
       .select()
