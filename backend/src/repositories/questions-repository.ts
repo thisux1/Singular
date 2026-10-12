@@ -133,6 +133,17 @@ class QuestionsRepository {
     return question;
   }
 
+  /**
+   * Alias explícito para o IDOR fix (D16): garante `question.examId === examId`
+   * antes de PATCH/DELETE em /api/exams/:id/questions/:qId.
+   */
+  async getForExamAndQuestion(
+    examId: string,
+    questionId: string,
+  ): Promise<typeof questions.$inferSelect | undefined> {
+    return this.getByExamAndId(examId, questionId);
+  }
+
   async update(id: string, patch: Partial<NewQuestionRow>): Promise<boolean> {
     const [updated] = await db
       .update(questions)
