@@ -20,13 +20,13 @@ export function Input({
   return (
     <div className={`input-field ${error ? 'input-field--error' : ''} ${className}`}>
       {label ? (
-        <label className="input-field__label" htmlFor={inputId}>
+        <label className="input-field__label field-label" htmlFor={inputId}>
           {label}
         </label>
       ) : null}
       <input
         id={inputId}
-        className="input-field__input"
+        className="input-field__input input"
         aria-invalid={error ? 'true' : undefined}
         aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
         {...props}

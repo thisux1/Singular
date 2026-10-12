@@ -83,12 +83,12 @@ export function QuizResultPage() {
 
   if (resultQuery.isLoading) {
     return (
-      <section className="quiz-result page page-container">
-        <div className="quiz-result__terminal">
-          <div className="quiz-result__content">
+      <section className="quiz-result page page-container page--padded">
+        <div className="terminal quiz-result__terminal">
+          <div className="terminal__section quiz-result__content">
             <Skeleton width="220px" height="64px" />
-            <Skeleton className="quiz-result__skeleton-gap" width="180px" height="24px" />
-            <Skeleton className="quiz-result__skeleton-gap" width="100%" height="220px" />
+            <Skeleton className="quiz-result__skeleton-gap skeleton-gap" width="180px" height="24px" />
+            <Skeleton className="quiz-result__skeleton-gap skeleton-gap" width="100%" height="220px" />
           </div>
         </div>
       </section>
@@ -105,8 +105,8 @@ export function QuizResultPage() {
     if (notFinished) {
       const fallbackExamId = getExamBySessionId(quizId);
       return (
-        <section className="quiz-result page page-container">
-          <div className="quiz-result__terminal quiz-result__terminal--error">
+        <section className="quiz-result page page-container page--padded">
+          <div className="terminal terminal--error quiz-result__terminal quiz-result__terminal--error">
             <div>
               <p>Simulação ainda em andamento — o relatório só existe após o colapso.</p>
             </div>
@@ -125,8 +125,8 @@ export function QuizResultPage() {
     }
 
     return (
-      <section className="quiz-result page page-container">
-        <div className="quiz-result__terminal quiz-result__terminal--error">
+      <section className="quiz-result page page-container page--padded">
+        <div className="terminal terminal--error quiz-result__terminal quiz-result__terminal--error">
           <p>Erro crítico. Relatório de simulação corrompido.</p>
           <Button variant="ghost" onClick={() => void resultQuery.refetch()}>
             Tentar Reconexão
@@ -163,37 +163,37 @@ export function QuizResultPage() {
   const worstSubject = subjectRanking.length > 1 ? subjectRanking[subjectRanking.length - 1] : null;
 
   return (
-    <section className="quiz-result page page-container">
-      <div className="quiz-result__terminal">
-        <div className="quiz-result__premium-glow" />
+    <section className="quiz-result page page-container page--padded">
+      <div className="terminal quiz-result__terminal">
+        <div className="premium-glow quiz-result__premium-glow" />
 
-        <header className="quiz-result__header">
+        <header className="terminal__header quiz-result__header">
           <div className="quiz-result__header-content">
-            <h1 className="quiz-result__title">Diagnóstico da Simulação</h1>
-            <p className="quiz-result__subtitle">
+            <h1 className="page-title quiz-result__title">Diagnóstico da Simulação</h1>
+            <p className="page-subtitle quiz-result__subtitle">
               {MODE_LABELS[result.mode] ?? result.mode} · sessão {result.sessionId.slice(0, 8)}
             </p>
 
             <div className="quiz-result__stats">
-              <div className="quiz-result__stat">
-                <span className="quiz-result__stat-label">Tempo total</span>
-                <strong className="quiz-result__stat-value">{formatDuration(result.totalTimeMs)}</strong>
+              <div className="stat quiz-result__stat">
+                <span className="stat__label quiz-result__stat-label">Tempo total</span>
+                <strong className="stat__value quiz-result__stat-value">{formatDuration(result.totalTimeMs)}</strong>
               </div>
-              <div className="quiz-result__stat">
-                <span className="quiz-result__stat-label">Média / questão</span>
-                <strong className="quiz-result__stat-value">
+              <div className="stat quiz-result__stat">
+                <span className="stat__label quiz-result__stat-label">Média / questão</span>
+                <strong className="stat__value quiz-result__stat-value">
                   {avgTimeMs !== null ? formatDuration(avgTimeMs) : '—'}
                 </strong>
               </div>
-              <div className="quiz-result__stat">
-                <span className="quiz-result__stat-label">Melhor setor</span>
-                <strong className="quiz-result__stat-value quiz-result__stat-value--ok">
+              <div className="stat quiz-result__stat">
+                <span className="stat__label quiz-result__stat-label">Melhor setor</span>
+                <strong className="stat__value quiz-result__stat-value quiz-result__stat-value--warn">
                   {bestSubject ? `${bestSubject.subject} (${Math.round(bestSubject.percent * 100)}%)` : '—'}
                 </strong>
               </div>
-              <div className="quiz-result__stat">
-                <span className="quiz-result__stat-label">Pior setor</span>
-                <strong className="quiz-result__stat-value quiz-result__stat-value--err">
+              <div className="stat quiz-result__stat">
+                <span className="stat__label quiz-result__stat-label">Pior setor</span>
+                <strong className="stat__value quiz-result__stat-value quiz-result__stat-value--err">
                   {worstSubject ? `${worstSubject.subject} (${Math.round(worstSubject.percent * 100)}%)` : '—'}
                 </strong>
               </div>
@@ -210,7 +210,7 @@ export function QuizResultPage() {
           </div>
         </header>
 
-        <div className="quiz-result__content">
+        <div className="terminal__section quiz-result__content">
           <DashboardCharts
             correct={correctCount}
             wrong={wrongCount}
@@ -219,25 +219,25 @@ export function QuizResultPage() {
           />
 
           {summary ? (
-            <section className="quiz-result__progress" aria-labelledby="quiz-result-progress-title">
+            <section className="cut cut--b quiz-result__progress" aria-labelledby="quiz-result-progress-title">
               <h2 className="quiz-result__section-title" id="quiz-result-progress-title">
                 Progressão
               </h2>
 
               <div className="quiz-result__progress-stats">
-                <div className="quiz-result__stat">
-                  <span className="quiz-result__stat-label">Nível</span>
-                  <strong className="quiz-result__stat-value">LV {summary.level}</strong>
+                <div className="stat quiz-result__stat">
+                  <span className="stat__label quiz-result__stat-label">Nível</span>
+                  <strong className="stat__value quiz-result__stat-value">LV {summary.level}</strong>
                 </div>
-                <div className="quiz-result__stat">
-                  <span className="quiz-result__stat-label">XP total</span>
-                  <strong className="quiz-result__stat-value">
+                <div className="stat quiz-result__stat">
+                  <span className="stat__label quiz-result__stat-label">XP total</span>
+                  <strong className="stat__value quiz-result__stat-value">
                     {summary.xp.toLocaleString('pt-BR')}
                   </strong>
                 </div>
-                <div className="quiz-result__stat">
-                  <span className="quiz-result__stat-label">Streak</span>
-                  <strong className="quiz-result__stat-value">{summary.streakDays}D</strong>
+                <div className="stat quiz-result__stat">
+                  <span className="stat__label quiz-result__stat-label">Streak</span>
+                  <strong className="stat__value quiz-result__stat-value">{summary.streakDays}D</strong>
                 </div>
               </div>
 
@@ -256,7 +256,7 @@ export function QuizResultPage() {
                   {summary.badges.map((badge) => (
                     <li
                       key={badge.id}
-                      className={`quiz-result__badge ${
+                      className={`badge quiz-result__badge ${
                         badge.earned
                           ? 'quiz-result__badge--earned'
                           : 'quiz-result__badge--locked'
@@ -275,15 +275,15 @@ export function QuizResultPage() {
           {examId ? <SessionHistoryList examId={examId} currentSessionId={quizId} /> : null}
         </div>
 
-        <div className="quiz-result__answers">
+        <div className="terminal__section quiz-result__answers">
           <h2 className="quiz-result__section-title">Análise de Vetores</h2>
           {answeredAnswers.length === 0 ? (
-            <p className="quiz-result__empty">Nenhum vetor foi registrado nesta sessão.</p>
+            <p className="empty quiz-result__empty">Nenhum vetor foi registrado nesta sessão.</p>
           ) : null}
           {answeredAnswers.map((answer) => (
             <div
               key={answer.questionId}
-              className={`quiz-result__answer-card ${
+              className={`cut cut--b quiz-result__answer-card ${
                 answer.annulled
                   ? 'answer-card--annulled'
                   : answer.isCorrect
@@ -295,10 +295,10 @@ export function QuizResultPage() {
                 <div className="quiz-result__question-text">{answer.questionText}</div>
                 <div className="quiz-result__answer-header-side">
                   {answer.annulled ? (
-                    <span className="quiz-result__status-badge status-annulled">ANULADA</span>
+                    <span className="badge quiz-result__status-badge status-annulled">ANULADA</span>
                   ) : (
                     <div
-                      className={`quiz-result__status-badge ${answer.isCorrect ? 'status-ok' : 'status-err'}`}
+                      className={`badge quiz-result__status-badge ${answer.isCorrect ? 'status-ok' : 'status-err'}`}
                     >
                       {answer.isCorrect ? 'VETOR ESTÁVEL' : 'ANOMALIA'}
                     </div>
@@ -346,7 +346,7 @@ export function QuizResultPage() {
           ))}
         </div>
 
-        <footer className="quiz-result__footer">
+        <footer className="terminal__footer quiz-result__footer">
           {!isBankMode ? (
             <Button
               size="lg"

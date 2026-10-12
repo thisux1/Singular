@@ -1,3 +1,5 @@
+/* .modal--default não tem regra própria: .modal já É o estilo default.
+   O tsx emite modal--default por simetria BEM com --wide/--fullscreen. */
 .modal {
   border: none;
   background: transparent;

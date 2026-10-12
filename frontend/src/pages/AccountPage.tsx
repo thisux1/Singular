@@ -97,7 +97,7 @@ function AccountHeader({
             }}
           >
             <input
-              className="account__name-input"
+              className="account__name-input input"
               value={draftName}
               onChange={(event) => setDraftName(event.target.value)}
               onBlur={commit}
@@ -112,7 +112,7 @@ function AccountHeader({
             {displayName || 'Sem nome'}{' '}
             <button
               type="button"
-              className="account__name-edit"
+              className="account__name-edit text-btn"
               onClick={() => setDraftName(displayName)}
               aria-label="Editar nome"
             >
@@ -231,7 +231,7 @@ export function AccountPage() {
   if (accountQuery.isError || !accountQuery.data) {
     return (
       <section className="account page page-container">
-        <div className="account__error">
+        <div className="account__error empty empty--boxed">
           <p>Erro ao carregar o perfil da conta.</p>
           <Button variant="ghost" onClick={() => void accountQuery.refetch()}>
             Tentar reconexão
@@ -250,12 +250,12 @@ export function AccountPage() {
       <AccountHeader user={user} />
 
       {/* ─── Conquistas ─── */}
-      <div className="account__card" aria-labelledby="account-progress-title">
-        <h2 className="account__card-title" id="account-progress-title">Conquistas</h2>
+      <div className="account__card glass" aria-labelledby="account-progress-title">
+        <h2 className="account__card-title kicker" id="account-progress-title">Conquistas</h2>
 
         <div className="account__level">
           <div className="account__level-meta">
-            <span className="account__level-badge">LV {stats.level}</span>
+            <span className="account__level-badge badge badge--warn">LV {stats.level}</span>
             <span className="account__level-xp text-mono">
               {stats.xp.toLocaleString('pt-BR')} XP
             </span>
@@ -270,21 +270,21 @@ export function AccountPage() {
         </div>
 
         <div className="account__totals">
-          <div className="account__total">
-            <span className="account__total-label">Sessões</span>
-            <strong className="account__total-value">{stats.totalSessions}</strong>
+          <div className="account__total stat stat--boxed">
+            <span className="account__total-label stat__label">Sessões</span>
+            <strong className="account__total-value stat__value">{stats.totalSessions}</strong>
           </div>
-          <div className="account__total">
-            <span className="account__total-label">Questões</span>
-            <strong className="account__total-value">{stats.totalAnswered}</strong>
+          <div className="account__total stat stat--boxed">
+            <span className="account__total-label stat__label">Questões</span>
+            <strong className="account__total-value stat__value">{stats.totalAnswered}</strong>
           </div>
-          <div className="account__total">
-            <span className="account__total-label">Precisão</span>
-            <strong className="account__total-value">{Math.round(stats.accuracyPct)}%</strong>
+          <div className="account__total stat stat--boxed">
+            <span className="account__total-label stat__label">Precisão</span>
+            <strong className="account__total-value stat__value">{Math.round(stats.accuracyPct)}%</strong>
           </div>
-          <div className="account__total">
-            <span className="account__total-label">Tempo total</span>
-            <strong className="account__total-value">{formatTotalTime(stats.totalTimeMs)}</strong>
+          <div className="account__total stat stat--boxed">
+            <span className="account__total-label stat__label">Tempo total</span>
+            <strong className="account__total-value stat__value">{formatTotalTime(stats.totalTimeMs)}</strong>
           </div>
         </div>
 
@@ -293,8 +293,8 @@ export function AccountPage() {
             {stats.badges.map((badge) => (
               <li
                 key={badge.id}
-                className={`account__badge ${
-                  badge.earned ? 'account__badge--earned' : 'account__badge--locked'
+                className={`account__badge badge badge--pill ${
+                  badge.earned ? 'account__badge--earned badge--flare' : 'account__badge--locked badge--dashed'
                 }`}
               >
                 <span aria-hidden="true">{badge.earned ? '◈' : '◇'}</span>
@@ -309,7 +309,7 @@ export function AccountPage() {
 
         {stats.perSubject.length > 0 ? (
           <div className="account__subjects">
-            <h3 className="account__subheading">Precisão por disciplina</h3>
+            <h3 className="account__subheading kicker">Precisão por disciplina</h3>
             <ul className="account__subject-list">
               {stats.perSubject.map((subject) => (
                 <li className="account__subject" key={subject.subject}>
@@ -334,8 +334,8 @@ export function AccountPage() {
       </div>
 
       {/* ─── Segurança ─── */}
-      <div className="account__card" aria-labelledby="account-security-title">
-        <h2 className="account__card-title" id="account-security-title">Segurança</h2>
+      <div className="account__card glass" aria-labelledby="account-security-title">
+        <h2 className="account__card-title kicker" id="account-security-title">Segurança</h2>
         {hasCredential ? (
           <form className="account__password-form" onSubmit={handlePasswordSubmit} noValidate>
             <Input
@@ -380,8 +380,8 @@ export function AccountPage() {
       </div>
 
       {/* ─── Dados ─── */}
-      <div className="account__card" aria-labelledby="account-data-title">
-        <h2 className="account__card-title" id="account-data-title">Dados</h2>
+      <div className="account__card glass" aria-labelledby="account-data-title">
+        <h2 className="account__card-title kicker" id="account-data-title">Dados</h2>
         <div className="account__data-row">
           <div>
             <p className="account__data-label">Exportar dados</p>
@@ -414,7 +414,7 @@ export function AccountPage() {
             }}
           >
             <input
-              className="account__delete-input"
+              className="account__delete-input input"
               value={deleteInput}
               onChange={(event) => setDeleteInput(event.target.value)}
               placeholder={DELETE_CONFIRMATION}

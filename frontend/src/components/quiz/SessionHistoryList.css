@@ -5,11 +5,9 @@
   padding: 24px;
 }
 
+/* Título: receita em .kicker — local: tracking/cor/margem. */
 .session-history__title {
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.75rem;
   letter-spacing: 2px;
-  text-transform: uppercase;
   color: #a1a1aa;
   margin-bottom: 16px;
 }
@@ -31,13 +29,13 @@
   padding: 10px 14px;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
 }
 
 .session-history__item--current {
-  border-color: rgba(227, 96, 2, 0.4); /* TODO token (--accent-flare) */
-  background: rgba(227, 96, 2, 0.06);
+  border-color: rgba(var(--accent-flare-rgb), 0.4);
+  background: rgba(var(--accent-flare-rgb), 0.06);
 }
 
 .session-history__date {
@@ -63,13 +61,15 @@
   color: #4ade80;
 }
 
+/* Tag "atual": receita em .badge.badge--flare — local: laranja-400,
+   micro-fonte, sem bg e cantos retos. */
 .session-history__current-tag {
   font-size: 0.6rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #fb923c; /* TODO token */
-  border: 1px solid rgba(227, 96, 2, 0.5);
+  font-weight: 400;
   padding: 2px 6px;
+  color: #fb923c;
+  background: transparent;
+  border-radius: 0;
 }
 
 @media (max-width: 640px) {

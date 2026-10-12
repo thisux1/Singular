@@ -1,9 +1,8 @@
+/* pt40/pb140 via .page--padded + .page--padded-tall
+   (pb maior = respiro para a barra de seleção fixa não cobrir o fim da lista) */
 .bank {
   display: flex;
   flex-direction: column;
-  padding-top: 40px;
-  /* respiro para a barra de seleção fixa não cobrir o fim da lista */
-  padding-bottom: 140px;
 }
 
 /* ─── Header ─── */
@@ -12,94 +11,27 @@
 }
 
 .bank__title {
-  font-family: 'Clash Display', system-ui, sans-serif;
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 700;
   color: #fff;
-  letter-spacing: -0.02em;
+  line-height: var(--leading-normal);
   margin-bottom: 8px;
 }
 
 .bank__subtitle {
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.95rem;
   color: #a1a1aa;
-  letter-spacing: 1px;
 }
 
-/* ─── Terminal shell (mesmo padrão das outras páginas) ─── */
+/* ─── Terminal shell: .terminal .terminal--cut-b (primitives.css) ─── */
 .bank__terminal {
-  position: relative;
-  background: transparent;
-  border: none;
   display: flex;
   flex-direction: column;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
-  clip-path: polygon(
-    var(--terminal-cut) 0,
-    100% 0,
-    100% calc(100% - var(--terminal-cut)),
-    calc(100% - var(--terminal-cut)) 100%,
-    0 100%,
-    0 var(--terminal-cut)
-  );
 }
 
-.bank__terminal::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.2);
-  clip-path: polygon(
-    var(--terminal-cut) 0,
-    100% 0,
-    100% calc(100% - var(--terminal-cut)),
-    calc(100% - var(--terminal-cut)) 100%,
-    0 100%,
-    0 var(--terminal-cut)
-  );
-  z-index: -2;
-}
-
-.bank__terminal::after {
-  content: '';
-  position: absolute;
-  inset: 1px;
-  background: rgba(10, 5, 5, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  clip-path: polygon(
-    var(--terminal-cut) 0,
-    100% 0,
-    100% calc(100% - var(--terminal-cut)),
-    calc(100% - var(--terminal-cut)) 100%,
-    0 100%,
-    0 var(--terminal-cut)
-  );
-  z-index: -1;
-}
-
-.bank__premium-glow {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 50% 0%, rgba(227, 96, 2, 0.06), transparent 40%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ─── Filtros ─── */
+/* ─── Filtros (.terminal__header cobre borda/gradiente/z-index) ─── */
 .bank__filters {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: repeat(5, minmax(140px, 1fr));
   gap: 16px;
   padding: var(--terminal-padding-v) var(--terminal-padding-h);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
   align-items: end;
 }
 
@@ -114,11 +46,9 @@
   grid-column: span 3;
 }
 
+/* .field-label cobre mono/uppercase/track — divergências: tamanho e tom. */
 .bank__filter-label {
-  font-family: var(--font-mono);
   font-size: 0.68rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
   color: #71717a;
 }
 
@@ -140,27 +70,26 @@
   list-style: none;
 }
 
+/* Base .empty (flex central) — divergências locais: padding horizontal e tom. */
 .bank__state {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
   padding: 64px var(--terminal-padding-h);
-  text-align: center;
   color: #a1a1aa;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
+}
+
+/* Estado de erro: classe usada no tsx sem regra — tinta mínima de falha. */
+.bank__state--error {
+  color: #fca5a5;
 }
 
 .bank__empty-icon {
   font-size: 2.4rem;
   color: #52525b;
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
 }
 
-/* ─── Card de questão ─── */
+/* ─── Card de questão (chanfro TR+BL 16px via .cut .cut--b) ─── */
 .bank-q {
   display: flex;
   flex-direction: column;
@@ -168,14 +97,6 @@
   padding: 20px 24px;
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  clip-path: polygon(
-    16px 0,
-    100% 0,
-    100% calc(100% - 16px),
-    calc(100% - 16px) 100%,
-    0 100%,
-    0 16px
-  );
   transition: border-color 0.25s var(--ease-out), background 0.25s var(--ease-out);
 }
 
@@ -184,8 +105,8 @@
 }
 
 .bank-q--selected {
-  border-color: rgba(227, 96, 2, 0.55);
-  background: rgba(227, 96, 2, 0.05);
+  border-color: rgba(var(--accent-flare-rgb), 0.55);
+  background: rgba(var(--accent-flare-rgb), 0.05);
 }
 
 .bank-q__head {
@@ -206,13 +127,13 @@
 .bank-q__select input {
   width: 15px;
   height: 15px;
-  accent-color: #e36002;
+  accent-color: var(--accent-flare);
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .bank-q__select-label {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -231,28 +152,28 @@
   flex-wrap: wrap;
 }
 
+/* Base .badge — divergências locais: tamanho/padding, quadrado, peso normal. */
 .bank-q__badge {
-  font-family: 'Geist Mono', monospace;
   font-size: 0.65rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-weight: 400;
   padding: 3px 8px;
+  border-radius: 0;
 }
 
 .bank-q__badge--annulled {
-  color: #facc15;
-  border: 1px dashed rgba(250, 204, 21, 0.5);
-  background: rgba(250, 204, 21, 0.08);
+  color: var(--signal-warn);
+  border: 1px dashed rgba(var(--signal-warn-rgb), 0.5);
+  background: rgba(var(--signal-warn-rgb), 0.08);
 }
 
 .bank-q__badge--image {
   color: #a5b4fc;
-  border: 1px solid rgba(99, 102, 241, 0.45);
-  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(var(--accent-info-rgb), 0.45);
+  background: rgba(var(--accent-info-rgb), 0.1);
 }
 
 .bank-q__text {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.6;
   color: #e2e8f0;
@@ -264,13 +185,13 @@
 }
 
 .bank-q__context {
-  border-left: 2px solid rgba(227, 96, 2, 0.4);
+  border-left: 2px solid rgba(var(--accent-flare-rgb), 0.4);
   padding-left: 12px;
 }
 
 .bank-q__context summary {
   cursor: pointer;
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -294,32 +215,36 @@
   gap: 8px;
 }
 
+/* Base .badge — divergências locais: sem uppercase (rótulos literais),
+   quadrado, peso normal, tamanho/track/padding/cores próprios. */
 .bank-q__chip {
-  font-family: 'Geist Mono', monospace;
   font-size: 0.68rem;
+  font-weight: 400;
   letter-spacing: 0.5px;
+  text-transform: none;
   padding: 3px 9px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.03);
   color: #a1a1aa;
 }
 
 .bank-q__chip--easy {
   color: #4ade80;
-  border-color: rgba(34, 197, 94, 0.45);
-  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(var(--signal-ok-rgb), 0.45);
+  background: rgba(var(--signal-ok-rgb), 0.08);
 }
 
 .bank-q__chip--medium {
-  color: #facc15;
-  border-color: rgba(250, 204, 21, 0.45);
-  background: rgba(250, 204, 21, 0.08);
+  color: var(--signal-warn);
+  border-color: rgba(var(--signal-warn-rgb), 0.45);
+  background: rgba(var(--signal-warn-rgb), 0.08);
 }
 
 .bank-q__chip--hard {
   color: #f87171;
-  border-color: rgba(239, 68, 68, 0.45);
-  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(var(--signal-fail-rgb), 0.45);
+  background: rgba(var(--signal-fail-rgb), 0.08);
 }
 
 .bank-q__chip--source {
@@ -340,44 +265,37 @@
   border-top: 1px dashed rgba(255, 255, 255, 0.07);
 }
 
+/* .text-btn cobre reset/font-mono/uppercase — divergências: size, tom, hover. */
 .bank-q__answer-toggle {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: 'Geist Mono', monospace;
   font-size: 0.72rem;
   letter-spacing: 1px;
-  text-transform: uppercase;
   color: #fb923c;
   transition: color 0.2s var(--ease-out);
 }
 
 .bank-q__answer-toggle:hover {
-  color: #facc15;
+  color: var(--signal-warn);
   text-decoration: underline;
 }
 
 .bank-q__answer {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
-  color: #facc15;
+  color: var(--signal-warn);
 }
 
-/* ─── Paginação ─── */
+/* ─── Paginação (.terminal__footer cobre borda/z-index — sem fundo próprio) ─── */
 .bank__pagination {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 24px;
   padding: 24px var(--terminal-padding-h) 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
 }
 
 .bank__page-info {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -394,7 +312,7 @@
   background: rgba(10, 5, 5, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(227, 96, 2, 0.3);
+  border-top: 1px solid rgba(var(--accent-flare-rgb), 0.3);
 }
 
 .bank__selection-inner {
@@ -407,7 +325,7 @@
 }
 
 .bank__selection-count {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -415,8 +333,8 @@
 }
 
 .bank__selection-count strong {
-  color: #facc15;
-  font-family: 'Clash Display', sans-serif;
+  color: var(--signal-warn);
+  font-family: var(--font-heading);
   font-size: 1.05rem;
   margin-right: 4px;
 }

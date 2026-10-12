@@ -46,7 +46,7 @@ export function ToastContainer() {
 
 function ToastMessage({ toast: t, onDismiss }: { toast: ToastItem & { timestamp: string }; onDismiss: () => void }) {
   return (
-    <div className={`toast toast--${t.variant}`} role="alert">
+    <div className={`toast toast--${t.variant} glass glass--menu`} role="alert">
       <span className="toast__time">{t.timestamp}</span>
       <span className="toast__tag">{variantTag(t.variant)}</span>
       <span className="toast__message">{t.message}</span>

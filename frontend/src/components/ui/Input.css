@@ -4,27 +4,19 @@
   gap: var(--space-1);
 }
 
+/* Label: receita em .field-label (mono uppercase secondary) —
+   local: tamanho/peso/tracking do campo padrão. */
 .input-field__label {
   font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--text-secondary);
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  font-family: var(--font-mono);
 }
 
+/* Input: receita em .input — local: padding mais compacto, font-base,
+   placeholder/hover próprios e focus sem o shadow-input extra. */
 .input-field__input {
-  width: 100%;
   padding: var(--space-2) var(--space-3);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-ghost);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
   font-size: var(--text-base);
-  box-shadow: var(--shadow-input);
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .input-field__input::placeholder {
@@ -36,8 +28,6 @@
 }
 
 .input-field__input:focus {
-  outline: none;
-  border-color: var(--border-ghost-active);
   box-shadow: var(--shadow-focus);
 }
 
@@ -67,7 +57,7 @@
 
 /* ─── Error state ─── */
 .input-field--error .input-field__input {
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(var(--signal-fail-rgb), 0.4);
 }
 
 .input-field__error {

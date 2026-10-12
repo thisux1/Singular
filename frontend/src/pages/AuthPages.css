@@ -44,18 +44,17 @@
   margin-top: var(--space-2);
 }
 
+/* Links auxiliares: receita em .text-btn — local: cor secondary,
+   tracking e sem underline. */
 .auth-link {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
 }
 
-.auth-link:hover {
-  color: var(--accent-flare-hot);
+/* Uso em <span> (não interativo): sem cursor de link. */
+span.auth-link {
+  cursor: default;
 }
 
 .auth-link--muted {
@@ -66,13 +65,10 @@
   color: var(--text-secondary);
 }
 
-/* Estado de retorno (link enviado / email verificado / senha redefinida) */
+/* Estado de retorno: receita em .empty — local: sem padding extra
+   e largura máxima do bloco. */
 .auth-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  text-align: center;
+  padding: 0;
   max-width: 340px;
 }
 

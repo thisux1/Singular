@@ -18,8 +18,8 @@ export function AnimatedFileIcon({ selected, type = 'base' }: AnimatedFileIconPr
       strokeLinecap="round" 
       strokeLinejoin="round"
     >
-      <path className="icon-path icon-outline" d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-      <polyline className="icon-path icon-fold" points="13 2 13 9 20 9" />
+      <path className="icon-path" d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+      <polyline className="icon-path" points="13 2 13 9 20 9" />
       
       {/* If selected, draw a checkmark, else if idle, show a subtle pulse/dash based on type */}
       {selected ? (

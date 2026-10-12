@@ -45,14 +45,14 @@ export function ForgotPasswordPage() {
         <p className="login-page__tagline">recuperar acesso</p>
 
         {sent ? (
-          <div className="auth-status" role="status">
+          <div className="auth-status empty" role="status">
             <span className="auth-status__icon" aria-hidden="true">✉</span>
             <h2 className="auth-status__title">Link enviado</h2>
             <p className="auth-status__text">
               Se existir uma conta para <strong>{email}</strong>, você receberá
               um link para redefinir a senha em alguns instantes.
             </p>
-            <Link className="auth-link" to="/login">
+            <Link className="auth-link text-btn" to="/login">
               Voltar ao login
             </Link>
           </div>
@@ -79,7 +79,7 @@ export function ForgotPasswordPage() {
             )}
 
             <div className="auth-links">
-              <Link className="auth-link auth-link--muted" to="/login">
+              <Link className="auth-link auth-link--muted text-btn" to="/login">
                 Voltar ao login
               </Link>
             </div>

@@ -77,24 +77,24 @@ export function ResetPasswordPage() {
         <p className="login-page__tagline">nova senha</p>
 
         {tokenInvalid ? (
-          <div className="auth-status auth-status--error" role="alert">
+          <div className="auth-status auth-status--error empty" role="alert">
             <span className="auth-status__icon" aria-hidden="true">✕</span>
             <h2 className="auth-status__title">Link inválido</h2>
             <p className="auth-status__text">
               Este link de redefinição expirou ou já foi usado.
             </p>
-            <Link className="auth-link" to="/forgot-password">
+            <Link className="auth-link text-btn" to="/forgot-password">
               Pedir novo link
             </Link>
           </div>
         ) : done ? (
-          <div className="auth-status" role="status">
+          <div className="auth-status empty" role="status">
             <span className="auth-status__icon" aria-hidden="true">✓</span>
             <h2 className="auth-status__title">Senha redefinida</h2>
             <p className="auth-status__text">
               Sua senha foi atualizada. Redirecionando para o login…
             </p>
-            <Link className="auth-link" to="/login">
+            <Link className="auth-link text-btn" to="/login">
               Ir para o login
             </Link>
           </div>
@@ -133,7 +133,7 @@ export function ResetPasswordPage() {
             )}
 
             <div className="auth-links">
-              <Link className="auth-link auth-link--muted" to="/login">
+              <Link className="auth-link auth-link--muted text-btn" to="/login">
                 Voltar ao login
               </Link>
             </div>

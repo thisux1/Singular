@@ -23,7 +23,7 @@ function StatsChip() {
 
   return (
     <span
-      className="navbar__stats-chip"
+      className="navbar__stats-chip badge badge--pill"
       title={`${summary.xp} XP · ${summary.totalSessions} sessões · ${Math.round(summary.accuracyPct)}% de precisão`}
     >
       <span className="navbar__stats-level">LV {summary.level}</span>
@@ -108,7 +108,7 @@ export function Navbar() {
   const shortName = user?.name?.trim().split(/\s+/)[0] ?? user?.email ?? '';
 
   return (
-    <header className={`navbar ${isScrolled ? 'navbar--scrolled' : ''}`}>
+    <header className={`navbar glass glass--bar ${isScrolled ? 'navbar--scrolled' : ''}`}>
       {/* Scroll Progress Indicator - Premium Accretion Disk Aesthetic */}
       <div
         className="navbar__scroll-indicator"
@@ -138,7 +138,7 @@ export function Navbar() {
           </NavLink>
 
           {authDisabled ? (
-            <span className="navbar__dev-badge" title="AUTH_DISABLED — sessão local">
+            <span className="navbar__dev-badge badge badge--pill badge--dashed" title="AUTH_DISABLED — sessão local">
               local
             </span>
           ) : isPending ? (
@@ -169,7 +169,7 @@ export function Navbar() {
               </button>
 
               {menuOpen && (
-                <div className="navbar__menu" role="menu">
+                <div className="navbar__menu glass glass--menu" role="menu">
                   <span className="navbar__menu-user" aria-hidden="true">
                     {user.email}
                   </span>

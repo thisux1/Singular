@@ -1,6 +1,6 @@
 .animated-icon {
   color: #a1a1aa;
-  transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1), color 0.3s ease;
+  transition: transform 0.3s var(--ease-snap), color 0.3s ease;
   overflow: visible;
 }
 
@@ -9,8 +9,8 @@
 }
 
 .animated-icon--selected {
-  color: #ea580c;
-  filter: drop-shadow(0 0 8px rgba(234, 88, 12, 0.6));
+  color: var(--accent-flare-strong);
+  filter: drop-shadow(0 0 8px rgba(var(--accent-flare-strong-rgb), 0.6));
 }
 
 .icon-path {
@@ -32,9 +32,9 @@
 .icon-check {
   stroke-dasharray: 20;
   stroke-dashoffset: 20;
-  animation: drawCheck 0.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+  animation: drawCheck 0.5s var(--ease-snap) forwards;
   stroke-width: 2.5;
-  stroke: #facc15;
+  stroke: var(--signal-warn);
 }
 
 @keyframes drawCheck {

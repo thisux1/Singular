@@ -80,7 +80,7 @@ export function LoginPage() {
 
         {authDisabled ? (
           <div className="login-page__dev">
-            <span className="login-page__dev-note">dev mode — auth_disabled</span>
+            <span className="login-page__dev-note badge badge--violet badge--dashed badge--pill">dev mode — auth_disabled</span>
             <Button variant="ghost" size="lg" onClick={() => navigate(next, { replace: true })}>
               Entrar sem conta
             </Button>
@@ -125,10 +125,10 @@ export function LoginPage() {
             )}
 
             <div className="auth-links">
-              <Link className="auth-link" to="/forgot-password">
+              <Link className="auth-link text-btn" to="/forgot-password">
                 Esqueci a senha
               </Link>
-              <Link className="auth-link auth-link--muted" to="/signup">
+              <Link className="auth-link auth-link--muted text-btn" to="/signup">
                 Criar conta
               </Link>
             </div>

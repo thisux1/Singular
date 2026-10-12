@@ -172,10 +172,10 @@ export function ExamDetailPage() {
 
   if (examQuery.isLoading) {
     return (
-      <section className="exam-detail page page-container">
-        <div className="exam-detail__terminal">
+      <section className="exam-detail page page-container page--padded">
+        <div className="terminal terminal--cut-b exam-detail__terminal">
           <Skeleton width="50%" height="32px" />
-          <Skeleton className="exam-detail__skeleton-gap" width="80%" height="16px" />
+          <Skeleton className="skeleton-gap exam-detail__skeleton-gap" width="80%" height="16px" />
         </div>
       </section>
     );
@@ -183,8 +183,8 @@ export function ExamDetailPage() {
 
   if (examQuery.isError || !examQuery.data) {
     return (
-      <section className="exam-detail page page-container">
-        <div className="exam-detail__terminal exam-detail__terminal--error">
+      <section className="exam-detail page page-container page--padded">
+        <div className="terminal terminal--cut-b terminal--error exam-detail__terminal exam-detail__terminal--error">
           <p>Erro ao acessar a singularidade: {examQuery.error instanceof Error ? examQuery.error.message : 'Desconhecido'}</p>
           <Button variant="ghost" onClick={() => void examQuery.refetch()}>
             Tentar reconexão
@@ -226,7 +226,7 @@ export function ExamDetailPage() {
   }
 
   return (
-    <section className="exam-detail page page-container">
+    <section className="exam-detail page page-container page--padded">
       <div className="exam-detail__container">
         {/* Protruding Status Badge */}
         <TerminalTab 
@@ -234,30 +234,30 @@ export function ExamDetailPage() {
           variant={statusVariantClass(exam.status)} 
         />
 
-        <div className="exam-detail__terminal">
-          <div className="exam-detail__premium-glow" />
-          
+        <div className="terminal terminal--cut-b exam-detail__terminal">
+          <div className="premium-glow exam-detail__premium-glow" />
+
           {/* Header Section */}
-        <header className="exam-detail__header">
-          <h1 className="exam-detail__title">{exam.title}</h1>
-          <p className="exam-detail__subtitle text-mono">SYS.ID // {exam.id}</p>
+        <header className="terminal__header exam-detail__header">
+          <h1 className="page-title exam-detail__title">{exam.title}</h1>
+          <p className="page-subtitle exam-detail__subtitle text-mono">SYS.ID // {exam.id}</p>
         </header>
 
         {/* Integrated Data Grid */}
         <div className="exam-detail__data-grid">
-          <div className="exam-detail__data-box">
-            <span className="exam-detail__data-label">Massa (Questões)</span>
-            <strong className="exam-detail__data-value">{questionCount}</strong>
+          <div className="stat exam-detail__data-box">
+            <span className="stat__label exam-detail__data-label">Massa (Questões)</span>
+            <strong className="stat__value stat__value--lg exam-detail__data-value">{questionCount}</strong>
           </div>
-          <div className="exam-detail__data-box">
-            <span className="exam-detail__data-label">Densidade Atual</span>
-            <strong className={`exam-detail__data-value exam-detail__${statusVariantClass(exam.status)}-text`}>
+          <div className="stat exam-detail__data-box">
+            <span className="stat__label exam-detail__data-label">Densidade Atual</span>
+            <strong className={`stat__value stat__value--lg exam-detail__data-value exam-detail__${statusVariantClass(exam.status)}-text`}>
               {statusLabel(exam.status)}
             </strong>
           </div>
         </div>
 
-        <div className="exam-detail__content">
+        <div className="terminal__section exam-detail__content">
           {isProcessing ? (
             <div className="exam-detail__progress" role="status" aria-live="polite">
               <div className="exam-detail__progress-meta">
@@ -282,7 +282,7 @@ export function ExamDetailPage() {
           )}
 
           {exam.status === 'failed' ? (
-            <div className="exam-detail__error-box">
+            <div className="callout callout--err exam-detail__error-box">
               <span className="exam-detail__error-icon">⚠</span>
               <div className="exam-detail__error-body">
                 <p>{progress?.error ?? exam.errorMessage ?? 'Motivo desconhecido.'}</p>
@@ -299,7 +299,7 @@ export function ExamDetailPage() {
           ) : null}
 
           {questionsErrorMessage ? (
-            <div className="exam-detail__error-box">
+            <div className="callout callout--err exam-detail__error-box">
               <span className="exam-detail__error-icon">⚠</span>
               <p>{questionsErrorMessage}</p>
             </div>
@@ -311,7 +311,7 @@ export function ExamDetailPage() {
         </div>
 
         {/* Footer Actions (Integrated) */}
-        <footer className="exam-detail__footer">
+        <footer className="terminal__footer exam-detail__footer">
           <Button
             variant="ghost"
             onClick={() => navigate(`/app/exam/${id}/review`)}

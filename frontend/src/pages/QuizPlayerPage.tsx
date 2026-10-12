@@ -265,8 +265,8 @@ export function QuizPlayerPage() {
 
   if (!sessionId) {
     return (
-      <section className="quiz-player page page-container">
-        <div className="quiz-player__terminal quiz-player__terminal--error">
+      <section className="quiz-player page page-container page--padded">
+        <div className="terminal terminal--error quiz-player__terminal quiz-player__terminal--error">
           <p>Conexão com a simulação perdida. Reinicie através do painel principal.</p>
           <Button variant="ghost" onClick={() => navigate(`/app/exam/${examId}`)}>
             Abortar
@@ -278,13 +278,13 @@ export function QuizPlayerPage() {
 
   if (!bankQuestions && questionsQuery.isLoading) {
     return (
-      <section className="quiz-player page page-container">
-        <div className="quiz-player__terminal">
-          <div className="quiz-player__content">
+      <section className="quiz-player page page-container page--padded">
+        <div className="terminal quiz-player__terminal">
+          <div className="terminal__section quiz-player__content">
             <Skeleton width="35%" height="24px" />
-            <Skeleton className="quiz-player__skeleton-gap" width="100%" height="32px" />
-            <Skeleton className="quiz-player__skeleton-gap" width="100%" height="56px" />
-            <Skeleton className="quiz-player__skeleton-gap" width="100%" height="56px" />
+            <Skeleton className="quiz-player__skeleton-gap skeleton-gap" width="100%" height="32px" />
+            <Skeleton className="quiz-player__skeleton-gap skeleton-gap" width="100%" height="56px" />
+            <Skeleton className="quiz-player__skeleton-gap skeleton-gap" width="100%" height="56px" />
           </div>
         </div>
       </section>
@@ -297,8 +297,8 @@ export function QuizPlayerPage() {
     (!bankQuestions && (questionsQuery.isError || !questionsQuery.data))
   ) {
     return (
-      <section className="quiz-player page page-container">
-        <div className="quiz-player__terminal quiz-player__terminal--error">
+      <section className="quiz-player page page-container page--padded">
+        <div className="terminal terminal--error quiz-player__terminal quiz-player__terminal--error">
           <p>Ruptura no acesso aos fragmentos. Os dados não puderam ser materializados.</p>
           <Button variant="ghost" onClick={() => void questionsQuery.refetch()}>
             Tentar Reconexão
@@ -315,22 +315,22 @@ export function QuizPlayerPage() {
   const feedback = currentAnswered;
 
   return (
-    <section className="quiz-player page page-container">
+    <section className="quiz-player page page-container page--padded">
       <div className="quiz-player__main-column">
-        <div className="quiz-player__terminal">
-          <div className="quiz-player__premium-glow" />
+        <div className="terminal quiz-player__terminal">
+          <div className="premium-glow quiz-player__premium-glow" />
 
-          <header className="quiz-player__header">
+          <header className="terminal__header quiz-player__header">
             <div>
-              <h1 className="quiz-player__title">Simulação Ativa</h1>
-              <p className="quiz-player__subtitle">Analise os vetores e confirme a rota.</p>
+              <h1 className="page-title quiz-player__title">Simulação Ativa</h1>
+              <p className="page-subtitle quiz-player__subtitle">Analise os vetores e confirme a rota.</p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setExitModalOpen(true)}>
               Sair
             </Button>
           </header>
 
-          <div className="quiz-player__content">
+          <div className="terminal__section quiz-player__content">
             <QuizDots
               total={questions.length}
               currentIndex={currentIndex}
@@ -355,7 +355,7 @@ export function QuizPlayerPage() {
               <div className="quiz-player__context-inline">
                 <button
                   type="button"
-                  className="quiz-player__context-toggle"
+                  className="text-btn quiz-player__context-toggle"
                   onClick={() => setContextOpen((value) => !value)}
                   aria-expanded={contextOpen}
                 >
@@ -370,17 +370,17 @@ export function QuizPlayerPage() {
 
             <div className="quiz-player__badges">
               {current.annulled ? (
-                <span className="quiz-player__badge quiz-player__badge--annulled">
+                <span className="badge quiz-player__badge quiz-player__badge--annulled">
                   ⚠ anulada — ponto automático
                 </span>
               ) : null}
               {current.subject ? (
-                <span className="quiz-player__badge">{current.subject}</span>
+                <span className="badge quiz-player__badge">{current.subject}</span>
               ) : null}
               {hasSourcePage ? (
                 <button
                   type="button"
-                  className="quiz-player__badge quiz-player__badge--page"
+                  className="badge quiz-player__badge quiz-player__badge--page"
                   onClick={() => setPdfOpen(true)}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -475,7 +475,7 @@ export function QuizPlayerPage() {
             </div>
           </div>
 
-          <footer className="quiz-player__footer">
+          <footer className="terminal__footer quiz-player__footer">
             <QuestionNav currentIndex={currentIndex} total={questions.length} onNavigate={goTo} />
             <Button size="lg" onClick={requestFinish} loading={finishMutation.isPending}>
               Colapsar Simulação
