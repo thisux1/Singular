@@ -11,6 +11,8 @@ export interface ParsedQuestion {
   correctAnswer?: string;
   sourcePage?: number;
   contextText?: string;
+  /** Flag do question-parser: página com imagem + enunciado curto → precisa do PDF (B7/D28). */
+  requiresPdf?: boolean;
 }
 
 export interface FastPathResult {
@@ -87,6 +89,7 @@ export async function parseFastPath(input: ParseFastPathInput): Promise<FastPath
         options: optionsArr,
         sourcePage: q.page,
         contextText: contextText,
+        requiresPdf: q.requiresPDF === true,
       };
     });
 
