@@ -175,7 +175,7 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
         </div>
 
         <div className="exam-singularity__content-layer">
-          <div className="exam-singularity__glass-panel terminal terminal--flat terminal--cut-b">
+          <div className="exam-singularity__glass-panel terminal terminal--cut-b">
             {step !== undefined && (
               <div key={`wizard-scan-${step}`} className="exam-singularity__wizard-scan-line" />
             )}
@@ -188,14 +188,14 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
           <>
             <div className="exam-singularity__glitch-layer glitch-layer-1">
               <div className="exam-singularity__content-layer glitch-content-layer">
-                <div className="exam-singularity__glass-panel terminal terminal--flat terminal--cut-b">
+                <div className="exam-singularity__glass-panel terminal terminal--cut-b">
                   {cardContent}
                 </div>
               </div>
             </div>
             <div className="exam-singularity__glitch-layer glitch-layer-2">
               <div className="exam-singularity__content-layer glitch-content-layer">
-                <div className="exam-singularity__glass-panel terminal terminal--flat terminal--cut-b">
+                <div className="exam-singularity__glass-panel terminal terminal--cut-b">
                   {cardContent}
                 </div>
               </div>

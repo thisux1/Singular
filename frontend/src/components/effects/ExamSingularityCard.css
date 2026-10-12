@@ -205,7 +205,7 @@
 }
 
 /* Painel de vidro: máquina "borda ::before + vidro ::after" em
-   .terminal.terminal--flat.terminal--cut-b (primitives.css) — local:
+   .terminal.terminal--cut-b (primitives.css) — local:
    cores via --panel-*, blur menor, padding/layout interno. */
 .exam-singularity__glass-panel {
   padding: 24px;
