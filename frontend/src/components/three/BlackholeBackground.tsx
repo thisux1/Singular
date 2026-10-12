@@ -85,7 +85,7 @@ type BlackholeBackgroundProps = {
 export function BlackholeBackground({ tier, reducedMotion, cursorStateRef }: BlackholeBackgroundProps) {
   const { gl, size, camera } = useThree();
   const isMedium = tier === 'medium';
-  const rtScale = isMedium ? 1 : 1.5;
+  const rtScale = isMedium ? 1 : 1.25;
   const particleCount = isMedium ? 40000 : 120000;
   const starCount = isMedium ? 12000 : 42000;
 

@@ -13,7 +13,7 @@ type CursorDistortionProps = {
   cursorStateRef: MutableRefObject<CursorDistortionState>;
 };
 
-const LERP_FACTOR = 1;
+const LERP_FACTOR = 0.12;
 
 export function CursorDistortion({ enabled, cursorStateRef }: CursorDistortionProps) {
   const mouse = useMousePosition(enabled);

@@ -9,7 +9,7 @@ export type MousePosition = {
   enabled: boolean;
 };
 
-function isTouchLikeEnvironment(): boolean {
+export function isTouchLikeEnvironment(): boolean {
   if (typeof window === 'undefined') {
     return false;
   }
