@@ -1,10 +1,11 @@
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { config } from '../config.js';
 import { db, pool } from './client.js';
 
 async function main(): Promise<void> {
   try {
     await migrate(db, {
-      migrationsFolder: './drizzle',
+      migrationsFolder: config.migrationsFolder,
     });
     console.info('db.migrate.success');
   } finally {
