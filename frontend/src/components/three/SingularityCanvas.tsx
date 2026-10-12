@@ -46,7 +46,7 @@ export function SingularityCanvas() {
   return (
     <div className="singularity-canvas" aria-hidden="true">
       <Canvas
-        gl={{ antialias: tier === 'high', alpha: false, powerPreference: 'high-performance', stencil: false, depth: true }}
+        gl={{ antialias: false, alpha: false, powerPreference: 'high-performance', stencil: false, depth: true }}
         dpr={[1, tier === 'high' ? 1.5 : 1]}
         camera={{ position: [0, 0, 1], fov: 45, near: 0.1, far: 10 }}
         frameloop="always"

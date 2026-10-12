@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/immutability, react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useMemo, useEffect, type MutableRefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -85,9 +85,12 @@ type BlackholeBackgroundProps = {
 export function BlackholeBackground({ tier, reducedMotion, cursorStateRef }: BlackholeBackgroundProps) {
   const { gl, size, camera } = useThree();
   const isMedium = tier === 'medium';
-  const rtScale = isMedium ? 1 : 1.25;
-  const particleCount = isMedium ? 40000 : 120000;
+  // Escadas de qualidade adaptativa: o governor desce degrau a degrau
+  // quando o frame time sustenta acima do alvo (efeitos compostáveis primeiro).
+  const rtScales = isMedium ? [1, 0.85] : [1.25, 1, 0.8];
+  const particleCount = isMedium ? 40000 : 90000;
   const starCount = isMedium ? 12000 : 42000;
+  const qualityRef = useRef({ step: 0, ema: 16.7, evals: 0 });
 
   const spaceScene = useMemo(() => new THREE.Scene(), []);
   const distortionScene = useMemo(() => new THREE.Scene(), []);
@@ -208,6 +211,7 @@ export function BlackholeBackground({ tier, reducedMotion, cursorStateRef }: Bla
     });
   }, []);
   const distortionActiveMeshRef = useRef<THREE.Mesh | null>(null);
+  const distortionDirtyRef = useRef(true);
   const blackHoleWorldPosRef = useRef(new THREE.Vector3());
 
   useEffect(() => {
@@ -305,16 +309,18 @@ export function BlackholeBackground({ tier, reducedMotion, cursorStateRef }: Bla
   ]);
 
   useEffect(() => {
-    const safeWidth = Math.max(1, Math.floor(size.width * rtScale));
-    const safeHeight = Math.max(1, Math.floor(size.height * rtScale));
+    const scale = rtScales[qualityRef.current.step] ?? rtScales[rtScales.length - 1];
+    const safeWidth = Math.max(1, Math.floor(size.width * scale));
+    const safeHeight = Math.max(1, Math.floor(size.height * scale));
     spaceRT.setSize(safeWidth, safeHeight);
     distortionRT.setSize(Math.floor(size.width * 0.5), Math.floor(size.height * 0.5));
+    distortionDirtyRef.current = true;
     spaceCamera.aspect = size.width / size.height;
     spaceCamera.updateProjectionMatrix();
     particleMaterial.uniforms.uViewHeight.value = size.height;
     starsMaterial.uniforms.uViewHeight.value = size.height;
     finalMaterial.uniforms.uResolution.value.set(size.width, size.height);
-  }, [size, rtScale, spaceRT, distortionRT, spaceCamera, particleMaterial, starsMaterial]);
+  }, [size, spaceRT, distortionRT, spaceCamera, particleMaterial, starsMaterial, finalMaterial]);
 
   useEffect(() => {
     return () => {
@@ -340,19 +346,35 @@ export function BlackholeBackground({ tier, reducedMotion, cursorStateRef }: Bla
     finalMaterial,
   ]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (reducedMotion) {
       return;
+    }
+
+    // ─── Adaptive quality governor ───
+    // EMA do frame time; se sustentar >26ms por ~2s, desce um degrau de
+    // resolução do spaceRT (o passe mais caro). Degradação em degraus
+    // preserva o visual — só a nitidez do buffer intermediário cai.
+    const quality = qualityRef.current;
+    quality.ema = quality.ema * 0.95 + delta * 1000 * 0.05;
+    quality.evals += 1;
+    if (quality.evals >= 120) {
+      if (quality.ema > 26 && quality.step < rtScales.length - 1) {
+        quality.step += 1;
+        const scale = rtScales[quality.step];
+        spaceRT.setSize(
+          Math.max(1, Math.floor(size.width * scale)),
+          Math.max(1, Math.floor(size.height * scale)),
+        );
+      }
+      quality.evals = 0;
+      quality.ema = 16.7;
     }
 
     const elapsed = state.clock.elapsedTime;
 
     discMaterial.uniforms.uTime.value = elapsed;
     particleMaterial.uniforms.uTime.value = elapsed + 9999;
-
-    if (distortionActiveMeshRef.current) {
-      distortionActiveMeshRef.current.lookAt(spaceCamera.position);
-    }
 
     const bhWorldPos = blackHoleWorldPosRef.current;
     bhWorldPos.set(0, 0, 0);
@@ -369,8 +391,16 @@ export function BlackholeBackground({ tier, reducedMotion, cursorStateRef }: Bla
     gl.setRenderTarget(spaceRT);
     gl.render(spaceScene, spaceCamera);
 
-    gl.setRenderTarget(distortionRT);
-    gl.render(distortionScene, spaceCamera);
+    // A cena de distorção é estática (2 gradientes radiais + câmera fixa):
+    // só re-renderiza no primeiro frame e em resize — um passe a menos por frame.
+    if (distortionDirtyRef.current) {
+      if (distortionActiveMeshRef.current) {
+        distortionActiveMeshRef.current.lookAt(spaceCamera.position);
+      }
+      gl.setRenderTarget(distortionRT);
+      gl.render(distortionScene, spaceCamera);
+      distortionDirtyRef.current = false;
+    }
 
     gl.setRenderTarget(null);
     gl.render(finalScene, camera);

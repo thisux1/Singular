@@ -37,12 +37,16 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
 
   // Dados frescos para o loop de física (rAF roda fora do render do React)
   const physicsStateRef = useRef({ displayExams, maxOffset });
+  const wakeRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     physicsStateRef.current = { displayExams, maxOffset };
+    wakeRef.current();
   });
 
   // HARDWARE ACCELERATED PHYSICS ENGINE
+  // Dorme quando o sistema converge (sem scroll, mola assentada, hover zerado)
+  // e acorda via wakeRef em wheel/touch/hover — zero custo ocioso.
   useEffect(() => {
     const updatePhysics = () => {
       if (!trackRef.current) {
@@ -55,6 +59,8 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
       if (hoverPhysicsRef.current.length !== displayExams.length) {
         hoverPhysicsRef.current = new Array(displayExams.length).fill(0);
       }
+
+      let settled = !isScrollingRef.current && scrollToTargetRef.current === null;
 
       // Magnetic Scroll Snap (Friction physics)
       if (!isScrollingRef.current) {
@@ -83,6 +89,7 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
         // Aplica a força elástica
         if (Math.abs(diff) > 0.5) {
           offsetRef.current += diff * 0.12; // Mola super suave (12%)
+          settled = false;
         } else {
           offsetRef.current += diff; // Crava na posição exata
         }
@@ -118,7 +125,9 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
         const isHovered = selectedExamIdRef.current === displayExams[index].id;
         const isFocused = absDist < 50;
         const targetHover = (isHovered || isFocused) ? 1 : 0;
-        hoverPhysicsRef.current[index] += (targetHover - hoverPhysicsRef.current[index]) * 0.15; // Velocidade da mola
+        const hoverDelta = targetHover - hoverPhysicsRef.current[index];
+        if (Math.abs(hoverDelta) > 0.001) settled = false;
+        hoverPhysicsRef.current[index] += hoverDelta * 0.15; // Velocidade da mola
         const hoverFactor = hoverPhysicsRef.current[index];
 
         let translateX, translateY, rotateY, rotateX;
@@ -191,13 +200,24 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
         }
       });
 
-      // Schedule next frame
+      // Schedule next frame — ou dorme se tudo convergiu neste frame.
+      if (settled) {
+        animationFrameRef.current = null;
+        return;
+      }
       animationFrameRef.current = requestAnimationFrame(updatePhysics);
+    };
+
+    wakeRef.current = () => {
+      if (animationFrameRef.current === null) {
+        animationFrameRef.current = requestAnimationFrame(updatePhysics);
+      }
     };
 
     animationFrameRef.current = requestAnimationFrame(updatePhysics);
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     };
   }, []);
 
@@ -235,6 +255,7 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
       
       // Manda a física rolar exatamente 1 carta de distância
       scrollToTargetRef.current = currentSnap + (direction * ITEM_SPACING);
+      wakeRef.current();
     };
 
     container.addEventListener('wheel', onNativeWheel, { passive: false });
@@ -248,6 +269,7 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
     touchStartY.current = e.touches[0].clientY;
     isScrollingRef.current = true;
     scrollToTargetRef.current = null; // Interrompe scroll autônomo
+    wakeRef.current();
   };
   
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
@@ -256,6 +278,7 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
     const delta = (touchStartY.current - currentY) * 2.0; // Voltou pro multiplicador seguro
     touchStartY.current = currentY;
     offsetRef.current += delta;
+    wakeRef.current();
   };
 
   const handleTouchEnd = () => {
@@ -339,9 +362,11 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
               ref={el => { nodesRef.current[index] = el; }}
               onMouseEnter={() => {
                 selectedExamIdRef.current = exam.id;
+                wakeRef.current();
               }}
               onMouseLeave={() => {
                 selectedExamIdRef.current = null;
+                wakeRef.current();
               }}
             >
               <div className="flip-drawer-card-wrapper">
@@ -360,6 +385,7 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
                       // É uma carta na margem. Rola a gaveta até ela.
                       scrollToTargetRef.current = currentSnap + dist;
                       isScrollingRef.current = false; // Garante que a mola assuma o controle
+                      wakeRef.current();
                     }
                   }}
                   onEdit={() => onExamEdit?.(exam)}

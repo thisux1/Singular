@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent, type CSSProperties } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
 import type { Exam } from '../../api/exams';
 import { Button } from '../ui/Button';
 import './ExamSingularityCard.css';
@@ -21,14 +21,24 @@ function getStatusDisplay(status: string) {
 
 export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: ExamSingularityCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 200, y: 200, px: 0, py: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Vars de tilt/glare escritas direto no DOM — composited, zero re-render.
+  const setTiltVars = (x: number, y: number, px: number, py: number) => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.setProperty('--mx', `${x}px`);
+    el.style.setProperty('--my', `${y}px`);
+    el.style.setProperty('--rx', `${py * -15}deg`);
+    el.style.setProperty('--ry', `${px * 15}deg`);
+    el.style.setProperty('--px', `${px}`);
+    el.style.setProperty('--py', `${py}`);
+  };
 
   const toggleMenu = (e: MouseEvent) => {
     e.stopPropagation();
     setIsMenuOpen(prev => {
       if (!prev) {
-        setMousePos({ x: 200, y: 200, px: 0, py: 0 });
+        setTiltVars(200, 200, 0, 0);
       }
       return !prev;
     });
@@ -44,12 +54,17 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
     const px = (x / rect.width) * 2 - 1;
     const py = (y / rect.height) * 2 - 1;
 
-    setMousePos({ x, y, px, py });
+    setTiltVars(x, y, px, py);
   };
 
   const handleMouseLeave = () => {
     if (isMenuOpen) return;
-    setMousePos(prev => ({ ...prev, px: 0, py: 0 }));
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.setProperty('--rx', '0deg');
+    el.style.setProperty('--ry', '0deg');
+    el.style.setProperty('--px', '0');
+    el.style.setProperty('--py', '0');
   };
 
   const statusClass = `exam-singularity--${exam.status}`;
@@ -106,14 +121,6 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
           onClick?.();
         }
       }}
-      style={{
-        '--mx': `${mousePos.x}px`,
-        '--my': `${mousePos.y}px`,
-        '--rx': `${mousePos.py * -15}deg`,
-        '--ry': `${mousePos.px * 15}deg`,
-        '--px': mousePos.px,
-        '--py': mousePos.py,
-      } as CSSProperties}
     >
       {/* Side Badge (Triggers Menu) */}
       <div 
@@ -136,7 +143,10 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
       </div>
 
       <div className="exam-singularity__hole-mask">
-        <div className="exam-singularity__nebula" />
+        {/* Wrapper anima transform; o blur fica no filho e rasteriza 1×. */}
+        <div className="exam-singularity__nebula-spin">
+          <div className="exam-singularity__nebula" />
+        </div>
         <div className="exam-singularity__stars" />
 
         <div className="exam-singularity__orb-container">
