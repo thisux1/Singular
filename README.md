@@ -11,16 +11,18 @@
 ----------------------------------------------
 • input    : scanned exams · pdf / images
 • output   : playable quizzes, typed JSON
+• modes    : full · by-subject · random · wrong-review
 • ocr      : glm-ocr | qwen2.5vl:3b | gemini
 • schema   : instructor + pydantic (strict)
 • classify : exam/role tags, gemini-2.5-flash
-• fastpath : text PDFs skip OCR (conf ≥ 0.9)</code></pre>
+• fastpath : text PDFs skip OCR (conf ≥ 80/100)
+• explain  : on-demand ai explanations (cached)</code></pre>
     </td>
     <td width="50%" valign="top">
       <pre lang="python"><code>class Stack:
     frontend = ["react 19.2", "vite 8",
-                "three+r3f", "zustand",
-                "react-query", "framer-motion"]
+                "three+r3f", "react-query",
+                "framer-motion", "recharts"]
     backend  = ["hono 4.6", "bullmq 5.58",
                 "drizzle+pg", "pdfjs-dist"]
     pipeline = ["pymupdf", "pdf2image", "ollama",
@@ -57,6 +59,13 @@ the API). Instructor + Pydantic coerce the raw text into typed question
 JSON, Drizzle persists it to PostgreSQL, and the React + Three.js frontend
 renders the result inside a "singularity" scene. A second worker classifies
 each extracted question by exam and role.
+
+Once published, an exam becomes a study loop: pick a game mode (full exam,
+by-subject, random set, or a review of your past mistakes), play with free
+navigation and per-question timers, then read the per-subject dashboard —
+and ask the built-in AI explainer why any answer is right. Google OAuth
+(Better Auth) keeps exams and sessions per user; `AUTH_DISABLED` mode runs
+the whole thing single-user with zero accounts.
 
 ---
 
@@ -99,11 +108,11 @@ One document's trip through the system:
 
 | Module | Stack | Role |
 | :--- | :--- | :--- |
-| Frontend | React 19.2, Vite 8, Three.js 0.183 (R3F 9 + drei), Zustand, React Query, Framer Motion | SPA with an interactive 3D singularity scene; vanilla CSS design tokens, no utility framework |
+| Frontend | React 19.2, Vite 8, Three.js 0.183 (R3F 9), React Query, Framer Motion, Recharts, Better Auth client | SPA with an interactive 3D singularity scene; vanilla CSS design tokens, no utility framework |
 | API server | Hono 4.6, Node.js, TypeScript | REST API: uploads (`routes/exams.ts`), questions, quiz sessions |
 | Workers | BullMQ 5.58, Redis (ioredis) | Async jobs: `process-exam` (OCR pipeline) and `process-classification` |
 | Extraction pipeline | Python 3.10+: instructor, Pydantic 2, PyMuPDF, pdf2image, typer | OCR and typed structuring of raw documents into question JSON |
-| Database | PostgreSQL 16, Drizzle ORM 0.39 | Relational storage, migrations via Drizzle Kit |
+| Database | PostgreSQL 16, Drizzle ORM 0.45 | Relational storage, migrations via Drizzle Kit |
 | OCR providers | Ollama (glm-ocr / qwen2.5vl:3b) or Google Gemini | Local, zero-cost OCR or cloud API, switched by `OCR_PROVIDER` |
 
 ---
@@ -161,17 +170,31 @@ starts api + workers + frontend under `concurrently`.
 - Frontend: `http://localhost:5173`
 - API: `http://localhost:3001`
 
+**6. Self-host (production-like)**
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+App + postgres + redis + workers + nginx frontend in one command. For a
+managed-cloud deployment (Cloud Run + Vercel + Neon + Upstash + GCS), see
+[docs/DEPLOY.md](docs/DEPLOY.md).
+
 ---
 
 ### ❯ repo_map
 
-<pre lang="text"><code>backend/           Hono API, Drizzle schema, BullMQ workers
-  └── src/jobs/    process-exam.ts · process-classification.ts · queue.ts
+<pre lang="text"><code>backend/           Hono API, Drizzle schema, BullMQ workers, Better Auth
+  └── src/jobs/    process-exam.ts · process-classification.ts · worker.ts
 frontend/          React 19 SPA · three/ singularity canvas · quiz pages
-pipeline/          Python OCR engine · main.py, ocr_provider.py, requirements.txt
+pipeline/          Python OCR engine · main.py, ocr_provider.py, tests/
+e2e/               Playwright specs + seed (fluxo feliz end-to-end)
 scripts/           local setup helpers (setup-local-ocr.sh, ...)
-docs/              banner.svg · architecture.svg · plans, prototypes, qa
-docker-compose.yml postgres:16 · redis:7 · ollama (profile: local-ocr)</code></pre>
+docs/product/      PRD · TRD · APP-FLOW · DESIGN-BRIEF · BACKEND-SCHEMA · plan
+docs/              banner.svg · architecture.svg · DEPLOY.md · plans history
+Dockerfile         api+workers image (node22 + python3.12 + poppler)
+docker-compose.yml dev: postgres:16 · redis:7 · ollama (profile: local-ocr)
+docker-compose.prod.yml  self-host: app+db+redis+workers+nginx</code></pre>
 
 ---
 
