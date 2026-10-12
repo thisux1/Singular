@@ -1,7 +1,9 @@
 .app-shell {
   position: relative;
   min-height: 100vh;
-  background: var(--bg-void);
+  /* Scrim translúcido — o canvas Gargantua fica visível atrás do app
+     (era var(--bg-void) opaco: o buraco renderizava escondido, queimando GPU). */
+  background: rgba(9, 9, 11, 0.62);
   isolation: isolate;
 }
 
