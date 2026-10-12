@@ -8,6 +8,28 @@
   display: flex;
   flex-direction: column;
   color: var(--text-primary);
+  position: relative;
+}
+
+/* Scrim global: escurece o disco do Gargantua atrás de todo o conteúdo —
+   sem isso o texto briga com o brilho do anel de acreção. */
+.landing::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(4, 4, 9, 0.68) 0%,
+    rgba(4, 4, 9, 0.52) 38%,
+    rgba(4, 4, 9, 0.62) 100%
+  );
+}
+
+.landing > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ─── Topbar ─── */
@@ -183,11 +205,11 @@
 .landing__step {
   position: relative;
   padding: var(--space-6);
-  background: var(--bg-surface);
+  background: rgba(9, 9, 14, 0.62);
   border: 1px solid var(--border-ghost);
   border-radius: var(--radius-lg);
-  backdrop-filter: blur(12px) brightness(0.8);
-  -webkit-backdrop-filter: blur(12px) brightness(0.8);
+  backdrop-filter: blur(14px) brightness(0.75);
+  -webkit-backdrop-filter: blur(14px) brightness(0.75);
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
@@ -265,11 +287,11 @@
 
 .landing__feature {
   padding: var(--space-6);
-  background: var(--bg-surface);
+  background: rgba(9, 9, 14, 0.62);
   border: 1px solid var(--border-ghost);
   border-radius: var(--radius-lg);
-  backdrop-filter: blur(12px) brightness(0.8);
-  -webkit-backdrop-filter: blur(12px) brightness(0.8);
+  backdrop-filter: blur(14px) brightness(0.75);
+  -webkit-backdrop-filter: blur(14px) brightness(0.75);
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
@@ -319,11 +341,11 @@
   gap: var(--space-10);
   align-items: center;
   padding: var(--space-8);
-  background: var(--bg-surface-elevated);
+  background: rgba(11, 11, 17, 0.72);
   border: 1px solid var(--border-ghost-hover);
   border-radius: var(--radius-xl);
-  backdrop-filter: blur(12px) brightness(0.85);
-  -webkit-backdrop-filter: blur(12px) brightness(0.85);
+  backdrop-filter: blur(14px) brightness(0.78);
+  -webkit-backdrop-filter: blur(14px) brightness(0.78);
   box-shadow: var(--shadow-card);
   position: relative;
   overflow: hidden;
