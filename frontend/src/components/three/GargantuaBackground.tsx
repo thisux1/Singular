@@ -38,8 +38,9 @@ export function GargantuaBackground({ tier, cursorStateRef }: GargantuaBackgroun
   const baseScale = isMedium ? 0.85 : 1.0;
 
   // Câmera orbital (azim/elev/dist) — auto-orbita no idle + parallax do cursor.
-  const camRef = useRef({ azim: 0, elev: 0.115, dist: 12.5 });
-  const tgtRef = useRef({ azim: 0, elev: 0.115, dist: 12.5 });
+  // dist 17 (vs 12.5 do standalone): afasta o buraco pra dar ar ao layout.
+  const camRef = useRef({ azim: 0, elev: 0.115, dist: 17 });
+  const tgtRef = useRef({ azim: 0, elev: 0.115, dist: 17 });
   const simTRef = useRef(0);
   const qualityRef = useRef({ scale: baseScale, steps: maxSteps, emaMs: 16.7, frames: 0 });
   const dbgRef = useRef<HTMLElement | null>(null);
@@ -219,8 +220,8 @@ export function GargantuaBackground({ tier, cursorStateRef }: GargantuaBackgroun
 
     tgt.azim += dt * 0.028;
     tgt.elev += Math.sin(simT * 0.11) * dt * 0.012;
-    const effAzim = tgt.azim + cx * 0.12;
-    const effElev = Math.min(1.35, Math.max(-1.35, tgt.elev + cy * 0.10));
+    const effAzim = tgt.azim + cx * 0.34;
+    const effElev = Math.min(1.35, Math.max(-1.35, tgt.elev + cy * 0.26));
 
     const k = 1 - Math.exp(-dt * 7);
     cam.azim += (effAzim - cam.azim) * k;
