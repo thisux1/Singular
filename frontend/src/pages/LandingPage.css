@@ -32,15 +32,11 @@
   z-index: 1;
 }
 
-/* ─── Topbar ─── */
+/* ─── Topbar — vidro vem de .glass.glass--bar (blur20 + rgba(10,5,5,.4)) ─── */
 .landing__topbar {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background: rgba(10, 5, 5, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .landing__topbar-inner {
@@ -51,7 +47,7 @@
 }
 
 .landing__wordmark {
-  font-family: 'Clash Display', var(--font-heading);
+  font-family: var(--font-heading);
   font-size: var(--text-xl);
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -73,49 +69,24 @@
   gap: var(--space-3);
 }
 
-/* ─── CTAs (clip-path terminal, mesma família do Button) ─── */
+/* ─── CTAs — máquina .btn (clip, camadas ::before/::after, spring, :active).
+   Local: tipografia mono/tracking e tamanhos. ─── */
 .landing__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
+  --btn-cut: 8px;
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  font-weight: 600;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   text-decoration: none;
   padding: 10px 20px;
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-  transition: filter var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
 }
 
-.landing__cta:hover {
-  filter: brightness(1.15);
-  transform: translateY(-1px);
-}
 
-.landing__cta--primary {
-  background: linear-gradient(135deg, var(--accent-flare), #b91c1c);
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(185, 28, 28, 0.4);
-}
-
-.landing__cta--ghost {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-ghost-active);
-}
-
-.landing__cta--ghost:hover {
-  color: var(--text-primary);
-}
 
 .landing__cta--lg {
+  --btn-cut: 12px;
   padding: 16px 32px;
   font-size: 0.85rem;
-  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
 }
 
 /* ─── Hero ─── */
@@ -128,12 +99,9 @@
   gap: var(--space-6);
 }
 
+/* Kicker: receita em .kicker.kicker--accent — local só o tracking mais aberto. */
 .landing__kicker {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
   letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--accent-flare-hot);
   margin: 0;
 }
 
@@ -145,7 +113,7 @@
   letter-spacing: var(--tracking-tight);
   margin: 0;
   max-width: 14ch;
-  text-shadow: 0 0 60px rgba(227, 98, 2, 0.25);
+  text-shadow: 0 0 60px rgba(var(--accent-flare-rgb), 0.25);
 }
 
 .landing__hero-accent {
@@ -202,52 +170,18 @@
   counter-reset: step;
 }
 
+/* Vidro via .glass.glass--dense; corner brackets via .corners
+   (14px/1px/flare/.65/radius-lg — bate exato com a receita antiga). */
 .landing__step {
-  position: relative;
   padding: var(--space-6);
-  background: rgba(9, 9, 14, 0.62);
-  border: 1px solid var(--border-ghost);
-  border-radius: var(--radius-lg);
-  backdrop-filter: blur(14px) brightness(0.75);
-  -webkit-backdrop-filter: blur(14px) brightness(0.75);
-  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
 
-/* Corner brackets — canto superior esquerdo e inferior direito */
-.landing__step::before,
-.landing__step::after {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-color: var(--accent-flare);
-  border-style: solid;
-  opacity: 0.65;
-  pointer-events: none;
-}
-
-.landing__step::before {
-  top: -1px;
-  left: -1px;
-  border-width: 1px 0 0 1px;
-  border-top-left-radius: var(--radius-lg);
-}
-
-.landing__step::after {
-  bottom: -1px;
-  right: -1px;
-  border-width: 0 1px 1px 0;
-  border-bottom-right-radius: var(--radius-lg);
-}
-
 .landing__step-num {
-  font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.2em;
-  color: var(--text-tertiary);
 }
 
 .landing__step-icon {
@@ -285,14 +219,9 @@
   gap: var(--space-5);
 }
 
+/* Vidro via .glass.glass--dense — local: layout + hover. */
 .landing__feature {
   padding: var(--space-6);
-  background: rgba(9, 9, 14, 0.62);
-  border: 1px solid var(--border-ghost);
-  border-radius: var(--radius-lg);
-  backdrop-filter: blur(14px) brightness(0.75);
-  -webkit-backdrop-filter: blur(14px) brightness(0.75);
-  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -334,7 +263,8 @@
   margin: 0;
 }
 
-/* ─── Self-host ─── */
+/* ─── Self-host — vidro denso via .glass.glass--dense + overrides locais
+   (bg .72 / brightness .78 / radius-xl divergem da receita densa). ─── */
 .landing__selfhost {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -342,11 +272,10 @@
   align-items: center;
   padding: var(--space-8);
   background: rgba(11, 11, 17, 0.72);
-  border: 1px solid var(--border-ghost-hover);
+  border-color: var(--border-ghost-hover);
   border-radius: var(--radius-xl);
   backdrop-filter: blur(14px) brightness(0.78);
   -webkit-backdrop-filter: blur(14px) brightness(0.78);
-  box-shadow: var(--shadow-card);
   position: relative;
   overflow: hidden;
 }
@@ -356,7 +285,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 40% 60% at 85% 50%, rgba(227, 98, 2, 0.1), transparent 70%);
+  background: radial-gradient(ellipse 40% 60% at 85% 50%, rgba(var(--accent-flare-rgb), 0.1), transparent 70%);
   pointer-events: none;
 }
 
@@ -375,17 +304,10 @@
   margin: 0;
 }
 
+/* Bloco de terminal: receita em .term-log — local: margem, leading, position. */
 .landing__selfhost-terminal {
   margin: 0;
-  padding: var(--space-5) var(--space-6);
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid var(--border-ghost-hover);
-  border-radius: var(--radius-md);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
   line-height: 2;
-  color: var(--text-primary);
-  overflow-x: auto;
   position: relative;
 }
 
@@ -418,11 +340,8 @@
 }
 
 .landing__footer-note {
-  font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--text-tertiary);
 }
 
 /* ─── Mobile ─── */

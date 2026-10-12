@@ -14,7 +14,7 @@
   justify-content: center;
   padding: 0 calc(var(--tab-slant) + 16px);
   
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -44,26 +44,28 @@
 }
 
 /* Variants - Futuristic text colors */
-.terminal-tab--processing { 
-  color: #60a5fa; 
-  text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
-  animation: terminal-tab-pulse-blue 2s infinite alternate;
-}
-
-.terminal-tab--reviewing { 
-  color: #f97316; 
-  text-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+/* Paleta alinhada às páginas: processing laranja, reviewing sky,
+   completed branco — antes a tab invertia (azul/laranja/esmeralda). */
+.terminal-tab--processing {
+  color: #fb923c;
+  text-shadow: 0 0 10px rgba(var(--accent-flare-strong-rgb), 0.5);
   animation: terminal-tab-pulse-orange 2s infinite alternate;
 }
 
-.terminal-tab--completed { 
-  color: #10b981; 
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+.terminal-tab--reviewing {
+  color: var(--accent-info);
+  text-shadow: 0 0 10px rgba(var(--accent-info-rgb), 0.5);
+  animation: terminal-tab-pulse-sky 2s infinite alternate;
 }
 
-.terminal-tab--failed { 
-  color: #ef4444; 
-  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+.terminal-tab--completed {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.terminal-tab--failed {
+  color: var(--accent-incorrect);
+  text-shadow: 0 0 10px rgba(var(--signal-fail-rgb), 0.5);
 }
 
 .terminal-tab--default {
@@ -72,24 +74,24 @@
 }
 
 /* Animations */
-@keyframes terminal-tab-pulse-blue {
+@keyframes terminal-tab-pulse-sky {
   from {
-    text-shadow: 0 0 5px rgba(96, 165, 250, 0.2);
+    text-shadow: 0 0 5px rgba(var(--accent-info-rgb), 0.2);
     opacity: 0.7;
   }
   to {
-    text-shadow: 0 0 15px rgba(96, 165, 250, 0.8);
+    text-shadow: 0 0 15px rgba(var(--accent-info-rgb), 0.8);
     opacity: 1;
   }
 }
 
 @keyframes terminal-tab-pulse-orange {
   from {
-    text-shadow: 0 0 5px rgba(249, 115, 22, 0.2);
+    text-shadow: 0 0 5px rgba(var(--accent-flare-hot-rgb), 0.2);
     opacity: 0.7;
   }
   to {
-    text-shadow: 0 0 15px rgba(249, 115, 22, 0.8);
+    text-shadow: 0 0 15px rgba(var(--accent-flare-hot-rgb), 0.8);
     opacity: 1;
   }
 }

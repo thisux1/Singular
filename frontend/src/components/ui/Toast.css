@@ -9,6 +9,8 @@
   pointer-events: none;
 }
 
+/* Toast: blur12 via .glass.glass--menu — local: superfície mais
+   opaca, radius-sm e shadow próprios. */
 .toast {
   pointer-events: auto;
   display: flex;
@@ -16,9 +18,7 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: rgba(10, 12, 18, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text-primary);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -28,24 +28,26 @@
   transition: all var(--duration-normal) var(--ease-out);
 }
 
+/* Bordas/glow derivados dos tokens — antes eram neons fora da paleta
+   (bicolor com o border-left do token). */
 .toast--success {
-  border: 1px solid rgba(0, 255, 128, 0.45);
-  box-shadow: 0 0 15px rgba(0, 255, 128, 0.12);
+  border: 1px solid rgba(var(--signal-ok-rgb), 0.45);
+  box-shadow: 0 0 15px rgba(var(--signal-ok-rgb), 0.12);
   border-left: 4px solid var(--accent-correct);
 }
 .toast--error {
-  border: 1px solid rgba(255, 80, 80, 0.45);
-  box-shadow: 0 0 15px rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(var(--signal-fail-rgb), 0.45);
+  box-shadow: 0 0 15px rgba(var(--signal-fail-rgb), 0.12);
   border-left: 4px solid var(--accent-incorrect);
 }
 .toast--warning {
-  border: 1px solid rgba(255, 170, 0, 0.45);
-  box-shadow: 0 0 15px rgba(255, 170, 0, 0.12);
+  border: 1px solid rgba(var(--signal-warn-rgb), 0.45);
+  box-shadow: 0 0 15px rgba(var(--signal-warn-rgb), 0.12);
   border-left: 4px solid var(--accent-warning);
 }
 .toast--info {
-  border: 1px solid rgba(0, 200, 255, 0.45);
-  box-shadow: 0 0 15px rgba(0, 200, 255, 0.12);
+  border: 1px solid rgba(var(--accent-info-rgb), 0.45);
+  box-shadow: 0 0 15px rgba(var(--accent-info-rgb), 0.12);
   border-left: 4px solid var(--accent-info);
 }
 

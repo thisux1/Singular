@@ -11,9 +11,7 @@ interface TerminalTabProps {
 export function TerminalTab({ label, variant = 'default', className = '' }: TerminalTabProps) {
   return (
     <div className={`terminal-tab terminal-tab--${variant} ${className}`.trim()}>
-      <div className="terminal-tab__inner">
-        {label}
-      </div>
+      {label}
     </div>
   );
 }

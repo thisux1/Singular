@@ -1,123 +1,64 @@
 .exam-detail {
   display: flex;
   flex-direction: column;
-  padding-top: 40px;
-  padding-bottom: 80px;
 }
 
 /* ─── Wrapper to hold Terminal and Tab ─── */
 .exam-detail__container {
   position: relative;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
   display: flex;
   flex-direction: column;
 }
 
-/* ─── The Terminal (Main Integrated Container) ─── */
+/* ─── The Terminal (Main Integrated Container) ───
+   Shell ::before/::after + drop-shadow → .terminal.terminal--cut-b.
+   O clip-path no elemento é local: corta o premium-glow e os
+   fundos das seções no chanfro (o primitivo só clipa as pseudos). */
 .exam-detail__terminal {
-  position: relative;
-  background: transparent;
-  border: none;
   display: flex;
   flex-direction: column;
-  clip-path: polygon(var(--terminal-cut) 0, 100% 0, 100% calc(100% - var(--terminal-cut)), calc(100% - var(--terminal-cut)) 100%, 0 100%, 0 var(--terminal-cut));
+  clip-path: var(--terminal-clip);
 }
 
-.exam-detail__terminal::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.2);
-  /* Sculpted continuous border */
-  clip-path: polygon(var(--terminal-cut) 0, 100% 0, 100% calc(100% - var(--terminal-cut)), calc(100% - var(--terminal-cut)) 100%, 0 100%, 0 var(--terminal-cut));
-  z-index: -2;
-  transition: background 0.3s ease;
-}
-
-.exam-detail__terminal::after {
-  content: '';
-  position: absolute;
-  inset: 1px;
-  /* 1px border thickness */
-  background: rgba(10, 5, 5, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  clip-path: polygon(var(--terminal-cut) 0, 100% 0, 100% calc(100% - var(--terminal-cut)), calc(100% - var(--terminal-cut)) 100%, 0 100%, 0 var(--terminal-cut));
-  z-index: -1;
-}
-
-.exam-detail__premium-glow {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 50% 0%, rgba(234, 88, 12, 0.05), transparent 40%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.exam-detail__terminal--error::before {
-  background: rgba(220, 38, 38, 0.6);
-  /* Red border for error */
-}
-
-.exam-detail__terminal--error::after {
-  background: rgba(40, 10, 10, 0.85);
-}
+/* Flare radial no topo → .premium-glow */
 
 .exam-detail__terminal--error {
   padding: var(--terminal-padding-v) var(--terminal-padding-h);
 }
 
-/* ─── Protruding Corner Badge (Trapezoid Tab) ─── */
-/* Badge and terminal variants replaced by TerminalTab */
-
-.exam-detail__status-failed-text {
+/* ─── Status text colors (data-value) ─── */
+.exam-detail__failed-text {
   color: #fca5a5;
-  text-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+  text-shadow: 0 0 10px rgba(var(--accent-danger-rgb), 0.5);
 }
 
-.exam-detail__status-processing-text {
+.exam-detail__processing-text {
   color: #fb923c;
-  text-shadow: 0 0 10px rgba(234, 88, 12, 0.5);
+  text-shadow: 0 0 10px rgba(var(--accent-flare-strong-rgb), 0.5);
 }
 
-.exam-detail__status-reviewing-text {
+.exam-detail__reviewing-text {
   color: #7dd3fc;
-  text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  text-shadow: 0 0 10px rgba(var(--accent-info-rgb), 0.5);
 }
 
-.exam-detail__status-completed-text {
+.exam-detail__completed-text {
   color: #fff;
 }
 
-/* ─── Header ─── */
-.exam-detail__header {
-  position: relative;
-  z-index: 1;
-  padding: var(--terminal-padding-v) var(--terminal-padding-h) 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
-}
+/* ─── Header → .terminal__header ─── */
 
 .exam-detail__title {
-  font-family: 'Clash Display', system-ui, sans-serif;
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 700;
   color: #fff;
-  letter-spacing: -0.02em;
   margin-bottom: 8px;
-  text-shadow: 0 4px 15px rgba(250, 204, 21, 0.1);
+  text-shadow: 0 4px 15px rgba(var(--signal-warn-rgb), 0.1);
   max-width: calc(100% - 160px);
   /* Leave room for corner badge */
 }
 
 .exam-detail__subtitle {
-  font-family: 'Geist Mono', monospace;
   font-size: 1rem;
   color: #a1a1aa;
-  letter-spacing: 1px;
 }
 
 /* ─── Integrated Data Grid ─── */
@@ -131,8 +72,6 @@
 
 .exam-detail__data-box {
   padding: 32px var(--terminal-padding-h);
-  display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
@@ -142,30 +81,24 @@
 
 .exam-detail__data-label {
   color: #a1a1aa;
-  font-family: 'Geist Mono', monospace;
   font-size: 0.8rem;
   letter-spacing: 2px;
-  text-transform: uppercase;
 }
 
 .exam-detail__data-value {
-  font-size: 2.5rem;
-  font-family: 'Clash Display', sans-serif;
+  font-weight: 700;
   color: #fff;
   line-height: 1;
 }
 
-/* ─── Content / Body ─── */
+/* ─── Content / Body → .terminal__section ─── */
 .exam-detail__content {
-  position: relative;
-  z-index: 1;
-  padding: 32px var(--terminal-padding-h);
   min-height: 160px;
 }
 
 .exam-detail__hint {
   color: #a1a1aa;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   line-height: 1.6;
   font-size: 1.05rem;
 }
@@ -177,10 +110,8 @@
 .exam-detail__error-box {
   margin-top: 24px;
   padding: 24px;
-  background: rgba(185, 28, 28, 0.1);
-  border-left: 4px solid #ef4444;
-  display: flex;
-  align-items: flex-start;
+  background: rgba(var(--accent-danger-deep-rgb), 0.1);
+  border-left-width: 4px;
   gap: 16px;
 }
 
@@ -191,7 +122,7 @@
 
 .exam-detail__error-box p {
   color: #fca5a5;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   line-height: 1.5;
   margin: 0;
 }
@@ -217,18 +148,18 @@
 }
 
 .exam-detail__progress-stage {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #fb923c; /* TODO token (--accent-flare-hot) */
+  color: var(--accent-flare-hot);
 }
 
 .exam-detail__progress-percent {
-  font-family: 'Clash Display', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.4rem;
   font-weight: 700;
-  color: #facc15; /* TODO token (--signal-warn) */
+  color: var(--signal-warn);
 }
 
 .exam-detail__progress-track {
@@ -241,8 +172,8 @@
 
 .exam-detail__progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #e36002, #facc15); /* TODO token */
-  box-shadow: 0 0 12px rgba(227, 96, 2, 0.5);
+  background: linear-gradient(90deg, var(--accent-flare), var(--signal-warn));
+  box-shadow: 0 0 12px rgba(var(--accent-flare-rgb), 0.5);
   transition: width 0.5s var(--ease-out);
 }
 
@@ -260,7 +191,7 @@
 }
 
 .exam-detail__parsing-log {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
 }
 
@@ -298,13 +229,8 @@
   flex-wrap: wrap;
 }
 
-/* ─── Footer / Actions ─── */
+/* ─── Footer / Actions → .terminal__footer ─── */
 .exam-detail__footer {
-  position: relative;
-  z-index: 1;
-  padding: 32px var(--terminal-padding-h);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -316,10 +242,6 @@
 }
 
 @media (max-width: 900px) {
-  .exam-detail__corner-badge {
-    font-size: 0.65rem;
-  }
-
   .exam-detail__title {
     font-size: 2rem;
     max-width: calc(100% - 120px);

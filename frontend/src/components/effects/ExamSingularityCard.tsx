@@ -1,4 +1,5 @@
 import { useRef, useState, type MouseEvent } from 'react';
+import { usePrefersReducedMotion } from '../../hooks/useMediaQuery';
 import type { Exam } from '../../api/exams';
 import { Button } from '../ui/Button';
 import './ExamSingularityCard.css';
@@ -22,6 +23,7 @@ function getStatusDisplay(status: string) {
 export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: ExamSingularityCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
   // Vars de tilt/glare escritas direto no DOM — composited, zero re-render.
   const setTiltVars = (x: number, y: number, px: number, py: number) => {
     const el = cardRef.current;
@@ -45,7 +47,7 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (isMenuOpen) return;
+    if (isMenuOpen || reducedMotion) return;
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -82,21 +84,21 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
     <>
       <div className="exam-singularity__meta-top">
         <span className="exam-singularity__id-label">{exam.id.split('-')[0]}</span>
-        <span className="exam-singularity__date">{formattedDate}</span>
+        <span>{formattedDate}</span>
       </div>
-      
+
       <h3 className="exam-singularity__title">{exam.title}</h3>
-      
+
       {exam.edital && <p className="exam-singularity__edital">{exam.edital}</p>}
 
       <div className="exam-singularity__stats">
-        <div className="exam-singularity__stat-box">
-          <span className="stat-label">Questões</span>
-          <span className="stat-value">{exam.totalQuestions ?? '?'}</span>
+        <div className="exam-singularity__stat-box stat">
+          <span className="exam-singularity__stat-label">Questões</span>
+          <span className="exam-singularity__stat-value">{exam.totalQuestions ?? '?'}</span>
         </div>
-        <div className="exam-singularity__stat-box">
-          <span className="stat-label">Score Máx</span>
-          <span className="stat-value">{bestScoreDisplay}</span>
+        <div className="exam-singularity__stat-box stat">
+          <span className="exam-singularity__stat-label">Score Máx</span>
+          <span className="exam-singularity__stat-value">{bestScoreDisplay}</span>
         </div>
       </div>
 
@@ -127,9 +129,13 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
       }}
     >
       {/* Side Badge (Triggers Menu) */}
-      <div 
-        className={`exam-singularity__side-badge ${isMenuOpen ? 'is-active' : ''}`} 
+      <button
+        type="button"
+        className={`exam-singularity__side-badge ${isMenuOpen ? 'is-active' : ''}`}
         onClick={toggleMenu}
+        aria-haspopup="menu"
+        aria-expanded={isMenuOpen}
+        aria-label={isMenuOpen ? 'Fechar menu da prova' : 'Abrir menu da prova'}
       >
         <svg className="exam-singularity__badge-icon gear-celestial" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Outer mechanical gear ring */}
@@ -139,7 +145,7 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
           <path className="celestial-flare" d="M12 4 L12.5 10.5 L19 11 L12.5 11.5 L12 18 L11.5 11.5 L5 11 L11.5 10.5 Z" fill="currentColor" opacity="0.6" />
           <circle className="celestial-core" cx="12" cy="11" r="2.5" fill="currentColor" />
         </svg>
-      </div>
+      </button>
 
       {/* Top Tab for Stacked View */}
       <div className="exam-singularity__folder-tab">
@@ -169,7 +175,7 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
         </div>
 
         <div className="exam-singularity__content-layer">
-          <div className="exam-singularity__glass-panel">
+          <div className="exam-singularity__glass-panel terminal terminal--flat terminal--cut-b">
             {step !== undefined && (
               <div key={`wizard-scan-${step}`} className="exam-singularity__wizard-scan-line" />
             )}
@@ -182,14 +188,14 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
           <>
             <div className="exam-singularity__glitch-layer glitch-layer-1">
               <div className="exam-singularity__content-layer glitch-content-layer">
-                <div className="exam-singularity__glass-panel">
+                <div className="exam-singularity__glass-panel terminal terminal--flat terminal--cut-b">
                   {cardContent}
                 </div>
               </div>
             </div>
             <div className="exam-singularity__glitch-layer glitch-layer-2">
               <div className="exam-singularity__content-layer glitch-content-layer">
-                <div className="exam-singularity__glass-panel">
+                <div className="exam-singularity__glass-panel terminal terminal--flat terminal--cut-b">
                   {cardContent}
                 </div>
               </div>
@@ -203,24 +209,24 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
       {/* Full Card Modal Options */}
       {isMenuOpen && (
         <div className="exam-singularity__full-modal" onClick={(e) => e.stopPropagation()}>
-          <h4 className="modal-title">OPÇÕES DO SISTEMA</h4>
-          
-          <Button 
-            className="huge-btn edit" 
+          <h4 className="exam-singularity__modal-title">OPÇÕES DO SISTEMA</h4>
+
+          <Button
+            className="exam-singularity__huge-btn exam-singularity__huge-btn--edit"
             onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onEdit?.(e); }}
           >
             EDITAR DADOS
           </Button>
-          
-          <Button 
-            className="huge-btn delete" 
+
+          <Button
+            className="exam-singularity__huge-btn exam-singularity__huge-btn--delete"
             onClick={(e) => { e.stopPropagation(); setIsMenuOpen(false); onDelete?.(e); }}
           >
             PURGAR ARQUIVO
           </Button>
 
-          <Button 
-            className="huge-btn cancel" 
+          <Button
+            className="exam-singularity__huge-btn exam-singularity__huge-btn--cancel"
             onClick={toggleMenu}
             aria-label="Fechar"
           >

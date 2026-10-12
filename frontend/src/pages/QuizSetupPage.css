@@ -1,62 +1,16 @@
 .quiz-setup {
   display: flex;
   flex-direction: column;
-  padding-top: 40px;
-  padding-bottom: 80px;
 }
 
-/* ─── Terminal shell (mesmo padrão das outras páginas) ─── */
+/* ─── Terminal shell: .terminal .terminal--cut-b (primitives.css) ─── */
 .quiz-setup__terminal {
-  position: relative;
-  background: transparent;
-  border: none;
   display: flex;
   flex-direction: column;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
-  clip-path: polygon(
-    var(--terminal-cut) 0,
-    100% 0,
-    100% calc(100% - var(--terminal-cut)),
-    calc(100% - var(--terminal-cut)) 100%,
-    0 100%,
-    0 var(--terminal-cut)
-  );
 }
 
-.quiz-setup__terminal::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.2);
-  clip-path: polygon(
-    var(--terminal-cut) 0,
-    100% 0,
-    100% calc(100% - var(--terminal-cut)),
-    calc(100% - var(--terminal-cut)) 100%,
-    0 100%,
-    0 var(--terminal-cut)
-  );
-  z-index: -2;
-}
-
-.quiz-setup__terminal::after {
-  content: '';
-  position: absolute;
-  inset: 1px;
-  background: rgba(10, 5, 5, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  clip-path: polygon(
-    var(--terminal-cut) 0,
-    100% 0,
-    100% calc(100% - var(--terminal-cut)),
-    calc(100% - var(--terminal-cut)) 100%,
-    0 100%,
-    0 var(--terminal-cut)
-  );
-  z-index: -1;
-}
-
+/* --error: cores do shell via .terminal--error (padroniza ::after escuro
+   que faltava aqui — bug visual); layout do estado fica local. */
 .quiz-setup__terminal--error {
   padding: var(--terminal-padding-v) var(--terminal-padding-h);
   display: flex;
@@ -65,51 +19,15 @@
   gap: 24px;
 }
 
-.quiz-setup__terminal--error::before {
-  background: rgba(220, 38, 38, 0.6);
-}
-
-.quiz-setup__premium-glow {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 50% 0%, rgba(227, 96, 2, 0.06), transparent 40%); /* TODO token (--accent-flare) */
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ─── Header ─── */
-.quiz-setup__header {
-  position: relative;
-  z-index: 1;
-  padding: var(--terminal-padding-v) var(--terminal-padding-h) 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
-}
-
+/* ─── Header (.terminal__header cobre padding/borda/gradiente) ─── */
 .quiz-setup__title {
-  font-family: 'Clash Display', system-ui, sans-serif;
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 700;
   color: #fff;
-  letter-spacing: -0.02em;
+  line-height: var(--leading-normal);
   margin-bottom: 8px;
 }
 
 .quiz-setup__subtitle {
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.95rem;
   color: #a1a1aa;
-  letter-spacing: 1px;
-}
-
-/* ─── Content ─── */
-.quiz-setup__content {
-  position: relative;
-  z-index: 1;
-  padding: 32px var(--terminal-padding-h);
 }
 
 .quiz-setup__modes {
@@ -118,7 +36,7 @@
   gap: 20px;
 }
 
-/* ─── Mode card ─── */
+/* ─── Mode card (chanfro TR+BL 16px via .cut .cut--b) ─── */
 .mode-card {
   position: relative;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -126,19 +44,11 @@
   transition:
     border-color 0.3s var(--ease-out),
     background 0.3s var(--ease-out);
-  clip-path: polygon(
-    16px 0,
-    100% 0,
-    100% calc(100% - 16px),
-    calc(100% - 16px) 100%,
-    0 100%,
-    0 16px
-  );
 }
 
 .mode-card--selected {
-  border-color: rgba(227, 96, 2, 0.6); /* TODO token (--accent-flare) */
-  background: rgba(227, 96, 2, 0.05); /* TODO token */
+  border-color: rgba(var(--accent-flare-rgb), 0.6);
+  background: rgba(var(--accent-flare-rgb), 0.05);
 }
 
 .mode-card__select {
@@ -174,9 +84,9 @@
 }
 
 .mode-card--selected .mode-card__icon {
-  color: #f97316; /* TODO token (--accent-flare-hot) */
-  border-color: rgba(227, 96, 2, 0.5); /* TODO token */
-  background: rgba(227, 96, 2, 0.12); /* TODO token */
+  color: var(--accent-flare-hot);
+  border-color: rgba(var(--accent-flare-rgb), 0.5);
+  background: rgba(var(--accent-flare-rgb), 0.12);
 }
 
 .mode-card__body {
@@ -188,21 +98,21 @@
 }
 
 .mode-card__title {
-  font-family: 'Clash Display', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 600;
   color: #fff;
 }
 
 .mode-card__description {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
   line-height: 1.5;
   color: #a1a1aa;
 }
 
 .mode-card__meta {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -224,9 +134,9 @@
 }
 
 .mode-card--selected .mode-card__radio {
-  border-color: #e36002; /* TODO token (--accent-flare) */
-  background: radial-gradient(circle, #e36002 0%, #e36002 45%, transparent 55%); /* TODO token */
-  box-shadow: 0 0 10px rgba(227, 96, 2, 0.6);
+  border-color: var(--accent-flare);
+  background: radial-gradient(circle, var(--accent-flare) 0%, var(--accent-flare) 45%, transparent 55%);
+  box-shadow: 0 0 10px rgba(var(--accent-flare-rgb), 0.6);
 }
 
 /* ─── Painéis internos do card (subjects / random) ─── */
@@ -237,22 +147,18 @@
 }
 
 .mode-card__panel-label {
-  display: block;
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.75rem;
   letter-spacing: 1px;
-  text-transform: uppercase;
   color: #a1a1aa;
   margin-bottom: 14px;
 }
 
 .mode-card__panel-label strong {
-  color: #facc15; /* TODO token (--signal-warn) */
+  color: var(--signal-warn);
 }
 
 .mode-card__panel-note {
   margin-top: 12px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   color: #71717a;
 }
@@ -275,7 +181,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
   color: #e2e8f0;
   transition: all 0.2s var(--ease-out);
@@ -292,14 +198,20 @@
   border-color: rgba(255, 255, 255, 0.25);
 }
 
+/* Chip é label com checkbox oculto — o anel de foco vai no chip. */
+.subject-picker__chip:focus-within {
+  outline: 2px solid var(--accent-flare);
+  outline-offset: 2px;
+}
+
 .subject-picker__chip--on {
-  border-color: rgba(227, 96, 2, 0.7); /* TODO token */
-  background: rgba(227, 96, 2, 0.12); /* TODO token */
+  border-color: rgba(var(--accent-flare-rgb), 0.7);
+  background: rgba(var(--accent-flare-rgb), 0.12);
   color: #fff;
 }
 
 .subject-picker__count {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   padding: 2px 6px;
   background: rgba(255, 255, 255, 0.08);
@@ -307,14 +219,14 @@
 }
 
 .subject-picker__chip--on .subject-picker__count {
-  background: rgba(227, 96, 2, 0.25); /* TODO token */
+  background: rgba(var(--accent-flare-rgb), 0.25);
   color: #fdba74;
 }
 
 /* ─── Slider ─── */
 .mode-card__slider {
   width: 100%;
-  accent-color: #e36002; /* TODO token (--accent-flare) */
+  accent-color: var(--accent-flare);
   cursor: pointer;
 }
 
@@ -324,7 +236,7 @@
   align-items: center;
   gap: 10px;
   margin-top: 24px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   color: #a1a1aa;
   cursor: pointer;
@@ -332,23 +244,18 @@
 }
 
 .quiz-setup__shuffle input {
-  accent-color: #e36002; /* TODO token */
+  accent-color: var(--accent-flare);
   width: 16px;
   height: 16px;
 }
 
-/* ─── Footer ─── */
+/* ─── Footer (.terminal__footer cobre padding/borda/fundo) ─── */
 .quiz-setup__footer {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
-  padding: 32px var(--terminal-padding-h);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
 }
 
 .quiz-setup__estimate {
@@ -357,15 +264,15 @@
   gap: 10px;
 }
 
+/* .stat__value cobre font/tamanho-base — divergências locais: maior, bold, warn. */
 .quiz-setup__estimate-value {
-  font-family: 'Clash Display', sans-serif;
   font-size: 2.2rem;
   font-weight: 700;
-  color: #facc15; /* TODO token (--signal-warn) */
+  color: var(--signal-warn);
 }
 
 .quiz-setup__estimate-label {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -376,10 +283,6 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-}
-
-.quiz-setup__skeleton-gap {
-  margin-top: 16px;
 }
 
 /* ─── Responsive ─── */

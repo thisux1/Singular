@@ -115,7 +115,7 @@
 .fui-toggle--active .fui-toggle__light {
   background: var(--accent-flare);
   box-shadow: 0 0 8px var(--accent-flare);
-  animation: blink 2s infinite step-start;
+  animation: fui-toggle-blink 2s infinite step-start;
 }
 
 .fui-toggle__label {
@@ -164,40 +164,21 @@
   background: var(--accent-flare);
 }
 
-@keyframes blink {
+/* Renomeado de "blink": colidia com o @keyframes blink de ExamListPage
+   (receita diferente, namespace global — a última definição vencia). */
+@keyframes fui-toggle-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
 }
 
-/* ─── Spectral Visualizer ─── */
+/* ─── Spectral Visualizer ───
+   .fui-spectral/.fui-spectral__bar/@keyframes spectral-bounce removidos
+   — regras sem markup (o visualizador real é o FuiWaveform SVG). */
 .fui-spectral-container {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
-}
-
-.fui-spectral {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 24px;
-  width: 60px;
-}
-
-.fui-spectral__bar {
-  flex: 1;
-  height: 100%; /* Ensure bars have height! */
-  background: var(--accent-flare);
-  opacity: 0.8;
-  box-shadow: 0 0 8px rgba(var(--accent-flare-rgb), 0.5);
-  animation: spectral-bounce 0.5s infinite alternate ease-in-out;
-  transform-origin: bottom;
-}
-
-@keyframes spectral-bounce {
-  0% { transform: scaleY(0.2); }
-  100% { transform: scaleY(1); }
 }
 
 /* ─── Circular Radar ─── */
@@ -215,7 +196,7 @@
   inset: 0;
   border: 1px dashed rgba(var(--accent-flare-rgb), 0.3);
   border-radius: 50%;
-  animation: spin-slow 20s linear infinite;
+  animation: fui-spin-slow 20s linear infinite;
 }
 
 .fui-radar__ring-2 {
@@ -223,7 +204,7 @@
   inset: 12px;
   border: 2px dotted rgba(var(--accent-flare-rgb), 0.5);
   border-radius: 50%;
-  animation: spin-slow-reverse 15s linear infinite;
+  animation: fui-spin-slow-reverse 15s linear infinite;
 }
 
 .fui-radar__ring-3 {
@@ -241,7 +222,7 @@
   height: 100%;
   border-radius: 50%;
   background: conic-gradient(from 0deg, transparent 70%, rgba(var(--accent-flare-rgb), 0.8) 100%);
-  animation: spin-fast 2s linear infinite;
+  animation: fui-spin-fast 2s linear infinite;
 }
 
 .fui-radar__core {
@@ -272,9 +253,9 @@
   background: rgba(var(--accent-flare-rgb), 0.2);
 }
 
-@keyframes spin-slow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes spin-slow-reverse { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
-@keyframes spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes fui-spin-slow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes fui-spin-slow-reverse { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
+@keyframes fui-spin-fast { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 @keyframes pulse-core {
   0% { transform: scale(0.8); opacity: 0.5; }
   100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 20px rgba(var(--accent-flare-rgb), 0.8); }

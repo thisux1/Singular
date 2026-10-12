@@ -3,12 +3,11 @@
   width: 100%;
 }
 
+/* Trigger: base em .input.input--terminal (quadrado, inset, bg .35) —
+   local: corpo (não mono), font maior, flex layout e inset mais fundo. */
 .fui-select__trigger {
-  width: 100%;
   padding: 14px 16px;
-  background-color: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0;
+  border-color: rgba(255, 255, 255, 0.1);
   color: #fafafa;
   font-family: var(--font-body);
   font-size: 0.95rem;
@@ -21,6 +20,13 @@
   text-align: left;
 }
 
+/* Valor exibido no trigger — trunca labels longas. */
+.fui-select__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .fui-select__trigger[data-placeholder="true"] {
   color: #71717a;
 }
@@ -30,7 +36,7 @@
   background-color: rgba(0, 0, 0, 0.45);
 }
 
-.fui-select__trigger:focus {
+.fui-select__trigger:focus-visible {
   outline: none;
   border-color: var(--accent-flare);
   background-color: rgba(0, 0, 0, 0.55);
@@ -47,7 +53,7 @@
 
 .fui-select__arrow {
   color: var(--accent-flare);
-  transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  transition: transform 0.3s var(--ease-snap);
   flex-shrink: 0;
   margin-left: 12px;
 }
@@ -56,23 +62,26 @@
   transform: rotate(180deg);
 }
 
+/* Dropdown: vidro via .glass.glass--menu + chanfro via .cut (12px) —
+   local: bg mais opaco, borda flare, blur 16px e shadow própria. */
 .fui-select__dropdown {
+  --cut-size: 12px;
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: var(--z-dropdown);
   background: rgba(10, 5, 5, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(var(--accent-flare-rgb), 0.4);
-  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  border-color: rgba(var(--accent-flare-rgb), 0.4);
+  border-radius: 0;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(var(--accent-flare-rgb), 0.1);
   display: flex;
   flex-direction: column;
   max-height: 250px;
   overflow-y: auto;
-  animation: dropdownFadeIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+  animation: dropdownFadeIn 0.2s var(--ease-snap);
 }
 
 /* Custom Scrollbar for FuiSelect */
