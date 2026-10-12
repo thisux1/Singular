@@ -92,14 +92,14 @@ export function SignupPage() {
         <p className="login-page__tagline">criar conta</p>
 
         {checkEmail ? (
-          <div className="auth-status" role="status">
+          <div className="auth-status empty" role="status">
             <span className="auth-status__icon" aria-hidden="true">✉</span>
             <h2 className="auth-status__title">Verifique seu email</h2>
             <p className="auth-status__text">
               Enviamos um link de confirmação para <strong>{checkEmail}</strong>.
               Abra o link para ativar sua conta e depois faça login.
             </p>
-            <Link className="auth-link" to="/login">
+            <Link className="auth-link text-btn" to="/login">
               Ir para o login
             </Link>
           </div>
@@ -158,7 +158,7 @@ export function SignupPage() {
             )}
 
             <div className="auth-links">
-              <Link className="auth-link auth-link--muted" to="/login">
+              <Link className="auth-link auth-link--muted text-btn" to="/login">
                 Já tenho conta — entrar
               </Link>
             </div>

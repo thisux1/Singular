@@ -38,24 +38,24 @@ export function VerifyEmailPage() {
         <p className="login-page__tagline">verificação de email</p>
 
         {state === 'verifying' ? (
-          <div className="auth-status" role="status" aria-live="polite">
+          <div className="auth-status empty" role="status" aria-live="polite">
             <Skeleton width="48px" height="48px" borderRadius="var(--radius-full)" />
             <Skeleton width="220px" height="14px" />
-            <span className="auth-link auth-link--muted">verificando link…</span>
+            <span className="auth-link auth-link--muted text-btn">verificando link…</span>
           </div>
         ) : state === 'success' ? (
-          <div className="auth-status" role="status">
+          <div className="auth-status empty" role="status">
             <span className="auth-status__icon" aria-hidden="true">✓</span>
             <h2 className="auth-status__title">Email verificado</h2>
             <p className="auth-status__text">
               Sua conta está ativa. Bem-vindo à Singular.
             </p>
-            <Link className="auth-link" to={isAuthenticated || authDisabled ? '/app' : '/login'}>
+            <Link className="auth-link text-btn" to={isAuthenticated || authDisabled ? '/app' : '/login'}>
               {isAuthenticated || authDisabled ? 'Abrir o app' : 'Ir para o login'}
             </Link>
           </div>
         ) : (
-          <div className="auth-status auth-status--error" role="alert">
+          <div className="auth-status auth-status--error empty" role="alert">
             <span className="auth-status__icon" aria-hidden="true">✕</span>
             <h2 className="auth-status__title">
               {state === 'invalid-link' ? 'Link incompleto' : 'Verificação falhou'}
@@ -65,7 +65,7 @@ export function VerifyEmailPage() {
                 ? 'Este link de verificação não tem token. Abra o link mais recente do seu email.'
                 : 'Este link expirou ou já foi usado. Faça login para reenviar a verificação.'}
             </p>
-            <Link className="auth-link" to="/login">
+            <Link className="auth-link text-btn" to="/login">
               Ir para o login
             </Link>
           </div>

@@ -17,8 +17,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 55% 38% at 50% 62%, rgba(234, 88, 12, 0.18), transparent 70%),
-    radial-gradient(ellipse 30% 22% at 50% 62%, rgba(249, 115, 22, 0.12), transparent 70%);
+    radial-gradient(ellipse 55% 38% at 50% 62%, rgba(var(--accent-flare-strong-rgb), 0.18), transparent 70%),
+    radial-gradient(ellipse 30% 22% at 50% 62%, rgba(var(--accent-flare-hot-rgb), 0.12), transparent 70%);
   pointer-events: none;
 }
 
@@ -36,19 +36,19 @@
 
 .login-page__mark {
   font-size: 1.25rem;
-  color: #ea580c;
-  text-shadow: 0 0 18px rgba(234, 88, 12, 0.6);
+  color: var(--accent-flare-strong);
+  text-shadow: 0 0 18px rgba(var(--accent-flare-strong-rgb), 0.6);
 }
 
 .login-page__wordmark {
-  font-family: 'Clash Display', var(--font-heading);
+  font-family: var(--font-heading);
   font-size: clamp(2.75rem, 10vw, 4.5rem);
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   line-height: var(--leading-tight);
   color: var(--text-primary);
-  text-shadow: 0 0 50px rgba(234, 88, 12, 0.35);
+  text-shadow: 0 0 50px rgba(var(--accent-flare-strong-rgb), 0.35);
   margin: 0;
   /* compensa o tracking do último caractere para centrar de verdade */
   margin-right: -0.22em;
@@ -98,13 +98,14 @@
   gap: var(--space-4);
 }
 
+/* Dev note: receita em .badge.badge--violet.badge--dashed.badge--pill —
+   local: violeta mais profundo, borda mais suave, sem bg e micro-tipo. */
 .login-page__dev-note {
-  font-family: var(--font-mono);
   font-size: 0.65rem;
+  font-weight: 400;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
   color: var(--accent-processing);
-  border: 1px dashed rgba(139, 92, 246, 0.35);
+  border-color: rgba(var(--accent-processing-rgb), 0.35);
+  background: transparent;
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
 }

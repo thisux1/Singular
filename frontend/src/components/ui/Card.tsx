@@ -18,7 +18,7 @@ export function Card({
 }: CardProps) {
   return (
     <Component
-      className={`card card--${variant} ${className}`}
+      className={`card card--${variant} glass ${className}`}
       {...props}
     >
       {children}

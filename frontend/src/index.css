@@ -2,4 +2,5 @@
 @import "./styles/fonts.css";
 @import "./styles/tokens.css";
 @import "./styles/global.css";
+@import "./styles/primitives.css";
 @import "./styles/animations.css";

@@ -1,23 +1,20 @@
-/* ─── ExplainPanel — explicação gerada por IA por questão ─── */
+/* ─── ExplainPanel — explicação gerada por IA por questão ───
+   Trigger: receita em .badge.badge--violet — local: padding/font
+   maiores, bg .08, borda mais suave, cantos retos e cursor. */
 .explain-panel__trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   padding: 6px 14px;
-  font-family: 'Geist Mono', monospace;
   font-size: 0.75rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #c4b5fd;
-  background: rgba(139, 92, 246, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.35);
+  font-weight: 400;
+  background: rgba(var(--accent-processing-rgb), 0.08);
+  border-color: rgba(var(--accent-processing-rgb), 0.35);
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.2s var(--ease-out);
 }
 
 .explain-panel__trigger:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.18);
-  border-color: rgba(139, 92, 246, 0.7);
+  background: rgba(var(--accent-processing-rgb), 0.18);
+  border-color: rgba(var(--accent-processing-rgb), 0.7);
   color: #ddd6fe;
 }
 
@@ -29,9 +26,9 @@
 .explain-panel {
   margin-top: 16px;
   padding: 20px;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(var(--accent-processing-rgb), 0.3);
   border-left-width: 3px;
-  background: rgba(139, 92, 246, 0.05);
+  background: rgba(var(--accent-processing-rgb), 0.05);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -48,27 +45,25 @@
   gap: 12px;
 }
 
+/* Título: receita em .kicker — local: tracking 2px e cor violeta. */
 .explain-panel__title {
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.75rem;
   letter-spacing: 2px;
-  text-transform: uppercase;
   color: #c4b5fd;
 }
 
+/* Cached: receita em .badge.badge--ok — local: verde-400, bg .08,
+   padding e cantos retos. */
 .explain-panel__cached {
-  font-family: 'Geist Mono', monospace;
   font-size: 0.65rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-weight: 400;
   padding: 3px 8px;
   color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  background: rgba(34, 197, 94, 0.08);
+  background: rgba(var(--signal-ok-rgb), 0.08);
+  border-radius: 0;
 }
 
 .explain-panel__text {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.7;
   color: #e2e8f0;
@@ -85,14 +80,14 @@
 }
 
 .explain-panel__step {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   line-height: 1.6;
   color: #cbd5e1;
 }
 
 .explain-panel__step::marker {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   color: #a78bfa;
 }
 
@@ -103,7 +98,7 @@
 
 .explain-panel__mistakes-title {
   display: block;
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -120,20 +115,20 @@
 }
 
 .explain-panel__mistakes li {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.88rem;
   line-height: 1.5;
   color: #fca5a5;
 }
 
 .explain-panel__mistakes li::marker {
-  color: #ef4444;
+  color: var(--accent-incorrect);
 }
 
 .explain-panel--limited {
-  border-color: rgba(250, 204, 21, 0.3);
+  border-color: rgba(var(--signal-warn-rgb), 0.3);
   border-left-width: 3px;
-  background: rgba(250, 204, 21, 0.05);
+  background: rgba(var(--signal-warn-rgb), 0.05);
   flex-direction: row;
   align-items: flex-start;
   gap: 14px;
@@ -141,25 +136,25 @@
 
 .explain-panel__limited-icon {
   font-size: 1.4rem;
-  color: #facc15; /* TODO token (--signal-warn) */
+  color: var(--signal-warn);
 }
 
 .explain-panel--limited p {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   line-height: 1.6;
   color: #fde68a;
 }
 
 .explain-panel--error {
-  border-color: rgba(239, 68, 68, 0.35);
-  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(var(--signal-fail-rgb), 0.35);
+  background: rgba(var(--signal-fail-rgb), 0.05);
 }
 
 .explain-panel--error p {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   color: #fca5a5;
 }

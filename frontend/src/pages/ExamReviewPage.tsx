@@ -134,17 +134,17 @@ function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestio
           : '';
 
   return (
-    <div className="exam-review__question-card">
+    <div className="cut--b exam-review__question-card">
       <div className="exam-review__question-header">
         <span className="exam-review__q-number">#{question.order}</span>
         {question.annulled ? (
-          <span className="exam-review__q-warning exam-review__q-warning--annulled">ANULADA</span>
+          <span className="badge badge--warn badge--dashed exam-review__q-warning exam-review__q-warning--annulled">ANULADA</span>
         ) : null}
         {typeof question.confidence === 'number' && question.confidence < LOW_CONFIDENCE_THRESHOLD ? (
-          <span className="exam-review__q-warning">Sinal Fraco: {Math.round(question.confidence)}%</span>
+          <span className="badge badge--info badge--dashed exam-review__q-warning">Sinal Fraco: {Math.round(question.confidence)}%</span>
         ) : null}
         {question.hasImage || question.requiresPdf ? (
-          <span className="exam-review__q-warning exam-review__q-warning--image">📄 página</span>
+          <span className="badge badge--flare badge--dashed exam-review__q-warning exam-review__q-warning--image">📄 página</span>
         ) : null}
         <span
           className={`exam-review__save-indicator exam-review__save-indicator--${saveState}`}
@@ -155,9 +155,9 @@ function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestio
         </span>
       </div>
 
-      <label className="exam-review__label">Contexto Base</label>
+      <label className="field-label exam-review__label">Contexto Base</label>
       <textarea
-        className="exam-review__textarea"
+        className="input input--terminal exam-review__textarea"
         value={contextText}
         placeholder="Ex: Leia o texto abaixo para responder à questão..."
         onChange={(event) => {
@@ -167,9 +167,9 @@ function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestio
         }}
       />
 
-      <label className="exam-review__label">Enunciado do Fragmento</label>
+      <label className="field-label exam-review__label">Enunciado do Fragmento</label>
       <textarea
-        className="exam-review__textarea exam-review__textarea--main"
+        className="input input--terminal exam-review__textarea exam-review__textarea--main"
         value={questionText}
         onChange={(event) => {
           setQuestionText(event.target.value);
@@ -179,9 +179,9 @@ function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestio
 
       <div className="exam-review__grid">
         <div className="exam-review__field-group">
-          <label className="exam-review__label">Setor (Disciplina)</label>
+          <label className="field-label exam-review__label">Setor (Disciplina)</label>
           <input
-            className="exam-review__input"
+            className="input input--terminal exam-review__input"
             value={subject}
             placeholder="Ex: Matemática"
             onChange={(event) => {
@@ -192,9 +192,9 @@ function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestio
         </div>
 
         <div className="exam-review__field-group">
-          <label className="exam-review__label">Vetor Correto (Gabarito)</label>
+          <label className="field-label exam-review__label">Vetor Correto (Gabarito)</label>
           <select
-            className="exam-review__input exam-review__select"
+            className="input input--terminal exam-review__input exam-review__select"
             value={correctAnswer}
             onChange={(event) => {
               setCorrectAnswer(event.target.value);
@@ -211,7 +211,7 @@ function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestio
         </div>
       </div>
 
-      <label className="exam-review__label">Variações (Alternativas)</label>
+      <label className="field-label exam-review__label">Variações (Alternativas)</label>
       <div className="exam-review__options">
         {options.map((option, index) => {
           const letter = String.fromCharCode(65 + index);
@@ -224,7 +224,7 @@ function ReviewQuestionCard({ examId, question, onRequestDelete }: ReviewQuestio
                 {letter}
               </span>
               <input
-                className={`exam-review__input ${isCorrect ? 'exam-review__input--correct' : ''}`}
+                className={`input input--terminal exam-review__input ${isCorrect ? 'exam-review__input--correct' : ''}`}
                 value={option}
                 onChange={(event) => {
                   const updated = [...options];
@@ -306,10 +306,10 @@ export function ExamReviewPage() {
 
   if (examQuery.isLoading || questionsQuery.isLoading) {
     return (
-      <section className="exam-review page page-container">
-        <div className="exam-review__terminal">
+      <section className="exam-review page page-container page--padded">
+        <div className="terminal terminal--cut-b exam-review__terminal">
           <Skeleton width="45%" height="32px" />
-          <Skeleton className="exam-review__skeleton-gap" width="70%" height="16px" />
+          <Skeleton className="skeleton-gap exam-review__skeleton-gap" width="70%" height="16px" />
         </div>
       </section>
     );
@@ -317,8 +317,8 @@ export function ExamReviewPage() {
 
   if (examQuery.isError || questionsQuery.isError || !examQuery.data) {
     return (
-      <section className="exam-review page page-container">
-        <div className="exam-review__terminal exam-review__terminal--error">
+      <section className="exam-review page page-container page--padded">
+        <div className="terminal terminal--cut-b terminal--error exam-review__terminal exam-review__terminal--error">
           <p>Erro crítico ao carregar a interface de revisão.</p>
           <Button variant="ghost" onClick={() => void questionsQuery.refetch()}>
             Tentar reconexão
@@ -332,7 +332,7 @@ export function ExamReviewPage() {
   const isPublished = exam.status === 'completed';
 
   return (
-    <section className="exam-review page page-container">
+    <section className="exam-review page page-container page--padded">
       <div className="exam-review__container">
         {/* Protruding Status Badge */}
         <TerminalTab
@@ -340,15 +340,15 @@ export function ExamReviewPage() {
           variant={isPublished ? 'completed' : 'reviewing'}
         />
 
-        <div className="exam-review__terminal">
-          <div className="exam-review__premium-glow" />
+        <div className="terminal terminal--cut-b exam-review__terminal">
+          <div className="premium-glow exam-review__premium-glow" />
 
-          <header className="exam-review__header">
+          <header className="terminal__header exam-review__header">
             <div className="exam-review__header-content">
-              <h1 className="exam-review__title">Inspeção de Fragmentos</h1>
-              <p className="exam-review__subtitle">SYS.ID // {exam.title}</p>
+              <h1 className="page-title exam-review__title">Inspeção de Fragmentos</h1>
+              <p className="page-subtitle exam-review__subtitle">SYS.ID // {exam.title}</p>
               {isPublished && (
-                <div className="exam-review__published-hint">
+                <div className="callout callout--warn exam-review__published-hint">
                   <span className="exam-review__hint-icon">⚠</span>
                   Alerta: Modificações feitas aqui alterarão diretamente a malha da prova publicada.
                 </div>
@@ -387,7 +387,7 @@ export function ExamReviewPage() {
 
       <div className="exam-review__list">
         {visibleQuestions.length === 0 ? (
-          <p className="exam-review__empty">Nenhum fragmento corresponde a este filtro.</p>
+          <p className="empty empty--boxed exam-review__empty">Nenhum fragmento corresponde a este filtro.</p>
         ) : (
           visibleQuestions.map((question) => (
             <ReviewQuestionCard

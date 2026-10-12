@@ -1,0 +1,508 @@
+/* ═══════════════════════════════════════════════════════
+   PRIMITIVES — receitas compartilhadas do design system.
+   Consolidam os padrões duplicados em ~30 arquivos de
+   página/componente. Regra: a classe local (BEM) continua
+   no elemento ao lado do primitivo — o primitivo carrega a
+   receita, a classe local carrega o que é específico.
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Terminal shell ───
+   A máquina "duas camadas clip-path" (::before = borda,
+   ::after = vidro escuro) que existia 7× no codebase. */
+.terminal {
+  --terminal-clip: polygon(
+    0 0,
+    calc(100% - var(--terminal-cut)) 0,
+    100% var(--terminal-cut),
+    100% 100%,
+    var(--terminal-cut) 100%,
+    0 calc(100% - var(--terminal-cut))
+  );
+  position: relative;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
+}
+
+.terminal--cut-b {
+  --terminal-clip: polygon(
+    var(--terminal-cut) 0,
+    100% 0,
+    100% calc(100% - var(--terminal-cut)),
+    calc(100% - var(--terminal-cut)) 100%,
+    0 100%,
+    0 var(--terminal-cut)
+  );
+}
+
+.terminal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  clip-path: var(--terminal-clip);
+  z-index: -2;
+  pointer-events: none;
+}
+
+.terminal::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: rgba(10, 5, 5, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  clip-path: var(--terminal-clip);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.terminal--flat {
+  filter: none;
+}
+
+.terminal--error::before {
+  background: rgba(var(--accent-danger-rgb), 0.6);
+}
+
+.terminal--error::after {
+  background: rgba(40, 10, 10, 0.85);
+}
+
+.terminal__header {
+  padding: var(--terminal-padding-v) var(--terminal-padding-h) 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4), transparent);
+  position: relative;
+  z-index: 1;
+}
+
+.terminal__section {
+  padding: 32px var(--terminal-padding-h);
+  position: relative;
+  z-index: 1;
+}
+
+.terminal__footer {
+  padding: 32px var(--terminal-padding-h);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+/* Flare radial no topo do terminal — existia 6× idêntico. */
+.premium-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(var(--accent-flare-rgb), 0.06),
+    transparent 40%
+  );
+  pointer-events: none;
+}
+
+/* ─── Glass ─── */
+.glass {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-ghost);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(12px) brightness(0.8);
+  -webkit-backdrop-filter: blur(12px) brightness(0.8);
+  box-shadow: var(--shadow-card);
+}
+
+.glass--dense {
+  background: rgba(9, 9, 14, 0.62);
+  backdrop-filter: blur(14px) brightness(0.75);
+  -webkit-backdrop-filter: blur(14px) brightness(0.75);
+}
+
+.glass--bar {
+  background: rgba(10, 5, 5, 0.4);
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 0;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: none;
+}
+
+.glass--menu {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ─── Cut utilitária (só o clip-path chanfrado) ─── */
+.cut {
+  --cut-size: 16px;
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cut-size)) 0,
+    100% var(--cut-size),
+    100% 100%,
+    var(--cut-size) 100%,
+    0 calc(100% - var(--cut-size))
+  );
+}
+
+.cut--b {
+  clip-path: polygon(
+    var(--cut-size) 0,
+    100% 0,
+    100% calc(100% - var(--cut-size)),
+    calc(100% - var(--cut-size)) 100%,
+    0 100%,
+    0 var(--cut-size)
+  );
+}
+
+/* ─── Corner brackets (par de L nos cantos TL/BR) ─── */
+.corners {
+  --corners-size: 14px;
+  --corners-color: var(--accent-flare);
+  --corners-width: 1px;
+  --corners-radius: var(--radius-lg);
+  position: relative;
+}
+
+.corners::before,
+.corners::after {
+  content: '';
+  position: absolute;
+  width: var(--corners-size);
+  height: var(--corners-size);
+  border-color: var(--corners-color);
+  border-style: solid;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.corners::before {
+  top: -1px;
+  left: -1px;
+  border-width: var(--corners-width) 0 0 var(--corners-width);
+  border-top-left-radius: var(--corners-radius);
+}
+
+.corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 var(--corners-width) var(--corners-width) 0;
+  border-bottom-right-radius: var(--corners-radius);
+}
+
+/* ─── Tipografia ─── */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.kicker--accent {
+  color: var(--accent-flare-hot);
+}
+
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.page-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+}
+
+/* ─── Stat (label mono uppercase + value display) ─── */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat__label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.stat__value {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stat__value--lg {
+  font-size: 2.5rem;
+}
+
+.stat__value--ok { color: var(--signal-ok); }
+.stat__value--warn { color: var(--signal-warn); }
+.stat__value--err { color: var(--signal-fail); }
+
+.stat--boxed {
+  padding: var(--space-4);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-ghost);
+  border-radius: var(--radius-md);
+}
+
+/* ─── Badge ─── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 0; /* badges do sistema são quadrados; pill via --pill */
+  border: 1px solid var(--border-ghost-hover);
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.badge--ok {
+  color: var(--signal-ok);
+  border-color: rgba(var(--signal-ok-rgb), 0.4);
+  background: var(--accent-correct-muted);
+}
+
+.badge--warn {
+  color: var(--signal-warn);
+  border-color: rgba(var(--signal-warn-rgb), 0.5);
+  background: rgba(var(--signal-warn-rgb), 0.06);
+}
+
+.badge--err {
+  color: #fca5a5;
+  border-color: rgba(var(--signal-fail-rgb), 0.45);
+  background: var(--accent-incorrect-muted);
+}
+
+.badge--info {
+  color: #7dd3fc;
+  border-color: rgba(var(--accent-info-rgb), 0.4);
+  background: rgba(var(--accent-info-rgb), 0.06);
+}
+
+.badge--flare {
+  color: var(--accent-flare-hot);
+  border-color: rgba(var(--accent-flare-rgb), 0.5);
+  background: rgba(var(--accent-flare-rgb), 0.08);
+}
+
+.badge--violet {
+  color: #c4b5fd;
+  border-color: rgba(var(--accent-processing-rgb), 0.4);
+  background: var(--accent-processing-muted);
+}
+
+.badge--dashed { border-style: dashed; }
+.badge--pill { border-radius: var(--radius-full); }
+
+.badge--glow {
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* ─── Inputs ─── */
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-ghost);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-input);
+  transition: border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-ghost-active);
+  box-shadow: var(--shadow-input), var(--shadow-focus);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Receita "terminal": quadrada, inset shadow, focus flare. */
+.input--terminal {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+  font-family: var(--font-mono);
+}
+
+.input--terminal:focus {
+  border-color: var(--accent-flare-strong);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(var(--accent-flare-strong-rgb), 0.25);
+}
+
+/* ─── Botões auxiliares ─── */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-ghost-hover);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.icon-btn:hover:not(:disabled) {
+  color: var(--accent-flare-hot);
+  border-color: rgba(var(--accent-flare-rgb), 0.5);
+}
+
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Focus ring igual ao .btn — antes só o shadow-focus branco fraco global. */
+.icon-btn:focus-visible,
+.text-btn:focus-visible {
+  outline: 2px solid var(--accent-flare-hot);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.text-btn {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.text-btn:hover {
+  color: var(--accent-flare-hot);
+}
+
+/* ─── Callout (border-left colorido) ─── */
+.callout {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4) var(--space-5);
+  border-left: 3px solid var(--border-ghost-focus);
+  background: var(--bg-surface);
+}
+
+.callout--err {
+  border-left-color: var(--signal-fail);
+  background: var(--accent-incorrect-muted);
+}
+
+.callout--warn {
+  border-left-color: var(--signal-warn);
+  background: var(--accent-warning-muted);
+}
+
+.callout--info {
+  border-left-color: var(--accent-info);
+  background: var(--accent-info-muted);
+}
+
+/* ─── Terminal log / pre mono ─── */
+.term-log {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.9;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--border-ghost-hover);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  overflow-x: auto;
+}
+
+/* Scanlines — overlay CRT (position:absolute no elemento). */
+.scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 2px,
+    rgba(0, 0, 0, 0.18) 2px 3px
+  );
+  pointer-events: none;
+}
+
+/* ─── Estados ─── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-16) var(--space-8);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.empty--boxed {
+  border: 1px dashed var(--border-ghost-hover);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-gap {
+  margin-top: 16px;
+}
+
+/* ─── Página com padding terminal ─── */
+.page--padded {
+  padding-top: 40px;
+  padding-bottom: 80px;
+}
+
+.page--padded-tall {
+  padding-bottom: 140px;
+}

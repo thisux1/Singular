@@ -12,29 +12,25 @@
   gap: 8px;
 }
 
+/* Botão de ferramenta: receita em .icon-btn — local: largura
+   auto (label "Ajustar à largura"), tipografia/cor e borda próprios. */
 .page-viewer__tool {
+  width: auto;
   min-width: 34px;
   height: 34px;
   padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Geist Mono', monospace;
   font-size: 0.9rem;
   color: #e2e8f0;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  cursor: pointer;
+  border-color: rgba(255, 255, 255, 0.12);
   transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
 }
 
 .page-viewer__tool:hover:not(:disabled) {
-  border-color: rgba(227, 96, 2, 0.6); /* TODO token (--accent-flare) */
+  border-color: rgba(var(--accent-flare-rgb), 0.6);
   color: #fb923c;
 }
 
 .page-viewer__tool:disabled {
-  opacity: 0.4;
   cursor: default;
 }
 
@@ -45,8 +41,8 @@
   text-transform: uppercase;
 }
 
+/* Zoom label: fonte mono via .text-mono — local: métricas/cor. */
 .page-viewer__zoom-label {
-  font-family: 'Geist Mono', monospace;
   font-size: 0.75rem;
   color: #a1a1aa;
   min-width: 48px;
@@ -72,13 +68,12 @@
   flex-shrink: 0;
 }
 
+/* Estado loading/erro: receita em .empty — local: tipografia mono
+   uppercase e padding/gap próprios. */
 .page-viewer__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 12px;
   padding: 48px 16px;
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   letter-spacing: 1px;
   text-transform: uppercase;

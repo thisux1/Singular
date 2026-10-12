@@ -16,16 +16,17 @@ import {
 import type { QuizPerSubjectStat } from '../../api/quiz';
 import './DashboardCharts.css';
 
-/* Cores do tema — DESIGN-BRIEF: charts 100% nos tokens, sem defaults recharts. */
+/* Cores do tema — DESIGN-BRIEF: charts 100% nos tokens, sem defaults
+   recharts. var() resolve em atributos de apresentação SVG (fill/stroke). */
 const THEME = {
-  ok: '#22C55E',
-  fail: '#EF4444',
-  blank: '#3A3A42',
-  flare: '#E36002' /* TODO token (--accent-flare) */,
-  warn: '#FACC15' /* TODO token (--signal-warn) */,
-  track: '#18181D',
+  ok: 'var(--signal-ok)',
+  fail: 'var(--signal-fail)',
+  blank: 'var(--text-disabled)',
+  flare: 'var(--accent-flare)',
+  warn: 'var(--signal-warn)',
+  track: 'var(--bg-raised)',
   grid: 'rgba(255, 255, 255, 0.06)',
-  text: '#8A8A93',
+  text: 'var(--text-secondary)',
 };
 
 type DashboardChartsProps = {
@@ -82,7 +83,7 @@ export function DashboardCharts({ correct, wrong, blank, perSubject }: Dashboard
   return (
     <div className="dashboard-charts">
       <div className="dashboard-charts__panel">
-        <h3 className="dashboard-charts__panel-title">Distribuição de Vetores</h3>
+        <h3 className="dashboard-charts__panel-title kicker">Distribuição de Vetores</h3>
         <div className="dashboard-charts__donut-wrap">
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
@@ -115,7 +116,7 @@ export function DashboardCharts({ correct, wrong, blank, perSubject }: Dashboard
       </div>
 
       <div className="dashboard-charts__panel dashboard-charts__panel--bars">
-        <h3 className="dashboard-charts__panel-title">Precisão por Disciplina</h3>
+        <h3 className="dashboard-charts__panel-title kicker">Precisão por Disciplina</h3>
         {subjectData.length > 0 ? (
           <ResponsiveContainer width="100%" height={Math.max(160, subjectData.length * 44)}>
             <BarChart data={subjectData} layout="vertical" margin={{ left: 8, right: 24 }}>
@@ -123,7 +124,7 @@ export function DashboardCharts({ correct, wrong, blank, perSubject }: Dashboard
                 type="number"
                 domain={[0, 100]}
                 tickFormatter={(value: number) => `${value}%`}
-                tick={{ fill: THEME.text, fontSize: 11, fontFamily: 'Geist Mono, monospace' }}
+                tick={{ fill: THEME.text, fontSize: 11, fontFamily: 'var(--font-mono)' }}
                 axisLine={{ stroke: THEME.grid }}
                 tickLine={false}
               />
@@ -131,28 +132,28 @@ export function DashboardCharts({ correct, wrong, blank, perSubject }: Dashboard
                 type="category"
                 dataKey="subject"
                 width={130}
-                tick={{ fill: THEME.text, fontSize: 11, fontFamily: 'Geist Mono, monospace' }}
+                tick={{ fill: THEME.text, fontSize: 11, fontFamily: 'var(--font-mono)' }}
                 axisLine={false}
                 tickLine={false}
               />
-              <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+              <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--bg-surface-elevated)' }} />
               <Bar dataKey="percent" name="Acerto" fill={THEME.flare} barSize={14} radius={0} background={{ fill: THEME.track }} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <p className="dashboard-charts__empty">Sem dados de disciplina nesta sessão.</p>
+          <p className="dashboard-charts__empty empty">Sem dados de disciplina nesta sessão.</p>
         )}
       </div>
 
       {showRadar ? (
         <div className="dashboard-charts__panel">
-          <h3 className="dashboard-charts__panel-title">Perfil de Cobertura</h3>
+          <h3 className="dashboard-charts__panel-title kicker">Perfil de Cobertura</h3>
           <ResponsiveContainer width="100%" height={240}>
             <RadarChart data={subjectData} outerRadius="72%">
               <PolarGrid stroke={THEME.grid} />
               <PolarAngleAxis
                 dataKey="subject"
-                tick={{ fill: THEME.text, fontSize: 10, fontFamily: 'Geist Mono, monospace' }}
+                tick={{ fill: THEME.text, fontSize: 10, fontFamily: 'var(--font-mono)' }}
               />
               <Radar
                 dataKey="percent"

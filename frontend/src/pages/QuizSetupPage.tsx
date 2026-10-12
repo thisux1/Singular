@@ -148,11 +148,11 @@ export function QuizSetupPage() {
 
   if (examQuery.isLoading || questionsQuery.isLoading) {
     return (
-      <section className="quiz-setup page page-container">
-        <div className="quiz-setup__terminal">
+      <section className="quiz-setup page page-container page--padded">
+        <div className="terminal terminal--cut-b quiz-setup__terminal">
           <Skeleton width="40%" height="32px" />
-          <Skeleton className="quiz-setup__skeleton-gap" width="65%" height="16px" />
-          <div className="quiz-setup__modes quiz-setup__skeleton-gap">
+          <Skeleton className="quiz-setup__skeleton-gap skeleton-gap" width="65%" height="16px" />
+          <div className="quiz-setup__modes quiz-setup__skeleton-gap skeleton-gap">
             <Skeleton width="100%" height="140px" />
             <Skeleton width="100%" height="140px" />
             <Skeleton width="100%" height="140px" />
@@ -165,8 +165,8 @@ export function QuizSetupPage() {
 
   if (examQuery.isError || questionsQuery.isError || !examQuery.data) {
     return (
-      <section className="quiz-setup page page-container">
-        <div className="quiz-setup__terminal quiz-setup__terminal--error">
+      <section className="quiz-setup page page-container page--padded">
+        <div className="terminal terminal--cut-b terminal--error quiz-setup__terminal quiz-setup__terminal--error">
           <p>Simulação indisponível: os dados da prova não puderam ser lidos.</p>
           <Button variant="ghost" onClick={() => navigate(`/app/exam/${examId}`)}>
             Voltar ao painel
@@ -204,18 +204,18 @@ export function QuizSetupPage() {
           : true);
 
   return (
-    <section className="quiz-setup page page-container">
-      <div className="quiz-setup__terminal">
-        <div className="quiz-setup__premium-glow" />
+    <section className="quiz-setup page page-container page--padded">
+      <div className="terminal terminal--cut-b quiz-setup__terminal">
+        <div className="premium-glow quiz-setup__premium-glow" />
 
-        <header className="quiz-setup__header">
-          <h1 className="quiz-setup__title">Configurar Simulação</h1>
-          <p className="quiz-setup__subtitle">
+        <header className="terminal__header quiz-setup__header">
+          <h1 className="page-title quiz-setup__title">Configurar Simulação</h1>
+          <p className="page-subtitle quiz-setup__subtitle">
             SYS.ID // {exam.title} — {totalQuestions} fragmentos disponíveis
           </p>
         </header>
 
-        <div className="quiz-setup__content">
+        <div className="terminal__section quiz-setup__content">
           <div className="quiz-setup__modes" role="radiogroup" aria-label="Modo de simulação">
             {MODE_ORDER.map((modeId) => {
               const meta = MODE_META[modeId];
@@ -224,7 +224,7 @@ export function QuizSetupPage() {
               return (
                 <div
                   key={modeId}
-                  className={`mode-card ${isSelected ? 'mode-card--selected' : ''}`}
+                  className={`mode-card cut cut--b ${isSelected ? 'mode-card--selected' : ''}`}
                 >
                   <button
                     type="button"
@@ -254,7 +254,7 @@ export function QuizSetupPage() {
                     <div className="mode-card__panel">
                       {subjectsReady ? (
                         <>
-                          <p className="mode-card__panel-label">Setores detectados</p>
+                          <p className="field-label mode-card__panel-label">Setores detectados</p>
                           <div className="subject-picker">
                             {subjectStats.entries.map(([subject, count]) => {
                               const checked = selectedSubjects.includes(subject);
@@ -291,7 +291,7 @@ export function QuizSetupPage() {
 
                   {modeId === 'random' && isSelected ? (
                     <div className="mode-card__panel">
-                      <label className="mode-card__panel-label" htmlFor="random-count">
+                      <label className="field-label mode-card__panel-label" htmlFor="random-count">
                         Tamanho da amostra — <strong>{effectiveRandomCount}</strong> questões
                       </label>
                       <input
@@ -322,11 +322,11 @@ export function QuizSetupPage() {
           ) : null}
         </div>
 
-        <footer className="quiz-setup__footer">
+        <footer className="terminal__footer quiz-setup__footer">
           <div className="quiz-setup__estimate" aria-live="polite">
             {estimatedCount !== null ? (
               <>
-                <span className="quiz-setup__estimate-value">{estimatedCount}</span>
+                <span className="stat__value quiz-setup__estimate-value">{estimatedCount}</span>
                 <span className="quiz-setup__estimate-label">
                   fragmento{estimatedCount === 1 ? '' : 's'} na simulação
                 </span>

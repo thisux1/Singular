@@ -22,8 +22,8 @@
   height: 64px;
   border-radius: var(--radius-full);
   object-fit: cover;
-  border: 1px solid rgba(227, 98, 2, 0.55);
-  box-shadow: 0 0 18px rgba(227, 98, 2, 0.25);
+  border: 1px solid rgba(var(--accent-flare-rgb), 0.55);
+  box-shadow: 0 0 18px rgba(var(--accent-flare-rgb), 0.25);
   flex-shrink: 0;
 }
 
@@ -35,7 +35,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--accent-flare-hot);
-  background: rgba(227, 98, 2, 0.08);
+  background: rgba(var(--accent-flare-rgb), 0.08);
   user-select: none;
 }
 
@@ -57,40 +57,32 @@
   gap: var(--space-3);
 }
 
+/* Botão "editar": receita em .text-btn — local: micro-tipografia. */
 .account__name-edit {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  transition: color var(--duration-fast) var(--ease-out);
 }
 
-.account__name-edit:hover {
-  color: var(--accent-flare-hot);
-}
-
+/* Campo de nome: receita em .input — local: tipografia de título,
+   borda ativa e largura máxima. */
 .account__name-input {
   font-family: var(--font-heading);
   font-size: var(--text-2xl);
   font-weight: 600;
   letter-spacing: var(--tracking-tight);
-  color: var(--text-primary);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-ghost-active);
-  border-radius: var(--radius-md);
+  border-color: var(--border-ghost-active);
   padding: var(--space-1) var(--space-3);
-  width: 100%;
   max-width: 360px;
 }
 
 .account__name-input:focus {
-  outline: none;
   box-shadow: var(--shadow-focus);
+}
+
+/* account__name-form: wrapper semântico do input (classe mantida
+   para seleção/e2e) — só garante margem neutra. */
+.account__name-form {
+  margin: 0;
 }
 
 .account__meta {
@@ -102,26 +94,18 @@
   text-overflow: ellipsis;
 }
 
-/* ─── Cards ─── */
+/* ─── Cards — vidro via .glass (blur12/brightness .8 + bg-surface) ─── */
 .account__card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-ghost);
-  border-radius: var(--radius-lg);
   padding: var(--space-6);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(12px) brightness(0.8);
-  -webkit-backdrop-filter: blur(12px) brightness(0.8);
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
 
+/* Título do card: receita em .kicker — local: peso, cor e divisor. */
 .account__card-title {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.2em;
-  text-transform: uppercase;
   color: var(--text-secondary);
   margin: 0;
   padding-bottom: var(--space-3);
@@ -129,12 +113,9 @@
 }
 
 .account__subheading {
-  font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--text-tertiary);
   margin: 0;
 }
 
@@ -152,14 +133,13 @@
   flex-wrap: wrap;
 }
 
+/* Nível: receita em .badge.badge--warn (cor/bg amber) — local: tamanho
+   maior, tracking, borda mais suave e radius-sm. */
 .account__level-badge {
-  font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #facc15;
-  border: 1px solid rgba(250, 204, 21, 0.3);
-  background: rgba(250, 204, 21, 0.06);
+  border-color: rgba(var(--signal-warn-rgb), 0.3);
   border-radius: var(--radius-sm);
   padding: 2px 10px;
 }
@@ -190,28 +170,19 @@
   gap: var(--space-3);
 }
 
+/* Totais: receita em .stat.stat--boxed + .stat__label/.stat__value —
+   local: padding mais compacto e micro-tipografia. */
 .account__total {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
   padding: var(--space-3) var(--space-4);
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-ghost);
-  border-radius: var(--radius-md);
 }
 
 .account__total-label {
-  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  color: var(--text-tertiary);
 }
 
 .account__total-value {
-  font-family: var(--font-heading);
   font-size: var(--text-xl);
-  font-weight: 600;
 }
 
 /* ─── Badges ─── */
@@ -224,28 +195,28 @@
   gap: var(--space-2);
 }
 
+/* Badges: receita em .badge.badge--pill — local: gap/tracking/peso. */
 .account__badge {
-  display: inline-flex;
-  align-items: center;
   gap: var(--space-2);
   padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-family: var(--font-mono);
   font-size: 0.65rem;
+  font-weight: 400;
   letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
 }
 
+/* --earned usa .badge--flare (cor flare) — local: borda mais suave,
+   bg muted e glow. */
 .account__badge--earned {
-  color: var(--accent-flare-hot);
-  border: 1px solid rgba(249, 115, 22, 0.35);
+  border-color: rgba(var(--accent-flare-hot-rgb), 0.35);
   background: var(--accent-flare-muted);
   text-shadow: 0 0 10px var(--accent-flare-glow);
 }
 
+/* --locked usa .badge--dashed — local: cor desabilitada e sem bg. */
 .account__badge--locked {
   color: var(--text-disabled);
-  border: 1px dashed var(--border-ghost-active);
+  border-color: var(--border-ghost-active);
+  background: transparent;
 }
 
 /* ─── Por disciplina ─── */
@@ -277,6 +248,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* account__subject-bar: célula grid com ProgressBar — min-width:0
+   evita blowout do grid (classe mantida para seleção). */
+.account__subject-bar {
+  min-width: 0;
 }
 
 .account__subject-pct {
@@ -365,18 +342,14 @@
   flex-wrap: wrap;
 }
 
+/* Input de confirmação: receita em .input — local: mono uppercase,
+   largura fixa e focus vermelho. */
 .account__delete-input {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--text-primary);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-ghost);
-  border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-3);
   width: 140px;
-  box-shadow: var(--shadow-input);
 }
 
 .account__delete-input::placeholder {
@@ -384,22 +357,14 @@
 }
 
 .account__delete-input:focus {
-  outline: none;
-  border-color: rgba(239, 68, 68, 0.45);
+  border-color: rgba(var(--signal-fail-rgb), 0.45);
   box-shadow: var(--shadow-focus);
 }
 
-/* ─── Erro de carregamento ─── */
+/* ─── Erro de carregamento: receita em .empty.empty--boxed —
+   local: padding mais compacto. ─── */
 .account__error {
   padding: var(--space-10) var(--space-6);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  text-align: center;
-  color: var(--text-secondary);
-  border: 1px dashed var(--border-ghost-hover);
-  border-radius: var(--radius-lg);
 }
 
 /* ─── Mobile ─── */

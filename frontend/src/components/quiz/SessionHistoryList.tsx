@@ -46,7 +46,7 @@ export function SessionHistoryList({ examId, currentSessionId }: SessionHistoryL
 
   return (
     <div className="session-history">
-      <h3 className="session-history__title">Histórico de Simulações</h3>
+      <h3 className="session-history__title kicker">Histórico de Simulações</h3>
       <ul className="session-history__list">
         {sessions.slice(0, 8).map((session) => {
           const isCurrent = session.sessionId === currentSessionId;
@@ -66,7 +66,7 @@ export function SessionHistoryList({ examId, currentSessionId }: SessionHistoryL
               >
                 {score !== null ? `${score}%` : '—'}
               </span>
-              {isCurrent ? <span className="session-history__current-tag">atual</span> : null}
+              {isCurrent ? <span className="session-history__current-tag badge badge--flare">atual</span> : null}
             </li>
           );
         })}

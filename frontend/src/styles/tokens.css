@@ -18,36 +18,55 @@
   --border-ghost-focus: rgba(255, 255, 255, 0.16);
 
   --text-primary: #EDEDED;
-  --text-secondary: #8A8A93;
-  --text-tertiary: #55555E;
+  /* secondary/tertiary promovidos aos zincs que o codebase já usava
+     de-facto (#a1a1aa ×45, #71717a ×17) — o token antigo (#8A8A93/#55555E)
+     nunca renderizava e o tertiary caía a ~2.7:1 de contraste. */
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #71717A;
   --text-disabled: #3A3A42;
 
   --accent-singularity: #FFFFFF;
   --accent-correct: #22C55E;
-  --accent-correct-muted: rgba(34, 197, 94, 0.06);
+  --accent-correct-muted: rgba(var(--signal-ok-rgb), 0.06);
   --accent-incorrect: #EF4444;
-  --accent-incorrect-muted: rgba(239, 68, 68, 0.06);
+  --accent-incorrect-muted: rgba(var(--signal-fail-rgb), 0.06);
   --accent-warning: #F59E0B;
   --accent-warning-muted: rgba(245, 158, 11, 0.06);
-  --accent-info: #6366F1;
-  --accent-info-muted: rgba(99, 102, 241, 0.06);
+  /* Info canônico = sky (já usado por reviewing/bank chips/badges;
+     o indigo #6366F1 e o ciano do toast divergiam dele). */
+  --accent-info: #7DD3FC;
+  --accent-info-muted: rgba(var(--accent-info-rgb), 0.06);
   --accent-processing: #8B5CF6;
-  --accent-processing-muted: rgba(139, 92, 246, 0.06);
+  --accent-processing-muted: rgba(var(--accent-processing-rgb), 0.06);
 
   /* ─── Flare (laranja — identidade Singularity UI) ─── */
   --accent-flare: #E36002;
-  --accent-flare-rgb: 227, 98, 2;
+  --accent-flare-rgb: 227, 96, 2;
+  --accent-flare-strong: #EA580C;
   --accent-flare-hot: #F97316;
-  --accent-flare-muted: rgba(227, 98, 2, 0.12);
-  --accent-flare-glow: rgba(249, 115, 22, 0.45);
+  --accent-flare-muted: rgba(227, 96, 2, 0.12);
+  --accent-flare-glow: rgba(var(--accent-flare-hot-rgb), 0.45);
 
   /* ─── Violeta de processamento (alias do brief) ─── */
   --accent-process: #8B5CF6;
 
-  /* ─── Sinais semânticos ─── */
+  /* ─── Sinais semânticos ───
+     Semântica de cor: âmbar (warn) = correctness no domínio do quiz;
+     verde (ok) = confirmação de sistema (saved, cached, toast, completed). */
   --signal-ok: #22C55E;
+  --signal-ok-rgb: 34, 197, 94;
   --signal-warn: #FACC15;
+  --signal-warn-rgb: 250, 204, 21;
   --signal-fail: #EF4444;
+  --signal-fail-rgb: 239, 68, 68;
+  /* Vermelhos profundos usados em sombras/bordas/gradientes de erro. */
+  --accent-danger-rgb: 220, 38, 38;
+  --accent-danger-deep-rgb: 185, 28, 28;
+  /* Triplets rgb das cores reais do app (~180 rgba() literais existiam). */
+  --accent-flare-strong-rgb: 234, 88, 12;
+  --accent-flare-hot-rgb: 249, 115, 22;
+  --accent-processing-rgb: 139, 92, 246;
+  --accent-info-rgb: 125, 211, 252;
 
   /* ─── Superfícies elevadas / texto (aliases do brief) ─── */
   --bg-raised: #18181D;
@@ -105,7 +124,9 @@
   --shadow-card-hover: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --shadow-input: inset 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-button: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --shadow-focus: 0 0 0 2px rgba(255, 255, 255, 0.12);
+  /* Focus ring global — flare tint (o branco .12 era quase invisível no vidro). */
+  --shadow-focus: 0 0 0 2px rgba(var(--accent-flare-hot-rgb), 0.55);
+  --shadow-focus-flare: 0 0 15px rgba(var(--accent-flare-strong-rgb), 0.25);
 
   /* ─── Motion ─── */
   --duration-instant: 50ms;
@@ -116,6 +137,10 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Curva "snap" do .btn e do HUD FUI — resposta rápida com settle longo. */
+  --ease-snap: cubic-bezier(0.1, 0.9, 0.2, 1);
+  /* Saída suave do .btn (leave) e slides de galeria. */
+  --ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   /* ─── Z-index layers ─── */
   --z-deep: -10;

@@ -217,18 +217,18 @@ export function BankPage() {
     : `SYS.ARCHIVE // ${total} fragmento${total === 1 ? '' : 's'} catalogado${total === 1 ? '' : 's'}`;
 
   return (
-    <section className="bank page page-container">
+    <section className="bank page page-container page--padded page--padded-tall">
       <header className="bank__header">
-        <h1 className="bank__title">Banco de Questões</h1>
-        <p className="bank__subtitle">{subtitle}</p>
+        <h1 className="page-title bank__title">Banco de Questões</h1>
+        <p className="page-subtitle bank__subtitle">{subtitle}</p>
       </header>
 
-      <div className="bank__terminal">
-        <div className="bank__premium-glow" />
+      <div className="terminal terminal--cut-b bank__terminal">
+        <div className="premium-glow bank__premium-glow" />
 
-        <div className="bank__filters" role="group" aria-label="Filtros do banco">
+        <div className="terminal__header bank__filters" role="group" aria-label="Filtros do banco">
           <div className="bank__filter">
-            <label className="bank__filter-label" htmlFor="bank-filter-subject">
+            <label className="field-label bank__filter-label" htmlFor="bank-filter-subject">
               Disciplina
             </label>
             <FuiSelect
@@ -242,7 +242,7 @@ export function BankPage() {
           </div>
 
           <div className="bank__filter">
-            <label className="bank__filter-label" htmlFor="bank-filter-topic">
+            <label className="field-label bank__filter-label" htmlFor="bank-filter-topic">
               Assunto
             </label>
             <FuiSelect
@@ -256,7 +256,7 @@ export function BankPage() {
           </div>
 
           <div className="bank__filter">
-            <label className="bank__filter-label" htmlFor="bank-filter-difficulty">
+            <label className="field-label bank__filter-label" htmlFor="bank-filter-difficulty">
               Dificuldade
             </label>
             <FuiSelect
@@ -269,7 +269,7 @@ export function BankPage() {
           </div>
 
           <div className="bank__filter">
-            <label className="bank__filter-label" htmlFor="bank-filter-banca">
+            <label className="field-label bank__filter-label" htmlFor="bank-filter-banca">
               Banca
             </label>
             <FuiSelect
@@ -283,7 +283,7 @@ export function BankPage() {
           </div>
 
           <div className="bank__filter">
-            <label className="bank__filter-label" htmlFor="bank-filter-year">
+            <label className="field-label bank__filter-label" htmlFor="bank-filter-year">
               Ano
             </label>
             <FuiSelect
@@ -330,14 +330,14 @@ export function BankPage() {
             <Skeleton height="150px" />
           </div>
         ) : questionsQuery.isError ? (
-          <div className="bank__state bank__state--error">
+          <div className="empty bank__state bank__state--error">
             <p>Ruptura no acesso ao arquivo. Os fragmentos não puderam ser lidos.</p>
             <Button variant="ghost" onClick={() => void questionsQuery.refetch()}>
               Tentar Reconexão
             </Button>
           </div>
         ) : items.length === 0 ? (
-          <div className="bank__state">
+          <div className="empty bank__state">
             <div className="bank__empty-icon" aria-hidden="true">
               ∅
             </div>
@@ -360,7 +360,7 @@ export function BankPage() {
 
               return (
                 <li key={question.id}>
-                  <article className={`bank-q${isSelected ? ' bank-q--selected' : ''}`}>
+                  <article className={`bank-q cut cut--b${isSelected ? ' bank-q--selected' : ''}`}>
                     <div className="bank-q__head">
                       <label className="bank-q__select">
                         <input
@@ -372,10 +372,10 @@ export function BankPage() {
                       </label>
                       <div className="bank-q__badges">
                         {question.annulled ? (
-                          <span className="bank-q__badge bank-q__badge--annulled">Anulada</span>
+                          <span className="badge bank-q__badge bank-q__badge--annulled">Anulada</span>
                         ) : null}
                         {question.hasImage ? (
-                          <span className="bank-q__badge bank-q__badge--image">Imagem</span>
+                          <span className="badge bank-q__badge bank-q__badge--image">Imagem</span>
                         ) : null}
                       </div>
                     </div>
@@ -390,16 +390,16 @@ export function BankPage() {
                     ) : null}
 
                     <div className="bank-q__meta">
-                      {question.subject ? <span className="bank-q__chip">{question.subject}</span> : null}
-                      {question.topic ? <span className="bank-q__chip">{question.topic}</span> : null}
+                      {question.subject ? <span className="badge bank-q__chip">{question.subject}</span> : null}
+                      {question.topic ? <span className="badge bank-q__chip">{question.topic}</span> : null}
                       {question.difficulty ? (
-                        <span className={`bank-q__chip bank-q__chip--${question.difficulty}`}>
+                        <span className={`badge bank-q__chip bank-q__chip--${question.difficulty}`}>
                           {DIFFICULTY_LABELS[question.difficulty]}
                         </span>
                       ) : null}
-                      {question.banca ? <span className="bank-q__chip">{question.banca}</span> : null}
-                      {question.year ? <span className="bank-q__chip">{question.year}</span> : null}
-                      <span className="bank-q__chip bank-q__chip--source" title="Prova de origem">
+                      {question.banca ? <span className="badge bank-q__chip">{question.banca}</span> : null}
+                      {question.year ? <span className="badge bank-q__chip">{question.year}</span> : null}
+                      <span className="badge bank-q__chip bank-q__chip--source" title="Prova de origem">
                         {question.examTitle}
                       </span>
                     </div>
@@ -407,7 +407,7 @@ export function BankPage() {
                     <div className="bank-q__foot">
                       <button
                         type="button"
-                        className="bank-q__answer-toggle"
+                        className="text-btn bank-q__answer-toggle"
                         aria-expanded={isRevealed}
                         onClick={() => toggleRevealed(question.id)}
                       >
@@ -425,7 +425,7 @@ export function BankPage() {
         )}
 
         {!questionsQuery.isLoading && !questionsQuery.isError && total > 0 ? (
-          <footer className="bank__pagination">
+          <footer className="terminal__footer bank__pagination">
             <Button variant="ghost" size="sm" disabled={page <= 1} onClick={() => changePage(page - 1)}>
               ← Anterior
             </Button>

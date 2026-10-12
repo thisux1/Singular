@@ -16,11 +16,9 @@
   grid-row: span 2;
 }
 
+/* Título do painel: receita em .kicker — local: tracking/cor/margem. */
 .dashboard-charts__panel-title {
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.75rem;
   letter-spacing: 2px;
-  text-transform: uppercase;
   color: #a1a1aa;
   margin-bottom: 16px;
 }
@@ -43,7 +41,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -64,7 +62,7 @@
   padding: 10px 14px;
   background: rgba(9, 9, 11, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 .dashboard-charts__tooltip-label {
@@ -79,12 +77,12 @@
   color: #fff;
 }
 
+/* Estado vazio: receita em .empty — local: fonte/cor zinc e padding menor. */
 .dashboard-charts__empty {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   color: #71717a;
   padding: 24px 0;
-  text-align: center;
 }
 
 @media (max-width: 900px) {

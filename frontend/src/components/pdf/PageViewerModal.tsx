@@ -123,18 +123,18 @@ export function PageViewerModal({ open, onClose, examId, page }: PageViewerModal
         <div className="page-viewer__toolbar">
           <button
             type="button"
-            className="page-viewer__tool"
+            className="page-viewer__tool icon-btn"
             onClick={() => setZoom((value) => Math.max(MIN_ZOOM, (value ?? 1) - ZOOM_STEP))}
             aria-label="Reduzir zoom"
           >
             −
           </button>
-          <span className="page-viewer__zoom-label" aria-live="polite">
+          <span className="page-viewer__zoom-label text-mono" aria-live="polite">
             {zoomPercent !== null ? `${zoomPercent}%` : 'auto'}
           </span>
           <button
             type="button"
-            className="page-viewer__tool"
+            className="page-viewer__tool icon-btn"
             onClick={() => setZoom((value) => Math.min(MAX_ZOOM, (value ?? 1) + ZOOM_STEP))}
             aria-label="Aumentar zoom"
           >
@@ -142,7 +142,7 @@ export function PageViewerModal({ open, onClose, examId, page }: PageViewerModal
           </button>
           <button
             type="button"
-            className="page-viewer__tool page-viewer__tool--fit"
+            className="page-viewer__tool page-viewer__tool--fit icon-btn"
             onClick={() => setZoom(null)}
             disabled={zoom === null}
           >
@@ -152,14 +152,14 @@ export function PageViewerModal({ open, onClose, examId, page }: PageViewerModal
 
         <div className="page-viewer__viewport" ref={viewportRef}>
           {status === 'loading' ? (
-            <div className="page-viewer__state" role="status">
+            <div className="page-viewer__state empty" role="status">
               Renderizando página…
             </div>
           ) : null}
           {status === 'error' ? (
-            <div className="page-viewer__state page-viewer__state--error" role="alert">
+            <div className="page-viewer__state page-viewer__state--error empty" role="alert">
               {errorMessage ?? 'Falha ao carregar a página.'}
-              <button type="button" className="page-viewer__tool" onClick={() => void renderPage()}>
+              <button type="button" className="page-viewer__tool icon-btn" onClick={() => void renderPage()}>
                 Tentar novamente
               </button>
             </div>

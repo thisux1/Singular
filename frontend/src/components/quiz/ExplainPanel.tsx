@@ -65,7 +65,7 @@ export function ExplainPanel({ questionId }: ExplainPanelProps) {
     return (
       <button
         type="button"
-        className="explain-panel__trigger"
+        className="explain-panel__trigger badge badge--violet"
         onClick={() => explainMutation.mutate()}
         disabled={explainMutation.isPending}
       >
@@ -89,7 +89,7 @@ export function ExplainPanel({ questionId }: ExplainPanelProps) {
         <p>{state.message}</p>
         <button
           type="button"
-          className="explain-panel__trigger"
+          className="explain-panel__trigger badge badge--violet"
           onClick={() => {
             setState({ kind: 'idle' });
             explainMutation.mutate();
@@ -106,8 +106,8 @@ export function ExplainPanel({ questionId }: ExplainPanelProps) {
   return (
     <div className="explain-panel">
       <div className="explain-panel__header">
-        <span className="explain-panel__title">✦ Análise do Vetor</span>
-        {data.cached ? <span className="explain-panel__cached">instantâneo</span> : null}
+        <span className="explain-panel__title kicker">✦ Análise do Vetor</span>
+        {data.cached ? <span className="explain-panel__cached badge badge--ok">instantâneo</span> : null}
       </div>
 
       <p className="explain-panel__text">{data.explanation}</p>

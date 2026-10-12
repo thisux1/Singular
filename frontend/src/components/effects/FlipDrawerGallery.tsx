@@ -305,8 +305,6 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
 
         {/* Left Wing FUI */}
         <div className="fui-wing fui-wing-left">
-          <div className="fui-wing-glass" />
-          <div className="fui-wing-glow" />
           <div className="fui-wing-deco">
              <div className="fui-text">SYS.NAV</div>
              <div className="fui-text highlight">NOMINAL</div>
@@ -319,8 +317,6 @@ export function FlipDrawerGallery({ exams, onExamClick, onExamEdit, onExamDelete
 
         {/* Right Wing FUI */}
         <div className="fui-wing fui-wing-right">
-          <div className="fui-wing-glass" />
-          <div className="fui-wing-glow" />
           <div className="fui-wing-deco">
              <div className="fui-text">FLUX</div>
              <div className="fui-text highlight">CAPACITY</div>
