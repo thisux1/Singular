@@ -1,16 +1,22 @@
-import { useState } from 'react';
-import { Navigate, useNavigate, useSearchParams } from 'react-router';
+import { useState, type FormEvent } from 'react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { authClient, useAuth } from '../api/auth';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { sanitizeNext } from '../utils/sanitizeNext';
 import './LoginPage.css';
+import './AuthPages.css';
 
-// Aceita apenas paths internos ("/exam/123"); rejeita URLs absolutas e
-// protocol-relative ("//evil.com") para não virar open redirect.
-function sanitizeNext(raw: string | null): string {
-  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) {
-    return '/';
+/** better-auth retorna { code, message } — traduz os casos comuns. */
+function signInErrorMessage(code: string | undefined): string {
+  switch (code) {
+    case 'INVALID_EMAIL_OR_PASSWORD':
+      return 'Email ou senha inválidos.';
+    case 'EMAIL_NOT_VERIFIED':
+      return 'Email ainda não verificado — confira sua caixa de entrada.';
+    default:
+      return 'Falha ao entrar. Tente novamente.';
   }
-  return raw;
 }
 
 export function LoginPage() {
@@ -19,6 +25,8 @@ export function LoginPage() {
   const { isAuthenticated, isPending, authDisabled } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [signInError, setSignInError] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const next = sanitizeNext(searchParams.get('next'));
 
@@ -45,6 +53,22 @@ export function LoginPage() {
     }
   };
 
+  const handleEmailSignIn = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSigningIn(true);
+    setSignInError(null);
+
+    const { error } = await authClient.signIn.email({ email, password });
+    setIsSigningIn(false);
+
+    if (error) {
+      setSignInError(signInErrorMessage(error.code));
+      return;
+    }
+
+    navigate(next, { replace: true });
+  };
+
   return (
     <main className="login-page">
       <div className="login-page__flare" aria-hidden="true" />
@@ -63,14 +87,51 @@ export function LoginPage() {
           </div>
         ) : (
           <>
-            <Button size="lg" onClick={handleGoogleSignIn} loading={isSigningIn}>
+            <Button size="lg" onClick={handleGoogleSignIn} loading={isSigningIn} disabled={isSigningIn}>
               <span className="login-page__google-g" aria-hidden="true">G</span>
-              {isSigningIn ? 'Redirecionando…' : 'Continuar com Google'}
+              Continuar com Google
             </Button>
+
+            <span className="auth-divider" aria-hidden="true">ou</span>
+
+            <form className="auth-form" onSubmit={handleEmailSignIn} noValidate>
+              <Input
+                label="Email"
+                type="email"
+                name="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="voce@exemplo.com"
+              />
+              <Input
+                label="Senha"
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="••••••••"
+              />
+              <Button type="submit" size="lg" loading={isSigningIn} disabled={isSigningIn}>
+                Entrar
+              </Button>
+            </form>
+
             {signInError && (
               <p className="login-page__error" role="alert">{signInError}</p>
             )}
-            <span className="login-page__hint">acesso via conta google</span>
+
+            <div className="auth-links">
+              <Link className="auth-link" to="/forgot-password">
+                Esqueci a senha
+              </Link>
+              <Link className="auth-link auth-link--muted" to="/signup">
+                Criar conta
+              </Link>
+            </div>
           </>
         )}
       </div>

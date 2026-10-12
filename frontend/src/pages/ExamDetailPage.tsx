@@ -151,7 +151,7 @@ export function ExamDetailPage() {
     mutationFn: () => deleteExam(id),
     onSuccess: () => {
       toast('Dados dissipados do núcleo.', 'info');
-      navigate('/');
+      navigate('/app');
     },
     onError: (error) => {
       setDeleteModalOpen(false);
@@ -314,7 +314,7 @@ export function ExamDetailPage() {
         <footer className="exam-detail__footer">
           <Button
             variant="ghost"
-            onClick={() => navigate(`/exam/${id}/review`)}
+            onClick={() => navigate(`/app/exam/${id}/review`)}
             disabled={!canReviewQuestions}
           >
             Inspecionar Fragmentos
@@ -322,7 +322,7 @@ export function ExamDetailPage() {
 
           <Button
             variant={canStartQuiz ? "primary" : "ghost"}
-            onClick={() => navigate(`/quiz/setup/${id}`)}
+            onClick={() => navigate(`/app/quiz/setup/${id}`)}
             disabled={!canStartQuiz}
           >
             Iniciar Simulação

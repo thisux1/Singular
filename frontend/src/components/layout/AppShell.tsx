@@ -4,7 +4,6 @@ import { PageTransition } from '../effects/PageTransition';
 import { GrainOverlay } from '../effects/GrainOverlay';
 import { ToastContainer } from '../ui/Toast';
 import { isTouchLikeEnvironment } from '../../hooks/useMousePosition';
-import { SingularityCanvas } from '../three/SingularityCanvas';
 import { Navbar } from './Navbar';
 import { FuiOverlay } from '../fui/FuiOverlay';
 import './AppShell.css';
@@ -98,7 +97,6 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
-      <SingularityCanvas />
       <FuiOverlay />
       <GrainOverlay />
       <div className="app-shell__content">

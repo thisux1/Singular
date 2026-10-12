@@ -267,7 +267,7 @@ export function ExamReviewPage() {
     mutationFn: () => apiFetch<{ success: boolean; status: string }>(`/exams/${id}/publish`, { method: 'POST' }),
     onSuccess: () => {
       toast('Evento consolidado. Prova pronta.', 'success');
-      navigate(`/exam/${id}`);
+      navigate(`/app/exam/${id}`);
     },
     onError: (error) => {
       toast(error instanceof Error ? error.message : 'Anomalia ao consolidar.', 'error');
@@ -356,7 +356,7 @@ export function ExamReviewPage() {
             </div>
 
             <div className="exam-review__header-actions">
-              <Button variant="ghost" onClick={() => navigate(`/exam/${id}`)}>
+              <Button variant="ghost" onClick={() => navigate(`/app/exam/${id}`)}>
                 Abortar
               </Button>
               {!isPublished && (

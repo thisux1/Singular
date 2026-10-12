@@ -126,7 +126,7 @@ export function BankPage() {
       if (payloads.length > 0) {
         saveSessionBankQuestions(session.sessionId, payloads);
       }
-      navigate(`/quiz/${session.examId}?session=${session.sessionId}`);
+      navigate(`/app/quiz/${session.examId}?session=${session.sessionId}`);
     },
     onError: (error) => {
       toast(error instanceof Error ? error.message : 'Falha ao montar simulado.', 'error');

@@ -116,7 +116,7 @@ export function Navbar() {
       />
 
       <div className="navbar__inner page-container">
-        <Link className="navbar__brand heading-3" to="/">
+        <Link className="navbar__brand heading-3" to="/app">
           <span className="navbar__brand-icon">⌘</span>
           Singular
         </Link>
@@ -125,13 +125,14 @@ export function Navbar() {
           <StatsChip />
           <NavLink
             className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}
-            to="/"
+            to="/app"
+            end
           >
             Terminal
           </NavLink>
           <NavLink
             className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}
-            to="/banco"
+            to="/app/banco"
           >
             Banco
           </NavLink>
@@ -175,6 +176,17 @@ export function Navbar() {
                   <button
                     type="button"
                     className="navbar__menu-item"
+                    role="menuitem"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate('/app/conta');
+                    }}
+                  >
+                    Conta
+                  </button>
+                  <button
+                    type="button"
+                    className="navbar__menu-item navbar__menu-item--danger"
                     role="menuitem"
                     onClick={handleSignOut}
                   >

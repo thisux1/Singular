@@ -4,7 +4,7 @@ test.describe('detalhe da prova', () => {
   test('mostra status Publicado e leva ao setup via Iniciar Simulação', async ({ page }) => {
     const { examId } = getSeededExam();
 
-    await page.goto(`/exam/${examId}`);
+    await page.goto(`/app/exam/${examId}`);
 
     await expect(page.locator('.exam-detail__title')).toHaveText('E2E Prova Sintética');
     // status 'completed' → label "Publicado" (TerminalTab + data grid)
@@ -16,7 +16,7 @@ test.describe('detalhe da prova', () => {
     await expect(startButton).toBeEnabled();
     await startButton.click();
 
-    await page.waitForURL(new RegExp(`/quiz/setup/${examId}`));
+    await page.waitForURL(new RegExp(`/app/quiz/setup/${examId}`));
     await expect(page.locator('.quiz-setup__title')).toHaveText('Configurar Simulação');
   });
 });

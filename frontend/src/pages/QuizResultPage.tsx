@@ -70,7 +70,7 @@ export function QuizResultPage() {
         return;
       }
       saveExamSession(examId, session.sessionId, session.questionIds);
-      navigate(`/quiz/${examId}?session=${session.sessionId}`);
+      navigate(`/app/quiz/${examId}?session=${session.sessionId}`);
     },
     onError: (error) => {
       if (error instanceof ApiError && error.status === 422) {
@@ -111,11 +111,11 @@ export function QuizResultPage() {
               <p>Simulação ainda em andamento — o relatório só existe após o colapso.</p>
             </div>
             {fallbackExamId ? (
-              <Button onClick={() => navigate(`/quiz/${fallbackExamId}?session=${quizId}`)}>
+              <Button onClick={() => navigate(`/app/quiz/${fallbackExamId}?session=${quizId}`)}>
                 Retomar sessão
               </Button>
             ) : (
-              <Button variant="ghost" onClick={() => navigate('/')}>
+              <Button variant="ghost" onClick={() => navigate('/app')}>
                 Voltar ao terminal
               </Button>
             )}
@@ -140,7 +140,7 @@ export function QuizResultPage() {
   const percentage = Math.round(result.score);
   const isGoodScore = percentage >= 70;
   // Sessões bank: o examId é o exame sintético kind='bank' — modos de prova
-  // (setup/wrong) não se aplicam; a navegação volta para /banco.
+  // (setup/wrong) não se aplicam; a navegação volta para /app/banco.
   const isBankMode = result.mode === 'bank';
 
   const answeredAnswers = result.answers;
@@ -367,10 +367,10 @@ export function QuizResultPage() {
             size="lg"
             onClick={() =>
               isBankMode
-                ? navigate('/banco')
+                ? navigate('/app/banco')
                 : examId
-                  ? navigate(`/quiz/setup/${examId}`)
-                  : navigate('/')
+                  ? navigate(`/app/quiz/setup/${examId}`)
+                  : navigate('/app')
             }
             disabled={!isBankMode && !examId}
           >
@@ -383,7 +383,7 @@ export function QuizResultPage() {
             variant="ghost"
             size="lg"
             onClick={() =>
-              isBankMode ? navigate('/banco') : navigate(examId ? `/exam/${examId}` : '/')
+              isBankMode ? navigate('/app/banco') : navigate(examId ? `/app/exam/${examId}` : '/app')
             }
           >
             {isBankMode ? 'Voltar ao Banco' : 'Retornar ao Terminal'}

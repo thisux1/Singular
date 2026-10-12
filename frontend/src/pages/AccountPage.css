@@ -1,0 +1,419 @@
+/* ═══════════════════════════════════════════════════════
+   AccountPage — /app/conta: perfil, conquistas, segurança
+   e dados da conta. Vidro padrão + flare Singular.
+   ═══════════════════════════════════════════════════════ */
+
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: var(--max-width-narrow);
+}
+
+/* ─── Header (avatar + identidade) ─── */
+.account__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.account__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 1px solid rgba(227, 98, 2, 0.55);
+  box-shadow: 0 0 18px rgba(227, 98, 2, 0.25);
+  flex-shrink: 0;
+}
+
+.account__avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-flare-hot);
+  background: rgba(227, 98, 2, 0.08);
+  user-select: none;
+}
+
+.account__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.account__name {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.account__name-edit {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.account__name-edit:hover {
+  color: var(--accent-flare-hot);
+}
+
+.account__name-input {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-ghost-active);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-3);
+  width: 100%;
+  max-width: 360px;
+}
+
+.account__name-input:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.account__meta {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-secondary);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Cards ─── */
+.account__card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-ghost);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(12px) brightness(0.8);
+  -webkit-backdrop-filter: blur(12px) brightness(0.8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.account__card-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-ghost);
+}
+
+.account__subheading {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* ─── Conquistas: nível / xp / streak ─── */
+.account__level {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.account__level-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.account__level-badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #facc15;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  background: rgba(250, 204, 21, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 2px 10px;
+}
+
+.account__level-xp {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.account__level-next {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  margin-left: auto;
+}
+
+.account__streak {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-flare-hot);
+  margin: 0;
+}
+
+/* ─── Totais ─── */
+.account__totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-3);
+}
+
+.account__total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-ghost);
+  border-radius: var(--radius-md);
+}
+
+.account__total-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.account__total-value {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+/* ─── Badges ─── */
+.account__badges {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.account__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.account__badge--earned {
+  color: var(--accent-flare-hot);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: var(--accent-flare-muted);
+  text-shadow: 0 0 10px var(--accent-flare-glow);
+}
+
+.account__badge--locked {
+  color: var(--text-disabled);
+  border: 1px dashed var(--border-ghost-active);
+}
+
+/* ─── Por disciplina ─── */
+.account__subjects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.account__subject-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.account__subject {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) 2fr 48px;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.account__subject-name {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account__subject-pct {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+.account__weakest {
+  font-size: 0.65rem;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--accent-warning);
+  margin: 0;
+}
+
+/* ─── Segurança ─── */
+.account__password-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 360px;
+}
+
+.account__form-error {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent-incorrect);
+  margin: 0;
+}
+
+.account__note {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* ─── Dados ─── */
+.account__data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.account__data-label {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-1);
+}
+
+.account__data-label--danger {
+  color: var(--accent-incorrect);
+}
+
+.account__data-desc {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.account__data-desc strong {
+  color: var(--accent-incorrect);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+}
+
+.account__danger {
+  border-top: 1px solid var(--border-ghost);
+  padding-top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.account__delete-form {
+  display: flex;
+  gap: var(--space-3);
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.account__delete-input {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-ghost);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  width: 140px;
+  box-shadow: var(--shadow-input);
+}
+
+.account__delete-input::placeholder {
+  color: var(--text-disabled);
+}
+
+.account__delete-input:focus {
+  outline: none;
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ─── Erro de carregamento ─── */
+.account__error {
+  padding: var(--space-10) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-ghost-hover);
+  border-radius: var(--radius-lg);
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 640px) {
+  .account__header {
+    gap: var(--space-4);
+  }
+
+  .account__avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .account__subject {
+    grid-template-columns: 1fr 1fr 44px;
+  }
+}

@@ -83,7 +83,7 @@ export function ExamListPage() {
         gabaritoFileInputRef.current.value = '';
       }
 
-      navigate(`/exam/${data.exam_id}`);
+      navigate(`/app/exam/${data.exam_id}`);
     },
     onError: (error) => {
       if (error instanceof ApiError) {
@@ -501,12 +501,12 @@ export function ExamListPage() {
         {examsQuery.data && examsQuery.data.length > 0 && (
           <FlipDrawerGallery
             exams={examsQuery.data}
-            onExamClick={(exam) => navigate(`/exam/${exam.id}`)}
+            onExamClick={(exam) => navigate(`/app/exam/${exam.id}`)}
             onExamEdit={(exam) => {
               if (exam.status === 'reviewing' || exam.status === 'completed') {
-                navigate(`/exam/${exam.id}/review`);
+                navigate(`/app/exam/${exam.id}/review`);
               } else {
-                navigate(`/exam/${exam.id}`);
+                navigate(`/app/exam/${exam.id}`);
               }
             }}
             onExamDelete={(exam) => {

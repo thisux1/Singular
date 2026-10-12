@@ -166,7 +166,7 @@ export function QuizPlayerPage() {
 
       if (code === 'SESSION_FINISHED') {
         toast('Esta sessão já foi finalizada.', 'warning');
-        navigate(`/quiz/${sessionId}/result`);
+        navigate(`/app/quiz/${sessionId}/result`);
         return;
       }
 
@@ -201,7 +201,7 @@ export function QuizPlayerPage() {
         return;
       }
       clearExamSession(getExamBySessionId(sessionId) ?? examId, sessionId);
-      navigate(`/quiz/${sessionId}/result`);
+      navigate(`/app/quiz/${sessionId}/result`);
     },
     onError: (error) => {
       setFinishModalOpen(false);
@@ -268,7 +268,7 @@ export function QuizPlayerPage() {
       <section className="quiz-player page page-container">
         <div className="quiz-player__terminal quiz-player__terminal--error">
           <p>Conexão com a simulação perdida. Reinicie através do painel principal.</p>
-          <Button variant="ghost" onClick={() => navigate(`/exam/${examId}`)}>
+          <Button variant="ghost" onClick={() => navigate(`/app/exam/${examId}`)}>
             Abortar
           </Button>
         </div>
@@ -505,7 +505,7 @@ export function QuizPlayerPage() {
           </Button>
           <Button
             variant="danger"
-            onClick={() => navigate(bankQuestions ? '/banco' : `/exam/${examId}`)}
+            onClick={() => navigate(bankQuestions ? '/app/banco' : `/app/exam/${examId}`)}
           >
             Sair
           </Button>
