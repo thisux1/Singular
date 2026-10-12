@@ -23,6 +23,22 @@
   animation: blackhole-pulse 16s var(--ease-in-out) infinite alternate;
 }
 
+/* Overlay de debug do governor — ativado com ?gfxdbg na URL */
+.gargantua-dbg {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: calc(var(--z-background) + 1);
+  padding: 4px 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: rgba(255, 200, 140, 0.9);
+  background: rgba(9, 9, 11, 0.72);
+  border: 1px solid rgba(255, 160, 80, 0.35);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
 @keyframes blackhole-pulse {
   from {
     opacity: 0.38;

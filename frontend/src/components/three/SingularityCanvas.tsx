@@ -33,6 +33,12 @@ export function SingularityCanvas() {
 
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }, []);
+  const gfxDebug = useMemo(
+    () =>
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).has('gfxdbg'),
+    [],
+  );
   const cursorStateRef = useRef<CursorDistortionState>({
     x: 0.5,
     y: 0.5,
@@ -56,6 +62,7 @@ export function SingularityCanvas() {
           <CursorDistortion enabled cursorStateRef={cursorStateRef} />
         </Suspense>
       </Canvas>
+      {gfxDebug && <div id="gargantua-dbg" className="gargantua-dbg" aria-hidden="true" />}
     </div>
   );
 }
