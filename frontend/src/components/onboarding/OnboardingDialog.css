@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════
+   OnboardingDialog — terminal/FUI, flare accent
+   ═══════════════════════════════════════════════════════ */
+
+.onboarding-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  background: rgba(9, 9, 11, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  animation: onboarding-fade var(--duration-normal) var(--ease-out) both;
+}
+
+@keyframes onboarding-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.onboarding-dialog {
+  position: relative;
+  z-index: var(--z-modal);
+  width: min(560px, 100%);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-ghost-hover);
+  /* Cantos chanfrados no padrão terminal */
+  clip-path: polygon(
+    var(--terminal-cut) 0, 100% 0,
+    100% calc(100% - var(--terminal-cut)),
+    calc(100% - var(--terminal-cut)) 100%,
+    0 100%, 0 var(--terminal-cut)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 60px rgba(var(--accent-flare-rgb), 0.05),
+    0 30px 80px rgba(0, 0, 0, 0.7);
+  padding: clamp(24px, 5vw, 44px);
+  animation: onboarding-enter var(--duration-slow) var(--ease-out) both;
+}
+
+@keyframes onboarding-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Linha de scan decorativa no topo, estilo HUD */
+.onboarding-dialog::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--terminal-cut);
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--accent-flare) 0%,
+    rgba(var(--accent-flare-rgb), 0.15) 60%,
+    transparent 100%
+  );
+}
+
+.onboarding-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.onboarding-dialog__sys {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.onboarding-dialog__sys em {
+  font-style: normal;
+  color: var(--accent-flare);
+}
+
+.onboarding-dialog__step-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--accent-flare);
+  border: 1px solid rgba(var(--accent-flare-rgb), 0.35);
+  padding: 4px 10px;
+  background: rgba(var(--accent-flare-rgb), 0.08);
+}
+
+.onboarding-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-5);
+  min-height: 240px;
+  justify-content: center;
+  animation: onboarding-step-in var(--duration-normal) var(--ease-out) both;
+}
+
+@keyframes onboarding-step-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.onboarding-step__icon {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-flare-hot);
+  position: relative;
+}
+
+/* moldura chanfrada do ícone */
+.onboarding-step__icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(var(--accent-flare-rgb), 0.35);
+  background: rgba(var(--accent-flare-rgb), 0.06);
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+}
+
+.onboarding-step__icon svg {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 0 10px rgba(var(--accent-flare-rgb), 0.5));
+}
+
+.onboarding-step__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-primary);
+  margin: 0;
+}
+
+.onboarding-step__desc {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+  max-width: 40ch;
+  margin: 0;
+}
+
+.onboarding-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.onboarding-dots {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.onboarding-dot {
+  width: 24px;
+  height: 4px;
+  border: none;
+  padding: 0;
+  background: var(--border-ghost-active);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+    width var(--duration-fast) var(--ease-out);
+  clip-path: polygon(2px 0, 100% 0, calc(100% - 2px) 100%, 0 100%);
+}
+
+.onboarding-dot--active {
+  background: var(--accent-flare);
+  width: 36px;
+  box-shadow: 0 0 8px rgba(var(--accent-flare-rgb), 0.6);
+}
+
+.onboarding-dot:hover:not(.onboarding-dot--active) {
+  background: var(--border-ghost-focus);
+}
+
+.onboarding-dot:focus-visible {
+  outline: 2px solid var(--accent-flare-hot);
+  outline-offset: 2px;
+}
+
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.onboarding-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: all var(--duration-fast) var(--ease-out);
+  border: none;
+}
+
+.onboarding-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--border-ghost-hover);
+  color: var(--text-secondary);
+}
+
+.onboarding-btn--ghost:hover {
+  border-color: var(--border-ghost-focus);
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+.onboarding-btn--primary {
+  background: linear-gradient(135deg, var(--accent-flare), var(--accent-flare-hot));
+  color: #fff;
+  box-shadow: 0 0 18px rgba(var(--accent-flare-rgb), 0.35);
+}
+
+.onboarding-btn--primary:hover {
+  box-shadow: 0 0 28px rgba(var(--accent-flare-rgb), 0.55);
+  transform: translateY(-1px);
+}
+
+.onboarding-btn:focus-visible {
+  outline: 2px solid var(--accent-flare-hot);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .onboarding-dialog {
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .onboarding-dialog__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .onboarding-dots {
+    justify-content: center;
+    order: -1;
+  }
+
+  .onboarding-actions {
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-backdrop,
+  .onboarding-dialog,
+  .onboarding-step {
+    animation: none;
+  }
+}

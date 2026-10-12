@@ -1,0 +1,105 @@
+/* ─── DashboardCharts — donut + barras + radar (recharts tematizado) ─── */
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 24px;
+}
+
+.dashboard-charts__panel {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 24px;
+  min-width: 0;
+}
+
+.dashboard-charts__panel--bars {
+  grid-row: span 2;
+}
+
+.dashboard-charts__panel-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a1a1aa;
+  margin-bottom: 16px;
+}
+
+.dashboard-charts__donut-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-charts__donut-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+
+.dashboard-charts__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #a1a1aa;
+}
+
+.dashboard-charts__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dashboard-charts__tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(9, 9, 11, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: 'Geist Mono', monospace;
+}
+
+.dashboard-charts__tooltip-label {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #a1a1aa;
+}
+
+.dashboard-charts__tooltip-value {
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.dashboard-charts__empty {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #71717a;
+  padding: 24px 0;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .dashboard-charts {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-charts__panel--bars {
+    grid-row: auto;
+  }
+}
+
+/* Impressão: charts em layout de uma coluna */
+@media print {
+  .dashboard-charts {
+    grid-template-columns: 1fr;
+  }
+}

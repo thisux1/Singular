@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRef, useState, type ChangeEventHandler, type FormEventHandler } from 'react';
 import { useNavigate } from 'react-router';
 import { ApiError } from '../api/client';
-import { deleteExam, fetchCargoTemplates, fetchExams, uploadExam } from '../api/exams';
+import { deleteExam, fetchCargoTemplates, fetchExams, uploadExam, type Exam } from '../api/exams';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -14,6 +14,22 @@ import { FuiSelect } from '../components/ui/FuiSelect';
 import { motion, AnimatePresence } from 'framer-motion';
 import './ExamListPage.css';
 
+
+function parseBrazilianDate(value: string): string | null {
+  const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) return null;
+
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+    return null;
+  }
+
+  return `${match[3]}-${match[2]}-${match[1]}`;
+}
 
 export function ExamListPage() {
   const navigate = useNavigate();
@@ -137,9 +153,13 @@ export function ExamListPage() {
     setRangeError(null);
 
     let isoDate: string | undefined = undefined;
-    if (examDate.trim().length === 10) {
-      const [day, month, year] = examDate.split('/');
-      isoDate = `${year}-${month}-${day}`;
+    if (examDate.trim().length > 0) {
+      const parsed = parseBrazilianDate(examDate);
+      if (!parsed) {
+        toast('Data da prova inválida. Use DD/MM/AAAA.', 'error');
+        return;
+      }
+      isoDate = parsed;
     }
 
     uploadMutation.mutate({
@@ -147,7 +167,7 @@ export function ExamListPage() {
       gabaritoFile: gabaritoFile ?? undefined,
       title: title.trim() || undefined,
       edital: edital.trim() || undefined,
-      examDate: isoDate || examDate.trim() || undefined,
+      examDate: isoDate,
       provaType: provaType.trim().toUpperCase() || undefined,
       cargoTemplateId: cargoTemplateId || undefined,
       pageStart: parsedPageStart,
@@ -174,13 +194,9 @@ export function ExamListPage() {
     void cargoTemplatesQuery.refetch();
   };
 
-  let isoDatePreview: string | undefined = undefined;
-  if (examDate.trim().length === 10) {
-    const [day, month, year] = examDate.split('/');
-    isoDatePreview = `${year}-${month}-${day}`;
-  }
+  const isoDatePreview = parseBrazilianDate(examDate);
 
-  const previewExam: any = {
+  const previewExam: Exam = {
     id: 'PROV-XX-000',
     title: title || 'INSERIR TÍTULO',
     status: isSubmitting ? 'processing' : 'queued',

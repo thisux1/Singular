@@ -1,13 +1,20 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ApiError } from '../api/client';
-import { deleteExam, fetchExam, fetchExamQuestions, publishExam, reprocessExam } from '../api/exams';
-import { startQuiz } from '../api/quiz';
+import {
+  deleteExam,
+  fetchExam,
+  fetchExamProgress,
+  fetchExamQuestions,
+  publishExam,
+  reprocessExam,
+} from '../api/exams';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
 import { Skeleton } from '../components/ui/Skeleton';
-import { toast } from '../components/ui/ToastUtils';
-import { saveExamSession } from './quizSessionStorage';
 import { TerminalTab, type TerminalTabVariant } from '../components/ui/TerminalTab';
+import { toast } from '../components/ui/ToastUtils';
 import './ExamDetailPage.css';
 
 function statusVariantClass(status: string): TerminalTabVariant {
@@ -23,6 +30,20 @@ function statusLabel(status: string): string {
   if (status === 'reviewing') return 'Em revisão';
   if (status === 'completed') return 'Publicado';
   return 'Falhou';
+}
+
+const STAGE_LABELS: Record<string, string> = {
+  extracting: 'Extraindo texto',
+  structuring: 'Estruturando questões',
+  persisting: 'Persistindo fragmentos',
+  classifying: 'Classificando disciplinas',
+};
+
+function stageLabel(stage: string | undefined): string {
+  if (!stage) {
+    return 'Processando';
+  }
+  return STAGE_LABELS[stage] ?? stage;
 }
 
 function extractApiErrorMetadata(error: ApiError): { code: string | null; errorMessage: string | null } {
@@ -63,15 +84,47 @@ function statusHint(status: string, examErrorMessage: string | null): string {
   return 'Dados extraídos com sucesso. Análise manual recomendada antes da publicação.';
 }
 
+/** parsingLog é JSON arbitrário do pipeline — render legível e colapsável. */
+function ParsingLogDetails({ log }: { log: unknown }) {
+  if (log === null || log === undefined) {
+    return null;
+  }
+
+  let pretty: string;
+  try {
+    pretty = JSON.stringify(log, null, 2);
+  } catch {
+    pretty = String(log);
+  }
+
+  return (
+    <details className="exam-detail__parsing-log">
+      <summary>Log do pipeline</summary>
+      <pre>{pretty}</pre>
+    </details>
+  );
+}
+
 export function ExamDetailPage() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const examQuery = useQuery({
     queryKey: ['exam', id],
     queryFn: () => fetchExam(id),
     refetchInterval: (query) => {
       const status = query.state.data?.status;
+      return status === 'queued' || status === 'processing' ? 2000 : false;
+    },
+  });
+
+  // Progress real do job (stage/percent/páginas) — mesmo intervalo do status.
+  const progressQuery = useQuery({
+    queryKey: ['exam-progress', id],
+    queryFn: () => fetchExamProgress(id),
+    refetchInterval: (query) => {
+      const status = query.state.data?.status ?? examQuery.data?.status;
       return status === 'queued' || status === 'processing' ? 2000 : false;
     },
   });
@@ -101,6 +154,7 @@ export function ExamDetailPage() {
       navigate('/');
     },
     onError: (error) => {
+      setDeleteModalOpen(false);
       toast(error instanceof Error ? error.message : 'Falha ao dissipar dados.', 'error');
     },
   });
@@ -109,21 +163,10 @@ export function ExamDetailPage() {
     mutationFn: () => reprocessExam(id),
     onSuccess: async () => {
       toast('Processamento reiniciado.', 'success');
-      await examQuery.refetch();
+      await Promise.all([examQuery.refetch(), progressQuery.refetch()]);
     },
     onError: (error) => {
       toast(error instanceof Error ? error.message : 'Falha ao reprocessar.', 'error');
-    },
-  });
-
-  const startMutation = useMutation({
-    mutationFn: () => startQuiz(id),
-    onSuccess: (data) => {
-      saveExamSession(id, data.sessionId);
-      navigate(`/quiz/${id}?session=${data.sessionId}`);
-    },
-    onError: (error) => {
-      toast(error instanceof Error ? error.message : 'Falha ao iniciar simulação.', 'error');
     },
   });
 
@@ -154,8 +197,14 @@ export function ExamDetailPage() {
   const exam = examQuery.data;
   const canStartQuiz = exam.status === 'completed';
   const canReviewQuestions = exam.status === 'reviewing' || exam.status === 'completed';
+  const isProcessing = exam.status === 'queued' || exam.status === 'processing';
   const questions = questionsQuery.data ?? [];
   const questionCount = exam.totalQuestions ?? questions.length;
+
+  const progress = progressQuery.data;
+  const progressPercent = progress?.percent ?? (exam.status === 'reviewing' || exam.status === 'completed' ? 100 : 0);
+  const hasPageProgress =
+    progress?.pageCurrent !== undefined && progress?.pageTotal !== undefined && progress.pageTotal > 0;
 
   let questionsErrorMessage: string | null = null;
 
@@ -209,9 +258,38 @@ export function ExamDetailPage() {
         </div>
 
         <div className="exam-detail__content">
-          <p className={`exam-detail__hint ${exam.status === 'failed' ? 'exam-detail__hint--error' : ''}`}>
-            {statusHint(exam.status, exam.errorMessage)}
-          </p>
+          {isProcessing ? (
+            <div className="exam-detail__progress" role="status" aria-live="polite">
+              <div className="exam-detail__progress-meta">
+                <span className="exam-detail__progress-stage">
+                  {stageLabel(progress?.stage)}
+                  {hasPageProgress ? ` · página ${progress.pageCurrent} de ${progress.pageTotal}` : ''}
+                </span>
+                <span className="exam-detail__progress-percent">{progressPercent}%</span>
+              </div>
+              <div className="exam-detail__progress-track">
+                <div
+                  className="exam-detail__progress-fill"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <p className="exam-detail__hint exam-detail__hint--progress">{statusHint(exam.status, null)}</p>
+            </div>
+          ) : (
+            <p className={`exam-detail__hint ${exam.status === 'failed' ? 'exam-detail__hint--error' : ''}`}>
+              {statusHint(exam.status, exam.errorMessage)}
+            </p>
+          )}
+
+          {exam.status === 'failed' ? (
+            <div className="exam-detail__error-box">
+              <span className="exam-detail__error-icon">⚠</span>
+              <div className="exam-detail__error-body">
+                <p>{progress?.error ?? exam.errorMessage ?? 'Motivo desconhecido.'}</p>
+                <ParsingLogDetails log={exam.parsingLog} />
+              </div>
+            </div>
+          ) : null}
 
           {canReviewQuestions && questionsQuery.isLoading ? (
             <div className="exam-detail__questions-loading">
@@ -235,7 +313,7 @@ export function ExamDetailPage() {
         {/* Footer Actions (Integrated) */}
         <footer className="exam-detail__footer">
           <Button
-            variant={exam.status === 'reviewing' ? "ghost" : "ghost"}
+            variant="ghost"
             onClick={() => navigate(`/exam/${id}/review`)}
             disabled={!canReviewQuestions}
           >
@@ -244,8 +322,7 @@ export function ExamDetailPage() {
 
           <Button
             variant={canStartQuiz ? "primary" : "ghost"}
-            onClick={() => startMutation.mutate()}
-            loading={startMutation.isPending}
+            onClick={() => navigate(`/quiz/setup/${id}`)}
             disabled={!canStartQuiz}
           >
             Iniciar Simulação
@@ -274,12 +351,7 @@ export function ExamDetailPage() {
 
           <Button
             variant="danger"
-            onClick={() => {
-              const confirmed = window.confirm('A dissipação de dados é permanente. Prosseguir?');
-              if (confirmed) {
-                deleteMutation.mutate();
-              }
-            }}
+            onClick={() => setDeleteModalOpen(true)}
             loading={deleteMutation.isPending}
           >
             Dissipar
@@ -287,6 +359,26 @@ export function ExamDetailPage() {
         </footer>
       </div>
       </div>
+
+      <Modal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title="Dissipar prova?"
+        description="A dissipação de dados é permanente — a prova, seus fragmentos e o histórico de simulações serão removidos."
+      >
+        <div className="exam-detail__modal-actions">
+          <Button variant="ghost" onClick={() => setDeleteModalOpen(false)}>
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => deleteMutation.mutate()}
+            loading={deleteMutation.isPending}
+          >
+            Dissipar definitivamente
+          </Button>
+        </div>
+      </Modal>
     </section>
   );
 }
