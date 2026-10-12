@@ -113,6 +113,93 @@
   z-index: 1;
 }
 
+/* ─── Painel Progressão (gamificação) ─── */
+.quiz-result__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  clip-path: polygon(
+    var(--terminal-cut-card) 0,
+    100% 0,
+    100% calc(100% - var(--terminal-cut-card)),
+    calc(100% - var(--terminal-cut-card)) 100%,
+    0 100%,
+    0 var(--terminal-cut-card)
+  );
+  position: relative;
+}
+
+.quiz-result__progress::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--terminal-cut-card);
+  height: 4px;
+  background: rgba(227, 96, 2, 0.7);
+  box-shadow: 0 0 10px rgba(227, 96, 2, 0.5);
+}
+
+.quiz-result__progress .quiz-result__section-title {
+  margin-bottom: 0;
+}
+
+.quiz-result__progress-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 40px;
+}
+
+.quiz-result__level-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #a1a1aa;
+}
+
+.quiz-result__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quiz-result__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.quiz-result__badge--earned {
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.5);
+  background: rgba(250, 204, 21, 0.07);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.15);
+}
+
+.quiz-result__badge--locked {
+  color: #52525b;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: transparent;
+  opacity: 0.7;
+}
+
 /* ─── Hero & Score ─── */
 .quiz-result__header {
   position: relative;
@@ -486,6 +573,27 @@
     border: 1px solid #ddd;
     box-shadow: none;
     break-inside: avoid;
+  }
+
+  .quiz-result__progress {
+    clip-path: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: none;
+  }
+
+  .quiz-result__progress::before {
+    display: none;
+  }
+
+  .quiz-result__level-bar-meta,
+  .quiz-result__badge {
+    color: #444;
+  }
+
+  .quiz-result__badge--earned {
+    color: #8a6d00;
+    box-shadow: none;
   }
 
   .quiz-result__header,

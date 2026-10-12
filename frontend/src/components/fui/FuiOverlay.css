@@ -126,6 +126,44 @@
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
+/* ─── MANUAL_OVRD: único controle real do HUD ───
+   O overlay inteiro é pointer-events:none — o botão reabilita
+   eventos só na própria área, sem engolir cliques do conteúdo. */
+.fui-toggle--btn {
+  pointer-events: auto;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  margin: -2px -4px; /* compensa o padding sem desalinhar o dot */
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.fui-toggle--btn:hover {
+  opacity: 1;
+}
+
+.fui-toggle--btn:hover .fui-toggle__label {
+  color: #f4f4f5;
+}
+
+.fui-toggle--btn:hover .fui-toggle__light {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.fui-toggle--btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.fui-toggle--btn.fui-toggle--active:hover .fui-toggle__light {
+  background: var(--accent-flare);
+}
+
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
