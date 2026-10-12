@@ -170,9 +170,10 @@
   counter-reset: step;
 }
 
-/* Vidro via .glass.glass--dense; corner brackets via .corners
-   (14px/1px/flare/.65/radius-lg — bate exato com a receita antiga). */
+/* Card chanfrado via .terminal.terminal--cut-b — padrão do app.
+   Local: padding, layout, cut menor (cards pequenos). */
 .landing__step {
+  --terminal-cut: 14px;
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
@@ -219,20 +220,19 @@
   gap: var(--space-5);
 }
 
-/* Vidro via .glass.glass--dense — local: layout + hover. */
+/* Card chanfrado via .terminal.terminal--cut-b — padrão do app.
+   Local: padding, layout, cut menor, hover via vars da máquina. */
 .landing__feature {
+  --terminal-cut: 14px;
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  transition: border-color var(--duration-normal) var(--ease-out),
-    background var(--duration-normal) var(--ease-out),
-    transform var(--duration-normal) var(--ease-out);
+  transition: transform var(--duration-normal) var(--ease-out);
 }
 
 .landing__feature:hover {
-  border-color: var(--border-ghost-hover);
-  background: var(--bg-surface-hover);
+  --terminal-border-color: rgba(var(--accent-flare-rgb), 0.45);
   transform: translateY(-2px);
 }
 
@@ -263,26 +263,19 @@
   margin: 0;
 }
 
-/* ─── Self-host — vidro denso via .glass.glass--dense + overrides locais
-   (bg .72 / brightness .78 / radius-xl divergem da receita densa). ─── */
+/* ─── Self-host — card chanfrado via .terminal.terminal--cut-b (padrão do app).
+   Local: layout em grid, cut maior, flare radial como filho dedicado
+   (::before do terminal é a camada-borda — não pode virar flare). ─── */
 .landing__selfhost {
+  --terminal-cut: 20px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-10);
   align-items: center;
   padding: var(--space-8);
-  background: rgba(11, 11, 17, 0.72);
-  border-color: var(--border-ghost-hover);
-  border-radius: var(--radius-xl);
-  backdrop-filter: blur(14px) brightness(0.78);
-  -webkit-backdrop-filter: blur(14px) brightness(0.78);
-  position: relative;
-  overflow: hidden;
 }
 
-/* Flare discreto no canto do bloco */
-.landing__selfhost::before {
-  content: '';
+.landing__selfhost-flare {
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse 40% 60% at 85% 50%, rgba(var(--accent-flare-rgb), 0.1), transparent 70%);
