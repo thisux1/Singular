@@ -1,13 +1,22 @@
-import { Worker } from 'bullmq';
+import { Worker, type Job } from 'bullmq';
 import { Redis } from 'ioredis';
+import { eq } from 'drizzle-orm';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import { basename, resolve, isAbsolute } from 'node:path';
 import { config } from '../config.js';
-import { enqueueExamClassification, EXAM_PROCESS_QUEUE, type ProcessExamJobData } from './queue.js';
+import {
+  enqueueExamClassification,
+  getExamQueue,
+  getSharedRedis,
+  EXAM_PROCESS_QUEUE,
+  type ProcessExamJobData,
+} from './queue.js';
 import { examsRepository } from '../repositories/exams-repository.js';
 import { questionsRepository } from '../repositories/questions-repository.js';
-import type { NewQuestionRow } from '../db/schema.js';
+import { db, pool } from '../db/client.js';
+import { exams, type NewQuestionRow } from '../db/schema.js';
+import type { ExtractionTier } from '../types/exam.js';
 import { runFallbackPipeline } from '../services/fallback-pipeline.js';
 import {
   inferSubjectByCargoTemplate,
@@ -17,6 +26,7 @@ import { reconstructLayout } from '../services/parser/layout-engine.js';
 import { parseGabarito } from '../services/parser/gabarito-parser.js';
 import { extractPdfFragments } from '../services/parser/pdf-extractor.js';
 import { evaluateFastPathQuality, parseFastPath } from '../services/parser-fastpath.js';
+import { registerWorkerShutdown } from '../utils/lifecycle.js';
 import { logError, logInfo } from '../utils/logger.js';
 
 interface QuestionInput {
@@ -27,12 +37,69 @@ interface QuestionInput {
   sourcePage?: number;
   subject?: string;
   contextText?: string;
+  /** Gabarito/pipeline indicam questão que depende de figura/imagem (requiresFigure) ou flag requiresPDF do parser. */
+  requiresPdf?: boolean;
 }
 
 interface QuestionBuildOptions {
   examId?: string;
   cargoTemplateId?: string;
   gabaritoAnswers?: Record<number, string>;
+  /** Ordens marcadas como ANULADA no gabarito (B7/D19). */
+  annulledOrders?: Set<number>;
+}
+
+// D18 — contrato com services/job-progress.ts (WS-A):
+// job.updateProgress({stage, percent, pageCurrent?, pageTotal?})
+type ProgressStage = 'extracting' | 'structuring' | 'persisting' | 'classifying';
+
+interface ExamProgressPayload {
+  stage: ProgressStage;
+  percent: number;
+  pageCurrent?: number;
+  pageTotal?: number;
+}
+
+export interface ProcessExamOutcome {
+  ok: boolean;
+  /** Mensagem amigável já persistida em exams.error_message quando ok=false. */
+  error?: string;
+  insertedQuestions?: number;
+  tierUsed?: string;
+}
+
+/** Exame em `processing` sem heartbeat há mais tempo que isso = órfão (watchdog no boot). */
+const PROCESSING_STALE_MS = 30 * 60 * 1000;
+
+async function reportProgress(
+  job: Job | undefined,
+  payload: ExamProgressPayload,
+): Promise<void> {
+  if (!job) {
+    return;
+  }
+
+  try {
+    await job.updateProgress(payload);
+  } catch (error) {
+    logWarning('exam.progress.update_failed', {
+      jobId: job.id,
+      errorMessage: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
+    });
+  }
+}
+
+/** Mapeia usedPath real do pipeline para o enum extraction_tier (fastpath|repair|gemini). */
+function toExtractionTier(usedPath: string | undefined): ExtractionTier {
+  const normalized = (usedPath ?? '').toLowerCase();
+  if (normalized === 'fastpath') {
+    return 'fastpath';
+  }
+  if (normalized.includes('gemini')) {
+    return 'gemini';
+  }
+  // ollama-*, docling e demais tiers não-Gemini caem no bucket "repair".
+  return 'repair';
 }
 
 type ParsingHealth = 'healthy' | 'degraded' | 'poor';
@@ -198,10 +265,16 @@ function buildParsingLog(params: {
   };
 }
 
+interface GabaritoExtraction {
+  answers: Record<number, string>;
+  /** Ordens marcadas como ANULADA no gabarito (B7). */
+  annulled: Set<number>;
+}
+
 async function extractGabaritoAnswers(
   gabaritoPath: string,
   provaType?: string,
-): Promise<Record<number, string>> {
+): Promise<GabaritoExtraction> {
   const absolutePath = isAbsolute(gabaritoPath) ? gabaritoPath : resolve(process.cwd(), gabaritoPath);
   const fileBuffer = await fs.readFile(absolutePath);
   const extracted = await extractPdfFragments(fileBuffer);
@@ -217,7 +290,11 @@ async function extractGabaritoAnswers(
     }
   }
 
-  return answers;
+  const annulled = new Set<number>(
+    (parsed.annulled ?? []).filter((order) => Number.isInteger(order) && order > 0),
+  );
+
+  return { answers, annulled };
 }
 
 function toNewQuestionRows(
@@ -261,6 +338,11 @@ function toNewQuestionRows(
         ? inferSubjectByCargoTemplate(buildOptions.cargoTemplateId!, questionOrder)
         : undefined;
 
+      // B7/D19: anulada do gabarito → acerto automático no quiz; requiresPdf
+      // vem do flag do parser (requiresFigure/hasImage na página).
+      const annulled = buildOptions.annulledOrders?.has(questionOrder) ?? false;
+      const requiresPdf = item.requiresPdf === true;
+
       rows.push({
         examId,
         order: questionOrder,
@@ -272,28 +354,84 @@ function toNewQuestionRows(
         sourcePage: item.sourcePage ?? null,
         contextText: item.contextText ?? null,
         contentHash: computeContentHash(questionText, questionOptions),
+        annulled,
+        requiresPdf,
+        hasImage: requiresPdf,
       });
     });
 
   return rows;
 }
 
-export async function processExamJob(data: ProcessExamJobData): Promise<void> {
+/**
+ * Entry point do processamento de exame — NUNCA rejeita.
+ *
+ * Erros internos são mapeados para mensagem amigável, persistidos em
+ * exams.error_message (status='failed') e retornados em `ProcessExamOutcome`.
+ * Isso protege o call site síncrono (`void processExamJob(...)` em
+ * routes/exams.ts — SYNC_FALLBACK) de unhandledRejection; o worker BullMQ
+ * re-lança baseado em `ok` para manter a semântica de job failed.
+ */
+export async function processExamJob(
+  data: ProcessExamJobData,
+  job?: Job,
+): Promise<ProcessExamOutcome> {
+  try {
+    return await runProcessExam(data, job);
+  } catch (error) {
+    const technicalMessage = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
+    const userMessage = mapProcessingErrorForUser(error);
+
+    try {
+      await examsRepository.updateStatus(data.examId, 'failed', { errorMessage: userMessage });
+    } catch (statusError) {
+      logError('exam.processing.fail_status_update_failed', {
+        examId: data.examId,
+        errorMessage: statusError instanceof Error ? statusError.message : 'UNKNOWN_ERROR',
+      });
+    }
+
+    logError('exam.processing.failed', {
+      examId: data.examId,
+      errorMessage: technicalMessage,
+    });
+
+    return { ok: false, error: userMessage };
+  }
+}
+
+async function runProcessExam(
+  data: ProcessExamJobData,
+  job?: Job,
+): Promise<ProcessExamOutcome> {
   const exam = await examsRepository.getById(data.examId);
   if (!exam) {
     throw new Error(`EXAM_NOT_FOUND:${data.examId}`);
   }
 
-  await examsRepository.updateStatus(data.examId, 'processing');
+  const pageTotal = exam.pageStart && exam.pageEnd && exam.pageEnd >= exam.pageStart
+    ? exam.pageEnd - exam.pageStart + 1
+    : undefined;
+
+  // Stamp de início em parsing_log — o watchdog de boot usa isso para detectar
+  // exames órfãos em `processing` (worker crash/stalled, D18).
+  await examsRepository.updateStatus(data.examId, 'processing', {
+    parsingLog: { v: 1, processingStartedAt: new Date().toISOString() },
+  });
   logInfo('exam.processing.started', { examId: data.examId });
+  await reportProgress(job, { stage: 'extracting', percent: 10, pageTotal });
 
   let gabaritoAnswers: Record<number, string> = {};
+  let annulledOrders: Set<number> = new Set();
   if (exam.gabaritoPath) {
     try {
-      gabaritoAnswers = await extractGabaritoAnswers(exam.gabaritoPath, exam.provaType);
+      const gabarito = await extractGabaritoAnswers(exam.gabaritoPath, exam.provaType);
+      gabaritoAnswers = gabarito.answers;
+      annulledOrders = gabarito.annulled;
       logInfo('exam.gabarito.processed', {
         examId: data.examId,
         gabaritoAnswers: Object.keys(gabaritoAnswers).length,
+        gabaritoAnnulled: annulledOrders.size,
       });
     } catch (error) {
       logError('exam.gabarito.processing_failed', {
@@ -332,11 +470,13 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
         correctAnswer: question.correctAnswer,
         sourcePage: question.sourcePage,
         contextText: question.contextText,
+        requiresPdf: question.requiresPdf,
       })),
       {
         examId: data.examId,
         cargoTemplateId: exam.cargoTemplateId,
         gabaritoAnswers,
+        annulledOrders,
       },
       );
 
@@ -354,6 +494,7 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
   }
 
   if (!shouldUseFallback) {
+    await reportProgress(job, { stage: 'persisting', percent: 80, pageTotal });
     const insertedQuestions = await questionsRepository.replaceForExam(data.examId, extractedQuestions);
     const durationMs = Date.now() - processingStartedAt;
     const health: ParsingHealth = quality.acceptable ? 'healthy' : (insertedQuestions > 0 ? 'degraded' : 'poor');
@@ -391,7 +532,8 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
     await examsRepository.updateStatus(data.examId, 'reviewing', {
       totalQuestions: insertedQuestions,
       pageOffset,
-      errorMessage: undefined,
+      // null limpa erro de tentativa anterior (D24 — updateStatus null-aware via WS-A).
+      errorMessage: null!,
       extractionTier: 'fastpath',
       parsingLog,
     });
@@ -404,6 +546,7 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
     });
 
     if (config.classificationEnabled) {
+      await reportProgress(job, { stage: 'classifying', percent: 95, pageTotal });
       void enqueueExamClassification({ examId: data.examId }).catch((error) => {
         logError('classification.enqueue.failed', {
           examId: data.examId,
@@ -412,7 +555,7 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
       });
     }
 
-    return;
+    return { ok: true, insertedQuestions, tierUsed: 'fastpath' };
   }
 
   const fallbackReason = config.processingForceFallback
@@ -425,6 +568,8 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
     fastPathConfidence: parsed.confidence,
     fastPathTotalQuestions: parsed.totalQuestions,
   });
+
+  await reportProgress(job, { stage: 'extracting', percent: 20, pageTotal });
 
   const pipelineResult = await runFallbackPipeline({
     examId: data.examId,
@@ -439,6 +584,8 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
     throw new Error(`${pipelineResult.errorCode}:${pipelineResult.message}`);
   }
 
+  await reportProgress(job, { stage: 'structuring', percent: 60, pageTotal });
+
   const mappedPipelineQuestions = toNewQuestionRows(
     data.examId,
     pipelineResult.questions.map((question) => ({
@@ -448,11 +595,15 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
       correctAnswer: question.correctAnswer,
       sourcePage: question.sourcePage,
       contextText: question.contextText,
+      // requiresFigure (D10) atravessa o PipelineResult via JSON mesmo não
+      // estando na interface — services/fallback-pipeline.ts é de outro WS.
+      requiresPdf: (question as { requiresFigure?: boolean }).requiresFigure,
     })),
     {
       examId: data.examId,
       cargoTemplateId: exam.cargoTemplateId,
       gabaritoAnswers,
+      annulledOrders,
     },
   );
 
@@ -469,6 +620,7 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
     });
   }
 
+  await reportProgress(job, { stage: 'persisting', percent: 90, pageTotal });
   const insertedQuestions = await questionsRepository.replaceForExam(data.examId, mappedPipelineQuestions);
   const durationMs = Date.now() - processingStartedAt;
   const health: ParsingHealth = !quality.acceptable && insertedQuestions > 0
@@ -510,8 +662,10 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
   await examsRepository.updateStatus(data.examId, 'reviewing', {
     totalQuestions: insertedQuestions,
     pageOffset,
-    errorMessage: undefined,
-    extractionTier: 'gemini',
+    // null limpa erro de tentativa anterior (D24 — updateStatus null-aware via WS-A).
+    errorMessage: null!,
+    // Grava o usedPath REAL reportado pelo pipeline (era hardcoded 'gemini').
+    extractionTier: toExtractionTier(pipelineResult.usedPath),
     parsingLog,
   });
 
@@ -525,6 +679,7 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
   });
 
   if (config.classificationEnabled) {
+    await reportProgress(job, { stage: 'classifying', percent: 95, pageTotal });
     void enqueueExamClassification({ examId: data.examId }).catch((error) => {
       logError('classification.enqueue.failed', {
         examId: data.examId,
@@ -532,10 +687,98 @@ export async function processExamJob(data: ProcessExamJobData): Promise<void> {
       });
     });
   }
+
+  return { ok: true, insertedQuestions, tierUsed: pipelineResult.usedPath };
 }
 
-export function startExamWorker(): Worker {
-  const workerConnection = new Redis(config.redisUrl, {
+/** Marca exame como failed sem sobrescrever uma falha já registrada (idempotente). */
+async function ensureExamFailed(examId: string, error: unknown): Promise<void> {
+  try {
+    const exam = await examsRepository.getById(examId);
+    if (!exam || exam.status === 'failed') {
+      return;
+    }
+
+    await examsRepository.updateStatus(examId, 'failed', {
+      errorMessage: mapProcessingErrorForUser(error),
+    });
+    logError('exam.processing.failed.worker_event', {
+      examId,
+      errorMessage: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
+    });
+  } catch (statusError) {
+    logError('exam.processing.fail_status_update_failed', {
+      examId,
+      errorMessage: statusError instanceof Error ? statusError.message : 'UNKNOWN_ERROR',
+    });
+  }
+}
+
+/**
+ * Watchdog de boot (D18): exames em `processing` cujo início (stamp em
+ * parsing_log.processingStartedAt, fallback createdAt) passou de 30min são
+ * órfãos — worker morreu antes de concluir. Marcados `failed` com mensagem
+ * amigável para destravar a fila (reprocess aceita failed).
+ *
+ * Jobs ainda enfileirados (waiting/delayed/prioritized) são preservados — o
+ * exame vai ser processado por um job vivo.
+ */
+export async function recoverStaleProcessingExams(): Promise<void> {
+  const staleRows = await db
+    .select({
+      id: exams.id,
+      parsingLog: exams.parsingLog,
+      createdAt: exams.createdAt,
+    })
+    .from(exams)
+    .where(eq(exams.status, 'processing'));
+
+  if (staleRows.length === 0) {
+    return;
+  }
+
+  const now = Date.now();
+  const queue = getExamQueue();
+
+  for (const row of staleRows) {
+    const stamped = row.parsingLog?.['processingStartedAt'];
+    const stampedMs = typeof stamped === 'string' ? Date.parse(stamped) : Number.NaN;
+    const referenceMs = Number.isFinite(stampedMs) ? stampedMs : row.createdAt.getTime();
+    const ageMs = now - referenceMs;
+
+    if (ageMs <= PROCESSING_STALE_MS) {
+      continue;
+    }
+
+    let jobState = 'missing';
+    try {
+      const job = await queue.getJob(row.id);
+      jobState = job ? await job.getState() : 'missing';
+    } catch (error) {
+      logError('exam.watchdog.job_lookup_failed', {
+        examId: row.id,
+        errorMessage: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
+      });
+    }
+
+    // Job ainda vai rodar (re-enfileirado/retry) — não marca failed.
+    if (jobState === 'waiting' || jobState === 'delayed' || jobState === 'prioritized' || jobState === 'waiting-children') {
+      continue;
+    }
+
+    await examsRepository.updateStatus(row.id, 'failed', {
+      errorMessage: 'Processamento expirado. Reprocessar a prova para tentar novamente.',
+    });
+    logError('exam.watchdog.stale_processing_failed', {
+      examId: row.id,
+      ageMs,
+      jobState,
+    });
+  }
+}
+
+export function startExamWorker(workerConnection?: Redis): Worker {
+  const connection = workerConnection ?? new Redis(config.redisUrl, {
     maxRetriesPerRequest: null,
   });
 
@@ -543,31 +786,60 @@ export function startExamWorker(): Worker {
     EXAM_PROCESS_QUEUE,
     async (job) => {
       const data = job.data as ProcessExamJobData;
+      const result = await processExamJob(data, job);
 
-      try {
-        await processExamJob(data);
-      } catch (error) {
-        const technicalMessage = error instanceof Error ? error.message : 'UNKNOWN_ERROR';
-        const userMessage = mapProcessingErrorForUser(error);
-        await examsRepository.updateStatus(data.examId, 'failed', { errorMessage: userMessage });
-        logError('exam.processing.failed', {
-          examId: data.examId,
-          errorMessage: technicalMessage,
-        });
-        throw error;
+      // processExamJob já persistiu status=failed + mensagem; re-lança para o
+      // BullMQ registrar a falha do job (failedReason visível no progress DTO).
+      if (!result.ok) {
+        throw new Error(result.error ?? 'PROCESSING_FAILED');
       }
     },
     {
-      connection: workerConnection,
+      connection,
       concurrency: 1, // Reduced from 2 to 1 to prevent GPU (VRAM) lock-ups
     },
   );
+
+  // Falha de job fora do processExamJob (crash, stall excedido, erro interno
+  // BullMQ) → garante que o exame não fica preso em `processing` (D18).
+  worker.on('failed', (job, error) => {
+    const examId = (job?.data as ProcessExamJobData | undefined)?.examId;
+    if (examId) {
+      void ensureExamFailed(examId, error);
+    }
+  });
+
+  worker.on('error', (error) => {
+    logError('worker.error', {
+      queue: EXAM_PROCESS_QUEUE,
+      errorMessage: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
+    });
+  });
 
   return worker;
 }
 
 if (process.argv[1] && process.argv[1].includes('process-exam')) {
   logInfo('worker.queue.auto_cleanup.disabled', { queue: EXAM_PROCESS_QUEUE });
-  startExamWorker();
+
+  const workerConnection = new Redis(config.redisUrl, {
+    maxRetriesPerRequest: null,
+  });
+  const worker = startExamWorker(workerConnection);
+
+  void recoverStaleProcessingExams().catch((error) => {
+    logError('exam.watchdog.failed', {
+      errorMessage: error instanceof Error ? error.message : 'UNKNOWN_ERROR',
+    });
+  });
+
+  registerWorkerShutdown({
+    name: 'exam-worker',
+    workers: [worker],
+    queues: [getExamQueue()],
+    redis: [workerConnection, getSharedRedis()],
+    pool,
+  });
+
   logInfo('worker.started', { queue: EXAM_PROCESS_QUEUE });
 }
