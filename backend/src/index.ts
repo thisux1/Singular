@@ -10,6 +10,7 @@ import { quizRoutes } from './routes/quiz.js';
 import { questionsRoutes } from './routes/questions.js';
 import { bankRoutes } from './routes/bank.js';
 import { statsRoutes } from './routes/stats.js';
+import { accountRoutes } from './routes/account.js';
 import { config } from './config.js';
 import { pool } from './db/client.js';
 import { closeQueues } from './jobs/queue.js';
@@ -91,6 +92,7 @@ app.route('/api/quiz', quizRoutes);
 app.route('/api/questions', questionsRoutes);
 app.route('/api/bank', bankRoutes);
 app.route('/api/stats', statsRoutes);
+app.route('/api/account', accountRoutes);
 
 // --- Error handling (D14) ----------------------------------------------------
 

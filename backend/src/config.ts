@@ -72,6 +72,12 @@ const envSchema = z.object({
   BETTER_AUTH_URL: optionalString,
   GOOGLE_CLIENT_ID: optionalString,
   GOOGLE_CLIENT_SECRET: optionalString,
+  // Email+senha: Resend entrega verificação/reset. Sem a key, emails viram
+  // log no console e requireEmailVerification é forçado a false (self-host
+  // nunca fica travado sem provedor de email — decisão documentada em auth.ts).
+  RESEND_API_KEY: optionalString,
+  EMAIL_FROM: z.string().default('Singular <noreply@singular.app>'),
+  AUTH_REQUIRE_EMAIL_VERIFICATION: booleanString(false),
   CORS_ORIGINS: z
     .string()
     .default('http://localhost:5190,http://localhost:5173'),
@@ -181,6 +187,9 @@ export const config = {
   betterAuthUrl: env.BETTER_AUTH_URL ?? `http://localhost:${env.PORT}`,
   googleClientId: env.GOOGLE_CLIENT_ID,
   googleClientSecret: env.GOOGLE_CLIENT_SECRET,
+  resendApiKey: env.RESEND_API_KEY,
+  emailFrom: env.EMAIL_FROM,
+  authRequireEmailVerification: env.AUTH_REQUIRE_EMAIL_VERIFICATION,
   corsOrigins,
   trustedOrigins,
   frontendUrl: env.FRONTEND_URL,

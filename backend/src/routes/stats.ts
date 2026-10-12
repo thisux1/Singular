@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import { getUser, requireAuth, type AuthVariables } from '../middleware/auth.js';
-import { quizRepository } from '../repositories/quiz-repository.js';
-import { buildStatsSummary } from '../services/gamification.js';
+import { getStatsSummaryForUser } from '../services/stats-summary.js';
 
 export const statsRoutes = new Hono<{ Variables: AuthVariables }>();
 
@@ -15,21 +14,6 @@ statsRoutes.use('*', requireAuth);
  * agrega as sessões do usuário stub 'local').
  */
 statsRoutes.get('/summary', async (c) => {
-  const userId = getUser(c).id;
-
-  const [finishedSessions, answerTotals, perSubject] = await Promise.all([
-    quizRepository.finishedSessionsForStats(userId),
-    quizRepository.answerTotalsForUser(userId),
-    quizRepository.perSubjectForUser(userId),
-  ]);
-
-  const summary = buildStatsSummary({
-    finishedSessions,
-    totalAnswered: answerTotals.total,
-    totalCorrect: answerTotals.correct,
-    answersTimeMs: answerTotals.timeMs,
-    perSubject,
-  });
-
+  const summary = await getStatsSummaryForUser(getUser(c).id);
   return c.json(summary);
 });
