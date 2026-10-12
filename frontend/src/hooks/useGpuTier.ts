@@ -3,10 +3,15 @@ import { useState } from 'react';
 export type GpuTier = 'high' | 'medium' | 'low';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
-const MEDIUM_RENDERER_HINTS = ['intel', 'mesa', 'swiftshader'];
+const LOW_RENDERER_HINTS = ['swiftshader', 'llvmpipe', 'software'];
+const MEDIUM_RENDERER_HINTS = ['intel', 'mesa'];
 
 function classifyRenderer(renderer: string): GpuTier {
   const normalized = renderer.toLowerCase();
+
+  if (LOW_RENDERER_HINTS.some((hint) => normalized.includes(hint))) {
+    return 'low';
+  }
 
   if (MEDIUM_RENDERER_HINTS.some((hint) => normalized.includes(hint))) {
     return 'medium';

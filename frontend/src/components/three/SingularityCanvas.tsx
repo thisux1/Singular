@@ -1,6 +1,6 @@
 import { Suspense, useMemo, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { BlackholeBackground } from './BlackholeBackground';
+import { GargantuaBackground } from './GargantuaBackground';
 import { CursorDistortion, type CursorDistortionState } from './CursorDistortion';
 import { useGpuTier } from '../../hooks/useGpuTier';
 import './SingularityCanvas.css';
@@ -8,8 +8,8 @@ import './SingularityCanvas.css';
 /**
  * Full-screen R3F canvas positioned behind all DOM content.
  *
- * The BlackholeBackground component handles all rendering internally
- * via a multi-pass pipeline (space → distortion → final composition).
+ * The GargantuaBackground component handles all rendering internally
+ * via a raymarch pipeline (geodesics → bloom mips → ACES composite).
  * The Canvas is just the WebGL context provider.
  */
 export function SingularityCanvas() {
@@ -52,8 +52,8 @@ export function SingularityCanvas() {
         frameloop="always"
       >
         <Suspense fallback={null}>
-          <BlackholeBackground tier={tier} reducedMotion={prefersReducedMotion} cursorStateRef={cursorStateRef} />
-          <CursorDistortion enabled={!prefersReducedMotion} cursorStateRef={cursorStateRef} />
+          <GargantuaBackground tier={tier} cursorStateRef={cursorStateRef} />
+          <CursorDistortion enabled cursorStateRef={cursorStateRef} />
         </Suspense>
       </Canvas>
     </div>

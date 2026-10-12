@@ -33,6 +33,9 @@ export default defineConfig({
   ],
   use: {
     baseURL,
+    // fundo 3D é pesado demais pra CI/headless: reduced-motion cai no tier 'low'
+    // (useGpuTier) e o canvas vira o fallback estático — specs testam DOM puro.
+    reducedMotion: 'reduce',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
