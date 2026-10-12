@@ -161,3 +161,15 @@ html {
     align-items: stretch;
   }
 }
+
+/* ─── Cursor a11y ───
+   AppShell.css (layout, outro workstream) esconde o cursor nativo com
+   `cursor: none !important` para exibir o cursor customizado WebGL.
+   Contra-regra: restaura o cursor do sistema quando o usuário prefere
+   movimento reduzido ou usa ponteiro impreciso (touch/stylus). */
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .app-shell,
+  .app-shell * {
+    cursor: auto !important;
+  }
+}

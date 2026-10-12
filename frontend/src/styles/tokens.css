@@ -34,6 +34,25 @@
   --accent-processing: #8B5CF6;
   --accent-processing-muted: rgba(139, 92, 246, 0.06);
 
+  /* ─── Flare (laranja — identidade Singularity UI) ─── */
+  --accent-flare: #E36002;
+  --accent-flare-rgb: 227, 98, 2;
+  --accent-flare-hot: #F97316;
+  --accent-flare-muted: rgba(227, 98, 2, 0.12);
+  --accent-flare-glow: rgba(249, 115, 22, 0.45);
+
+  /* ─── Violeta de processamento (alias do brief) ─── */
+  --accent-process: #8B5CF6;
+
+  /* ─── Sinais semânticos ─── */
+  --signal-ok: #22C55E;
+  --signal-warn: #FACC15;
+  --signal-fail: #EF4444;
+
+  /* ─── Superfícies elevadas / texto (aliases do brief) ─── */
+  --bg-raised: #18181D;
+  --fg-primary: #E4E4E7;
+
   /* ─── Typography ─── */
   --font-heading: 'Clash Display', 'Inter', sans-serif;
   --font-mono: 'Geist Mono', 'JetBrains Mono', 'Fira Code', monospace;

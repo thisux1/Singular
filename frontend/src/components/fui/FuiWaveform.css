@@ -10,7 +10,7 @@
 }
 
 .fui-waveform-header, .fui-waveform-footer {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 2px;
   opacity: 0.8;
@@ -36,9 +36,9 @@
 }
 
 .fui-wave-center {
-  stroke: #ea580c;
+  stroke: var(--accent-flare);
   stroke-width: 2;
-  filter: drop-shadow(0 0 5px rgba(234, 88, 12, 0.8));
+  filter: drop-shadow(0 0 5px rgba(var(--accent-flare-rgb), 0.8));
 }
 
 .fui-wave-path {
@@ -46,9 +46,9 @@
   transition: all 0.1s;
 }
 
-.fui-wave-path--1 { stroke: rgba(234, 88, 12, 0.4); }
+.fui-wave-path--1 { stroke: rgba(var(--accent-flare-rgb), 0.4); }
 .fui-wave-path--2 { stroke: rgba(255, 255, 255, 0.4); } /* White accent */
-.fui-wave-path--3 { stroke: rgba(234, 88, 12, 0.4); stroke-width: 4; filter: drop-shadow(0 0 2px rgba(234, 88, 12, 0.4)); }
+.fui-wave-path--3 { stroke: rgba(var(--accent-flare-rgb), 0.4); stroke-width: 4; filter: drop-shadow(0 0 2px rgba(var(--accent-flare-rgb), 0.4)); }
 
 /* ─── Circular Particle Bursts ─── */
 .fui-wave-burst {
@@ -66,14 +66,14 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1px solid rgba(234, 88, 12, 0.3);
-  box-shadow: inset 0 0 20px rgba(234, 88, 12, 0.1), 0 0 20px rgba(234, 88, 12, 0.1);
+  border: 1px solid rgba(var(--accent-flare-rgb), 0.3);
+  box-shadow: inset 0 0 20px rgba(var(--accent-flare-rgb), 0.1), 0 0 20px rgba(var(--accent-flare-rgb), 0.1);
   animation: pulse-ring 3s infinite alternate ease-in-out;
 }
 
 .fui-wave-burst__ring--inner {
   inset: 20px;
-  border: 2px dashed rgba(234, 88, 12, 0.5);
+  border: 2px dashed rgba(var(--accent-flare-rgb), 0.5);
   animation: spin-slow 15s linear infinite;
 }
 
@@ -82,17 +82,17 @@
   inset: -10px;
   border-radius: 50%;
   background-image: 
-    radial-gradient(circle at 50% 10%, #ea580c 1px, transparent 1.5px),
-    radial-gradient(circle at 20% 80%, #ea580c 1.5px, transparent 2px),
-    radial-gradient(circle at 80% 60%, #ea580c 1px, transparent 1.5px),
-    radial-gradient(circle at 30% 30%, #ea580c 1px, transparent 1.5px),
-    radial-gradient(circle at 70% 90%, #ea580c 1px, transparent 1.5px),
-    radial-gradient(circle at 10% 40%, #ea580c 1.5px, transparent 2px),
-    radial-gradient(circle at 90% 20%, #ea580c 1px, transparent 1.5px);
+    radial-gradient(circle at 50% 10%, var(--accent-flare) 1px, transparent 1.5px),
+    radial-gradient(circle at 20% 80%, var(--accent-flare) 1.5px, transparent 2px),
+    radial-gradient(circle at 80% 60%, var(--accent-flare) 1px, transparent 1.5px),
+    radial-gradient(circle at 30% 30%, var(--accent-flare) 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 90%, var(--accent-flare) 1px, transparent 1.5px),
+    radial-gradient(circle at 10% 40%, var(--accent-flare) 1.5px, transparent 2px),
+    radial-gradient(circle at 90% 20%, var(--accent-flare) 1px, transparent 1.5px);
   background-size: 100% 100%;
   animation: spin-slow-reverse 20s linear infinite;
   opacity: 0.8;
-  filter: drop-shadow(0 0 3px #ea580c);
+  filter: drop-shadow(0 0 3px var(--accent-flare));
 }
 
 @keyframes pulse-ring {
@@ -113,13 +113,22 @@
   width: 6px;
   height: 6px;
   border: 1px solid rgba(255, 255, 255, 0.6);
-  background: rgba(234, 88, 12, 0.4);
-  box-shadow: 0 0 5px rgba(234, 88, 12, 0.5);
+  background: rgba(var(--accent-flare-rgb), 0.4);
+  box-shadow: 0 0 5px rgba(var(--accent-flare-rgb), 0.5);
 }
 
 .fui-wave-node__label {
-  font-family: 'Geist Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 8px;
   color: rgba(255, 255, 255, 0.6);
   letter-spacing: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fui-waveform-visualizer *,
+  .fui-waveform-visualizer *::before,
+  .fui-waveform-visualizer *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
