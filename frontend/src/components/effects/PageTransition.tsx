@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
+import { usePrefersReducedMotion } from '../../hooks/useMediaQuery';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -7,31 +8,45 @@ interface PageTransitionProps {
 }
 
 export function PageTransition({ children, locationKey }: PageTransitionProps) {
+  const reducedMotion = usePrefersReducedMotion();
+
   return (
     <motion.div
       key={locationKey}
-      initial={{ 
-        opacity: 0, 
-        scaleY: 0.01, 
-        filter: 'brightness(2) contrast(1.5) hue-rotate(90deg) blur(4px)' 
-      }}
-      animate={{ 
-        opacity: 1, 
-        scaleY: 1, 
-        filter: 'brightness(1) contrast(1) hue-rotate(0deg) blur(0px)' 
-      }}
-      exit={{ 
-        opacity: 0, 
-        scaleY: 0.01, 
-        filter: 'brightness(3) contrast(2) hue-rotate(-90deg) blur(8px)' 
-      }}
-      transition={{ 
-        duration: 0.4, 
-        ease: [0.22, 1, 0.36, 1] // Custom CRT ease
+      initial={
+        reducedMotion
+          ? { opacity: 0 }
+          : {
+              opacity: 0,
+              scaleY: 0.01,
+              filter: 'brightness(2) contrast(1.5) hue-rotate(90deg) blur(4px)',
+            }
+      }
+      animate={
+        reducedMotion
+          ? { opacity: 1 }
+          : {
+              opacity: 1,
+              scaleY: 1,
+              filter: 'brightness(1) contrast(1) hue-rotate(0deg) blur(0px)',
+            }
+      }
+      exit={
+        reducedMotion
+          ? { opacity: 0 }
+          : {
+              opacity: 0,
+              scaleY: 0.01,
+              filter: 'brightness(3) contrast(2) hue-rotate(-90deg) blur(8px)',
+            }
+      }
+      transition={{
+        duration: reducedMotion ? 0.15 : 0.4,
+        ease: [0.22, 1, 0.36, 1], // Custom CRT ease
       }}
       style={{
         width: '100%',
-        transformOrigin: 'center center'
+        transformOrigin: 'center center',
       }}
     >
       {children}

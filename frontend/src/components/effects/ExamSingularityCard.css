@@ -10,7 +10,7 @@
   cursor: pointer;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1);
+  transition: transform 0.15s var(--ease-snap);
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
 
   /* Concentric bevel system */
@@ -58,7 +58,7 @@
   inset: -100%;
   background: 
     radial-gradient(circle at 50% 50%, rgba(153, 27, 27, 0.3), transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(234, 88, 12, 0.2), transparent 40%);
+    radial-gradient(circle at 80% 20%, rgba(var(--accent-flare-strong-rgb), 0.2), transparent 40%);
   filter: blur(40px);
   pointer-events: none;
 }
@@ -115,8 +115,8 @@
   border-radius: 50%;
   box-shadow: 
     0 0 15px #000,
-    0 0 30px rgba(185, 28, 28, 0.8),
-    0 0 60px rgba(234, 88, 12, 0.6),
+    0 0 30px rgba(var(--accent-danger-deep-rgb), 0.8),
+    0 0 60px rgba(var(--accent-flare-strong-rgb), 0.6),
     inset 0 0 10px rgba(0,0,0,0.9);
   animation: examPulseCore 2s ease-in-out infinite alternate;
 }
@@ -134,15 +134,15 @@
 }
 
 .ring-1 {
-  border-top-color: rgba(250, 204, 21, 0.8);
-  border-right-color: rgba(234, 88, 12, 0.6);
+  border-top-color: rgba(var(--signal-warn-rgb), 0.8);
+  border-right-color: rgba(var(--accent-flare-strong-rgb), 0.6);
   animation: examSpinRing1 4s linear infinite;
 }
 
 .ring-2 {
   inset: -15%;
-  border-bottom-color: rgba(220, 38, 38, 0.7);
-  border-left-color: rgba(249, 115, 22, 0.4);
+  border-bottom-color: rgba(var(--accent-danger-rgb), 0.7);
+  border-left-color: rgba(var(--accent-flare-hot-rgb), 0.4);
   animation: examSpinRing2 5s linear infinite;
 }
 
@@ -166,7 +166,7 @@
 .decal {
   position: absolute;
   color: rgba(255, 255, 255, 0.15); /* Matte white/gray */
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 2px;
   user-select: none;
@@ -204,41 +204,32 @@
   transform-style: preserve-3d;
 }
 
+/* Painel de vidro: máquina "borda ::before + vidro ::after" em
+   .terminal.terminal--flat.terminal--cut-b (primitives.css) — local:
+   cores via --panel-*, blur menor, padding/layout interno. */
 .exam-singularity__glass-panel {
   padding: 24px;
-  position: relative;
   transition: all 0.3s ease;
   min-height: 140px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  
+
+  --terminal-cut: var(--card-inner-cut);
   --panel-bg: rgba(15, 5, 5, 0.55);
   --panel-border: rgba(255, 255, 255, 0.08);
 }
 
-.exam-singularity__glass-panel::before,
-.exam-singularity__glass-panel::after {
-  content: '';
-  position: absolute;
-  clip-path: polygon(var(--card-inner-cut) 0, 100% 0, 100% calc(100% - var(--card-inner-cut)), calc(100% - var(--card-inner-cut)) 100%, 0 100%, 0 var(--card-inner-cut));
-  pointer-events: none;
-}
-
 .exam-singularity__glass-panel::before {
-  inset: 0;
   background: var(--panel-border);
-  z-index: -2;
   transition: background 0.3s ease;
 }
 
 .exam-singularity__glass-panel::after {
-  inset: 1px;
   background: var(--panel-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
-  z-index: -1;
   transition: background 0.3s ease;
 }
 
@@ -263,11 +254,11 @@
 /* ─── STATUS MODIFIERS ─── */
 
 .exam-singularity--queued .exam-singularity__glass-panel {
-  --panel-border: rgba(250, 204, 21, 0.3);
+  --panel-border: rgba(var(--signal-warn-rgb), 0.3);
 }
 
 .exam-singularity--processing .exam-singularity__glass-panel {
-  --panel-border: rgba(234, 88, 12, 0.4);
+  --panel-border: rgba(var(--accent-flare-strong-rgb), 0.4);
 }
 
 /* WIZARD COMPILE SCANNER */
@@ -277,8 +268,8 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: rgba(234, 88, 12, 0.9);
-  box-shadow: 0 0 15px rgba(234, 88, 12, 1), 0 0 30px rgba(234, 88, 12, 0.5);
+  background: rgba(var(--accent-flare-strong-rgb), 0.9);
+  box-shadow: 0 0 15px rgba(var(--accent-flare-strong-rgb), 1), 0 0 30px rgba(var(--accent-flare-strong-rgb), 0.5);
   animation: examWizardScan 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   z-index: 5;
   pointer-events: none;
@@ -294,7 +285,7 @@
 .exam-singularity__scan-line {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(234, 88, 12, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-flare-strong-rgb), 0.1), transparent);
   animation: examScanData 2s linear infinite;
   pointer-events: none;
   z-index: -1;
@@ -307,7 +298,7 @@
 }
 
 .exam-singularity--reviewing .exam-singularity__glass-panel {
-  --panel-border: rgba(56, 189, 248, 0.3);
+  --panel-border: rgba(var(--accent-info-rgb), 0.3);
 }
 
 .exam-singularity--completed .exam-singularity__glass-panel {
@@ -319,7 +310,7 @@
   background: #2a0000;
   box-shadow: 
     0 0 15px #000,
-    0 0 40px rgba(185, 28, 28, 0.9),
+    0 0 40px rgba(var(--accent-danger-deep-rgb), 0.9),
     0 0 80px rgba(100, 0, 0, 0.6);
   animation: examPulseCoreFailed 0.1s infinite alternate;
 }
@@ -330,7 +321,7 @@
 }
 
 .exam-singularity--failed .exam-singularity__glass-panel {
-  --panel-border: rgba(185, 28, 28, 0.5);
+  --panel-border: rgba(var(--accent-danger-deep-rgb), 0.5);
   --panel-bg: rgba(30, 5, 5, 0.7);
 }
 
@@ -352,7 +343,7 @@
   animation: cyber-glitch 1.5s steps(2, end) infinite;
   opacity: 0.85;
   mix-blend-mode: screen;
-  filter: drop-shadow(-2px 0 0 rgba(220, 38, 38, 0.8)); /* Red */
+  filter: drop-shadow(-2px 0 0 rgba(var(--accent-danger-rgb), 0.8)); /* Red */
 }
 
 .exam-singularity--failed .glitch-layer-2 {
@@ -396,7 +387,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
@@ -404,7 +395,7 @@
 }
 
 .exam-singularity__id-label {
-  color: rgba(234, 88, 12, 0.8);
+  color: rgba(var(--accent-flare-strong-rgb), 0.8);
 }
 
 .exam-singularity__title {
@@ -437,24 +428,20 @@
   border-top: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-.exam-singularity__stat-box {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-label {
+/* stat-box: receita flex-column em .stat — label/value locais
+   (escopo renomeado: antes eram classes globais .stat-label/.stat-value). */
+.exam-singularity__stat-label {
   font-size: 10px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.4);
   letter-spacing: 0.5px;
 }
 
-.stat-value {
+.exam-singularity__stat-value {
   font-size: 16px;
   font-weight: 600;
-  color: rgba(250, 204, 21, 0.9);
-  font-family: 'JetBrains Mono', monospace;
+  color: rgba(var(--signal-warn-rgb), 0.9);
+  font-family: var(--font-mono);
 }
 
 /* SIDE BADGE (TRIGGER) */
@@ -467,31 +454,33 @@
   background: linear-gradient(90deg, rgb(30, 5, 5) 0%);
   border: 1px solid transparent;
   border-left: none;
-  border-image: linear-gradient(90deg, rgb(30, 5, 5) 0%, rgba(145, 57, 9, 0.733) 100%) 1;
+  border-image: linear-gradient(90deg, rgb(30, 5, 5) 0%, rgba(145, 57, 9, 0.73) 100%) 1;
   clip-path: polygon(0 0, 100% var(--btn-cut), 100% calc(100% - var(--btn-cut)), 0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  cursor: pointer;
   color: rgba(255, 255, 255, 0.9);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   z-index: 5; /* Below the hole mask, but visually it sticks out */
-  transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
-  box-shadow: inset -2px 0 10px rgba(234, 90, 12, 0.164);
+  transition: all 0.2s var(--ease-snap);
+  box-shadow: inset -2px 0 10px rgba(var(--accent-flare-strong-rgb), 0.16);
   backdrop-filter: blur(4px);
 }
 
 .exam-singularity__badge-icon {
   width: 24px;
   height: 24px;
-  color: rgba(234, 90, 12, 0.849);
-  transition: all 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  color: rgba(var(--accent-flare-strong-rgb), 0.85);
+  transition: all 0.3s var(--ease-snap);
 }
 
 .exam-singularity:hover .exam-singularity__badge-icon {
-  color: rgba(234, 88, 12, 1);
-  filter: drop-shadow(0 0 5px rgba(234, 90, 12, 0.295));
+  color: rgba(var(--accent-flare-strong-rgb), 1);
+  filter: drop-shadow(0 0 5px rgba(var(--accent-flare-strong-rgb), 0.3));
 }
 
 .exam-singularity__badge-icon .gear-ring {
@@ -521,20 +510,26 @@
 
 .exam-singularity__side-badge.is-active .exam-singularity__badge-icon .gear-ring {
   animation-duration: 2s; /* Spins much faster when open */
-  color: #f97316;
+  color: var(--accent-flare-hot);
 }
 
 .exam-singularity__side-badge.is-active .exam-singularity__badge-icon .celestial-flare {
   animation-duration: 0.5s;
   opacity: 1;
 }
+.exam-singularity__side-badge:focus-visible {
+  outline: 2px solid var(--accent-flare);
+  outline-offset: -2px;
+  box-shadow: inset -2px 0 14px rgba(var(--accent-flare-strong-rgb), 0.4);
+}
+
 .exam-singularity:hover .exam-singularity__side-badge,
 .exam-singularity__side-badge.is-active {
   right: -36px;
   width: 36px;
-  background: linear-gradient(90deg, rgb(40, 5, 5) 0%, rgba(234, 90, 12, 0.171) 100%);
+  background: linear-gradient(90deg, rgb(40, 5, 5) 0%, rgba(var(--accent-flare-strong-rgb), 0.17) 100%);
   color: #fff;
-  box-shadow: inset -4px 0 15px rgba(234, 88, 12, 0.6);
+  box-shadow: inset -4px 0 15px rgba(var(--accent-flare-strong-rgb), 0.6);
 }
 
 /* FULL CARD MODAL OPTIONS */
@@ -552,18 +547,19 @@
   align-items: stretch;
   gap: 16px;
   padding: 40px;
-  animation: modalFadeIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
-  border: 1px solid rgba(234, 88, 12, 0.3);
+  animation: exam-singularity-modal-in 0.2s var(--ease-snap);
+  border: 1px solid rgba(var(--accent-flare-strong-rgb), 0.3);
 }
 
-@keyframes modalFadeIn {
+@keyframes exam-singularity-modal-in {
   from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
 }
 
-.modal-title {
+/* Escopo: renomeado de .modal-title global para BEM local. */
+.exam-singularity__modal-title {
   color: rgba(255, 255, 255, 0.5);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 14px;
   letter-spacing: 2px;
   text-align: center;
@@ -571,51 +567,49 @@
   text-transform: uppercase;
 }
 
-.huge-btn {
+/* Escopo: renomeado de .huge-btn/.edit/.delete/.cancel globais para
+   BEM local. clip-path/cursor/position/overflow já vêm de .btn (Button). */
+.exam-singularity__huge-btn {
   width: 100%;
   padding: 24px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 18px;
   font-weight: 700;
   text-transform: uppercase;
   --btn-bg-color: rgba(255, 255, 255, 0.05);
   --btn-border-color: rgba(255, 255, 255, 0.2);
   color: #fff;
-  clip-path: polygon(var(--btn-cut) 0, 100% 0, 100% calc(100% - var(--btn-cut)), calc(100% - var(--btn-cut)) 100%, 0 100%, 0 var(--btn-cut));
-  cursor: pointer;
   transition: all 0.2s;
   letter-spacing: 2px;
-  position: relative;
-  overflow: hidden;
 }
 
-.huge-btn.edit {
-  --btn-bg-color: linear-gradient(135deg, #ea580c, #b91c1c);
+.exam-singularity__huge-btn--edit {
+  --btn-bg-color: linear-gradient(135deg, var(--accent-flare-strong), #b91c1c);
   --btn-border-color: transparent;
   color: #fff;
-  box-shadow: 0 4px 15px rgba(185, 28, 28, 0.4);
+  box-shadow: 0 4px 15px rgba(var(--accent-danger-deep-rgb), 0.4);
 }
 
-.huge-btn.edit:hover {
-  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.6), 0 0 20px rgba(234, 88, 12, 0.5);
-  --btn-border-color: rgba(250, 204, 21, 0.4);
+.exam-singularity__huge-btn--edit:hover {
+  box-shadow: 0 8px 25px rgba(var(--accent-danger-deep-rgb), 0.6), 0 0 20px rgba(var(--accent-flare-strong-rgb), 0.5);
+  --btn-border-color: rgba(var(--signal-warn-rgb), 0.4);
   color: #fff;
 }
 
-.huge-btn.delete {
+.exam-singularity__huge-btn--delete {
   --btn-bg-color: transparent;
   --btn-border-color: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.5);
 }
 
-.huge-btn.delete:hover {
+.exam-singularity__huge-btn--delete:hover {
   --btn-bg-color: rgba(255, 255, 255, 0.05);
   --btn-border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.9);
 }
 
-.huge-btn.cancel {
+.exam-singularity__huge-btn--cancel {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -632,7 +626,7 @@
   font-size: 24px;
 }
 
-.huge-btn.cancel:hover {
+.exam-singularity__huge-btn--cancel:hover {
   color: #fff;
   --btn-bg-color: rgba(255, 255, 255, 0.15);
   --btn-border-color: rgba(255, 255, 255, 0.4);
@@ -644,21 +638,21 @@
   top: -30px;
   height: 30px;
   max-width: 65%;
-  background: rgba(234, 88, 12, 0.95); /* Opacidade altíssima pra leitura */
+  background: rgba(var(--accent-flare-strong-rgb), 0.95); /* Opacidade altíssima pra leitura */
   border: 1px solid rgba(255, 255, 255, 0.4); /* Borda mais clara pra destacar da massa escura */
   border-bottom: none;
   display: flex;
   align-items: center;
   padding: 0 16px;
   color: #fff;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 12px; /* Aumentado 1px para melhorar leitura */
   font-weight: 700;
   z-index: 5;
   box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: opacity 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  transition: opacity 0.3s var(--ease-snap);
   opacity: 0; /* Invisível por padrão (no centro) */
 }
 
@@ -684,4 +678,55 @@
 
 .flip-drawer-node[data-drawer-side="center"] .exam-singularity__folder-tab {
   opacity: 0;
+}
+
+
+/* ─── Status message — renderizado pelo card (antes morava em
+   ExamListPage.css, acoplamento errado). ─── */
+.exam-list__status-msg {
+  margin-top: 16px;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 0;
+  display: inline-block;
+  backdrop-filter: blur(8px);
+  color: #fff;
+  /* Base color, mostly overriden by themes below if needed */
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Let the status themes from the new Singularity card colorize the message */
+.exam-singularity--queued .exam-list__status-msg {
+  background: rgba(var(--signal-warn-rgb), 0.15);
+  color: var(--signal-warn);
+}
+
+.exam-singularity--processing .exam-list__status-msg {
+  background: rgba(var(--accent-flare-strong-rgb), 0.15);
+  color: #fb923c;
+}
+
+.exam-singularity--reviewing .exam-list__status-msg {
+  background: rgba(var(--accent-info-rgb), 0.15);
+  color: #7dd3fc;
+}
+
+.exam-singularity--failed .exam-list__status-msg {
+  background: rgba(var(--accent-danger-deep-rgb), 0.25);
+  color: #fca5a5;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .exam-singularity,
+  .exam-singularity *,
+  .exam-singularity *::before,
+  .exam-singularity *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -123,7 +123,7 @@ export function FuiSelect({ id, value, onChange, options, placeholder, disabled 
       <button
         id={triggerId}
         type="button"
-        className="fui-select__trigger"
+        className="fui-select__trigger input input--terminal"
         onClick={() => !disabled && (isOpen ? closeList() : openList())}
         onKeyDown={handleTriggerKeyDown}
         data-placeholder={!selectedOption}
@@ -141,14 +141,16 @@ export function FuiSelect({ id, value, onChange, options, placeholder, disabled 
 
       {isOpen && !disabled && (
         <div
-          className="fui-select__dropdown"
+          className="fui-select__dropdown glass glass--menu cut"
           ref={listboxRef}
           id={listboxId}
           role="listbox"
           aria-labelledby={triggerId}
         >
           {options.length === 0 ? (
-            <div className="fui-select__option fui-select__option--empty">Nenhum dado disponível</div>
+            <div className="fui-select__option fui-select__option--empty" role="option" aria-disabled="true" aria-selected="false">
+              Nenhum dado disponível
+            </div>
           ) : (
             options.map((option, index) => (
               <div

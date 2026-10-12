@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Button } from '../ui/Button';
 import './OnboardingDialog.css';
 
 interface OnboardingStep {
@@ -112,7 +113,7 @@ export function OnboardingDialog({ open, onClose }: OnboardingDialogProps) {
     <div className="onboarding-backdrop" onClick={onClose}>
       <div
         ref={dialogRef}
-        className="onboarding-dialog"
+        className="onboarding-dialog cut cut--b"
         role="dialog"
         aria-modal="true"
         aria-labelledby="onboarding-step-title"
@@ -120,10 +121,10 @@ export function OnboardingDialog({ open, onClose }: OnboardingDialogProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="onboarding-dialog__header">
-          <span className="onboarding-dialog__sys">
+          <span className="onboarding-dialog__sys kicker">
             Singular<em>://</em>boot_sequence
           </span>
-          <span className="onboarding-dialog__step-tag">{current.tag}</span>
+          <span className="onboarding-dialog__step-tag badge badge--flare">{current.tag}</span>
         </div>
 
         <div className="onboarding-step" key={step}>
@@ -151,16 +152,12 @@ export function OnboardingDialog({ open, onClose }: OnboardingDialogProps) {
           </div>
 
           <div className="onboarding-actions">
-            <button type="button" className="onboarding-btn onboarding-btn--ghost" onClick={onClose}>
+            <Button variant="ghost" className="onboarding-btn" onClick={onClose}>
               Pular
-            </button>
-            <button
-              type="button"
-              className="onboarding-btn onboarding-btn--primary"
-              onClick={handleAdvance}
-            >
+            </Button>
+            <Button variant="primary" className="onboarding-btn" onClick={handleAdvance}>
               {isLast ? 'Começar' : 'Próximo'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

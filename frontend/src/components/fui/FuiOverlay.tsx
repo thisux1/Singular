@@ -1,28 +1,12 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import { useGpuTier } from '../../hooks/useGpuTier';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { setStaticBackground, useStaticBackground } from '../../hooks/useStaticBackground';
 import { FuiWaveform } from './FuiWaveform';
 import './FuiOverlay.css';
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const COARSE_POINTER_QUERY = '(pointer: coarse)';
-
-function useMediaQuery(query: string): boolean {
-  const subscribe = useCallback(
-    (onStoreChange: () => void) => {
-      const mql = window.matchMedia(query);
-      mql.addEventListener('change', onStoreChange);
-      return () => mql.removeEventListener('change', onStoreChange);
-    },
-    [query],
-  );
-
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(query).matches,
-    () => false,
-  );
-}
 
 // Indicador passivo — label + dot, sem affordance de clique.
 // Escondido de leitores de tela: o texto é jargão decorativo sem valor de status real.
@@ -106,9 +90,6 @@ export function FuiOverlay() {
   // real e focusável. Cada ramo decorativo é escondido individualmente.
   return (
     <div className={`fui-overlay${motionEnabled ? '' : ' fui-overlay--reduced'}`}>
-      {/* Decorative Grid Lines */}
-      <div className="fui-grid-lines" aria-hidden="true" />
-
       {/* Top Left Status */}
       <div className="fui-hud-element fui-hud--top-left" aria-hidden="true">
         <span className="fui-text-highlight">SYS.OP.MODE // NOMINAL</span>
@@ -149,7 +130,7 @@ export function FuiOverlay() {
       {/* Bottom Right: Spectral Waveform */}
       <div className="fui-hud-element fui-hud--bottom-right" aria-hidden="true">
         <div className="fui-spectral-container">
-          <span className="fui-text-dim" style={{ fontSize: '10px', letterSpacing: '2px' }}>FLUX_CAPACITY</span>
+          <span className="fui-text-dim">FLUX_CAPACITY</span>
           <FuiWaveform animated={motionEnabled} />
         </div>
       </div>

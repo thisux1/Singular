@@ -9,13 +9,8 @@
   opacity: 0.8;
 }
 
-.fui-waveform-header, .fui-waveform-footer {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 2px;
-  opacity: 0.8;
-}
-
+/* .fui-waveform-header/.fui-waveform-footer removidos — regras sem
+   markup correspondente no componente. */
 .fui-waveform-visualizer {
   position: relative;
   width: 100%;
@@ -74,7 +69,7 @@
 .fui-wave-burst__ring--inner {
   inset: 20px;
   border: 2px dashed rgba(var(--accent-flare-rgb), 0.5);
-  animation: spin-slow 15s linear infinite;
+  animation: fui-spin-slow 15s linear infinite;
 }
 
 .fui-wave-burst__particles {
@@ -90,7 +85,7 @@
     radial-gradient(circle at 10% 40%, var(--accent-flare) 1.5px, transparent 2px),
     radial-gradient(circle at 90% 20%, var(--accent-flare) 1px, transparent 1.5px);
   background-size: 100% 100%;
-  animation: spin-slow-reverse 20s linear infinite;
+  animation: fui-spin-slow-reverse 20s linear infinite;
   opacity: 0.8;
   filter: drop-shadow(0 0 3px var(--accent-flare));
 }
@@ -132,3 +127,6 @@
     transition: none !important;
   }
 }
+
+@keyframes fui-spin-slow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes fui-spin-slow-reverse { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }

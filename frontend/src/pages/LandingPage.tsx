@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../api/auth';
+import { ButtonLink } from '../components/ui/ButtonLink';
 import './LandingPage.css';
 
 const GITHUB_URL = 'https://github.com/thisux1/singular';
@@ -143,7 +144,7 @@ export function LandingPage() {
   return (
     <div className="landing">
       {/* ─── Top bar público ─── */}
-      <header className="landing__topbar">
+      <header className="landing__topbar glass glass--bar">
         <div className="landing__topbar-inner page-container">
           <Link className="landing__wordmark" to="/" aria-label="Singular — página inicial">
             <span className="landing__wordmark-icon" aria-hidden="true">⌘</span>
@@ -151,17 +152,17 @@ export function LandingPage() {
           </Link>
           <nav className="landing__topnav" aria-label="Navegação de entrada">
             {canEnter ? (
-              <Link className="landing__cta landing__cta--primary" to="/app">
+              <ButtonLink className="landing__cta" to="/app">
                 Abrir o app
-              </Link>
+              </ButtonLink>
             ) : (
               <>
-                <Link className="landing__cta landing__cta--ghost" to="/login">
+                <ButtonLink className="landing__cta" variant="ghost" to="/login">
                   Entrar
-                </Link>
-                <Link className="landing__cta landing__cta--primary" to="/signup">
+                </ButtonLink>
+                <ButtonLink className="landing__cta" to="/signup">
                   Criar conta
-                </Link>
+                </ButtonLink>
               </>
             )}
           </nav>
@@ -171,7 +172,7 @@ export function LandingPage() {
       <main>
         {/* ─── Hero ─── */}
         <section className="landing__hero page-container" aria-labelledby="landing-hero-title">
-          <p className="landing__kicker">provas → questões → simulados</p>
+          <p className="landing__kicker kicker kicker--accent">provas → questões → simulados</p>
           <h1 className="landing__hero-title" id="landing-hero-title">
             Sua máquina de <span className="landing__hero-accent">simulados</span>
           </h1>
@@ -181,17 +182,17 @@ export function LandingPage() {
           </p>
           <div className="landing__hero-actions">
             {canEnter ? (
-              <Link className="landing__cta landing__cta--primary landing__cta--lg" to="/app">
+              <ButtonLink className="landing__cta landing__cta--lg" to="/app">
                 Abrir o app
-              </Link>
+              </ButtonLink>
             ) : (
-              <Link className="landing__cta landing__cta--primary landing__cta--lg" to="/signup">
+              <ButtonLink className="landing__cta landing__cta--lg" to="/signup">
                 Criar conta grátis
-              </Link>
+              </ButtonLink>
             )}
-            <a className="landing__cta landing__cta--ghost landing__cta--lg" href="#como-funciona">
+            <ButtonLink className="landing__cta landing__cta--lg" variant="ghost" href="#como-funciona">
               Como funciona
-            </a>
+            </ButtonLink>
           </div>
         </section>
 
@@ -202,13 +203,13 @@ export function LandingPage() {
           aria-labelledby="landing-steps-title"
         >
           <header className="landing__section-head">
-            <p className="landing__kicker">pipeline</p>
+            <p className="landing__kicker kicker kicker--accent">pipeline</p>
             <h2 className="landing__section-title" id="landing-steps-title">Como funciona</h2>
           </header>
           <ol className="landing__steps">
             {STEPS.map((step) => (
-              <li className="landing__step" key={step.num}>
-                <span className="landing__step-num" aria-hidden="true">{step.num}</span>
+              <li className="landing__step glass glass--dense corners" key={step.num}>
+                <span className="landing__step-num kicker" aria-hidden="true">{step.num}</span>
                 <span className="landing__step-icon" aria-hidden="true">{step.icon}</span>
                 <h3 className="landing__step-title">{step.title}</h3>
                 <p className="landing__step-text">{step.text}</p>
@@ -220,14 +221,14 @@ export function LandingPage() {
         {/* ─── Features ─── */}
         <section className="landing__section page-container" aria-labelledby="landing-features-title">
           <header className="landing__section-head">
-            <p className="landing__kicker">sistema</p>
+            <p className="landing__kicker kicker kicker--accent">sistema</p>
             <h2 className="landing__section-title" id="landing-features-title">
               Feito para estudar de verdade
             </h2>
           </header>
           <ul className="landing__features">
             {FEATURES.map((feature) => (
-              <li className="landing__feature" key={feature.title}>
+              <li className="landing__feature glass glass--dense" key={feature.title}>
                 <span className="landing__feature-icon" aria-hidden="true">{feature.icon}</span>
                 <h3 className="landing__feature-title">{feature.title}</h3>
                 <p className="landing__feature-text">{feature.text}</p>
@@ -238,9 +239,9 @@ export function LandingPage() {
 
         {/* ─── Self-host ─── */}
         <section className="landing__section page-container" aria-labelledby="landing-selfhost-title">
-          <div className="landing__selfhost">
+          <div className="landing__selfhost glass glass--dense">
             <div className="landing__selfhost-copy">
-              <p className="landing__kicker">open-source</p>
+              <p className="landing__kicker kicker kicker--accent">open-source</p>
               <h2 className="landing__section-title" id="landing-selfhost-title">
                 Self-host com um comando
               </h2>
@@ -248,16 +249,17 @@ export function LandingPage() {
                 Código aberto, dados na sua máquina. Suba o stack completo — API,
                 worker e frontend — com Docker.
               </p>
-              <a
-                className="landing__cta landing__cta--ghost"
+              <ButtonLink
+                className="landing__cta"
+                variant="ghost"
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 GitHub ↗
-              </a>
+              </ButtonLink>
             </div>
-            <pre className="landing__selfhost-terminal" aria-label="Comando de instalação">
+            <pre className="landing__selfhost-terminal term-log" aria-label="Comando de instalação">
               <code>
                 <span className="landing__term-prompt">$ </span>
                 git clone {GITHUB_URL}.git{'\n'}
@@ -273,7 +275,7 @@ export function LandingPage() {
       <footer className="landing__footer">
         <div className="landing__footer-inner page-container">
           <span className="landing__footer-mark">Singular</span>
-          <span className="landing__footer-note">estude na borda do horizonte de eventos</span>
+          <span className="landing__footer-note kicker">estude na borda do horizonte de eventos</span>
         </div>
       </footer>
     </div>

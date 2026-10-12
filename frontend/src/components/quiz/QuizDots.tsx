@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { usePrefersReducedMotion } from '../../hooks/useMediaQuery';
 import './QuizDots.css';
 
 export type QuizDotState = 'pending' | 'current' | 'correct' | 'wrong' | 'annulled' | 'answered';
@@ -60,11 +61,16 @@ export function QuizDots({ total, currentIndex, getState, onNavigate, keyboardEn
   }, [keyboardEnabled, currentIndex, total, onNavigate]);
 
   // Mantém o dot atual visível no scroll container (mobile).
+  const reducedMotion = usePrefersReducedMotion();
   useEffect(() => {
     const container = scrollRef.current;
     const active = container?.querySelector<HTMLElement>('.quiz-dots__dot--current');
-    active?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  }, [currentIndex]);
+    active?.scrollIntoView({
+      behavior: reducedMotion ? 'auto' : 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    });
+  }, [currentIndex, reducedMotion]);
 
   return (
     <div className="quiz-dots" ref={scrollRef} role="tablist" aria-label="Navegação de fragmentos">
@@ -77,7 +83,7 @@ export function QuizDots({ total, currentIndex, getState, onNavigate, keyboardEn
             role="tab"
             aria-selected={index === currentIndex}
             aria-label={`Fragmento ${index + 1} — ${state}`}
-            className={`quiz-dots__dot quiz-dots__dot--${state}`}
+            className={`quiz-dots__dot quiz-dots__dot--${state} icon-btn cut`}
             onClick={() => onNavigate(index)}
           >
             {index + 1}

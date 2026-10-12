@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { ApiError } from '../api/client';
 import { deleteExam, fetchCargoTemplates, fetchExams, uploadExam, type Exam } from '../api/exams';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
 import { Card } from '../components/ui/Card';
 import { Skeleton } from '../components/ui/Skeleton';
 import { toast } from '../components/ui/ToastUtils';
@@ -12,6 +13,7 @@ import { FlipDrawerGallery } from '../components/effects/FlipDrawerGallery';
 import { AnimatedFileIcon } from '../components/ui/AnimatedIcons';
 import { FuiSelect } from '../components/ui/FuiSelect';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
 import './ExamListPage.css';
 
 
@@ -37,6 +39,8 @@ export function ExamListPage() {
   const gabaritoFileInputRef = useRef<HTMLInputElement>(null);
 
   const [provaFile, setProvaFile] = useState<File | null>(null);
+  const [examPendingDelete, setExamPendingDelete] = useState<Exam | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
   const [gabaritoFile, setGabaritoFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [edital, setEdital] = useState('');
@@ -222,7 +226,7 @@ export function ExamListPage() {
   const renderLogs = (className: string) => (
     <div className={`exam-list__live-logs ${className}`}>
       <div className="live-logs-header">TERMINAL LOG OUTPUT</div>
-      <div className="live-logs-body">
+      <div className="live-logs-body scanlines">
         {logs.map((log, index) => (
           <div key={index} className="log-line">{log}</div>
         ))}
@@ -231,10 +235,24 @@ export function ExamListPage() {
     </div>
   );
 
+  const wizardStepMotion = reducedMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.15 },
+      }
+    : {
+        initial: { opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' },
+        animate: { opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' },
+        exit: { opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' },
+        transition: { duration: 0.3 },
+      };
+
   return (
-    <section className="exam-list page page-container">
+    <section className="exam-list page page-container page--padded">
       <div className="exam-list__hero">
-        <h1 className="exam-list__hero-title">Terminal de Provas</h1>
+        <h1 className="page-title exam-list__hero-title">Terminal de Provas</h1>
         <p className="exam-list__hero-subtitle">
           Condense o espaço-tempo de seus estudos. Envie provas e gabaritos para extrair conhecimento absoluto através da singularidade.
         </p>
@@ -244,7 +262,7 @@ export function ExamListPage() {
 
       <div className="exam-list__dual-terminal">
         {/* WIZARD LEFT SIDE */}
-        <div className="exam-list__wizard">
+        <div className="terminal exam-list__wizard">
           <div className="exam-list__wizard-header">
             <div className="exam-list__led-indicator">
               <div className="led-track">
@@ -268,17 +286,14 @@ export function ExamListPage() {
                 {step === 1 && (
                   <motion.div
                     key="step1"
-                    initial={{ opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' }}
-                    exit={{ opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' }}
-                    transition={{ duration: 0.3 }}
+                    {...wizardStepMotion}
                     style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
                   >
                     <div className={`exam-list__field exam-list__field--file ${provaFile ? 'is-active' : ''}`}>
-                      <label className="exam-list__label" htmlFor="exam-upload-file">
+                      <label className="field-label exam-list__label" htmlFor="exam-upload-file">
                         Arquivo Base (Obrigatório)
                       </label>
-                      <div className="exam-list__file-box" onClick={() => provaFileInputRef.current?.click()}>
+                      <label className="exam-list__file-box">
                         <div className={`led ${provaFile ? 'led--active' : ''}`} />
                         <AnimatedFileIcon selected={!!provaFile} type="base" />
                         <span className="exam-list__file-name">{selectedProvaLabel}</span>
@@ -290,14 +305,14 @@ export function ExamListPage() {
                           accept={acceptTypes}
                           onChange={onChangeProvaFile}
                         />
-                      </div>
+                      </label>
                     </div>
 
                     <div className={`exam-list__field exam-list__field--file ${gabaritoFile ? 'is-active' : ''}`}>
-                      <label className="exam-list__label" htmlFor="exam-upload-gabarito">
+                      <label className="field-label exam-list__label" htmlFor="exam-upload-gabarito">
                         Gabarito Oficial (Opcional)
                       </label>
-                      <div className="exam-list__file-box" onClick={() => gabaritoFileInputRef.current?.click()}>
+                      <label className="exam-list__file-box">
                         <div className={`led ${gabaritoFile ? 'led--active' : ''}`} />
                         <AnimatedFileIcon selected={!!gabaritoFile} type="check" />
                         <span className="exam-list__file-name">{selectedGabaritoLabel}</span>
@@ -309,7 +324,7 @@ export function ExamListPage() {
                           accept={acceptTypes}
                           onChange={onChangeGabaritoFile}
                         />
-                      </div>
+                      </label>
                     </div>
                   </motion.div>
                 )}
@@ -318,17 +333,14 @@ export function ExamListPage() {
                 {step === 2 && (
                   <motion.div
                     key="step2"
-                    initial={{ opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' }}
-                    exit={{ opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' }}
-                    transition={{ duration: 0.3 }}
+                    {...wizardStepMotion}
                     style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
                   >
                   <div className="exam-list__field">
-                    <label className="exam-list__label" htmlFor="exam-title">Identificação / Título</label>
+                    <label className="field-label exam-list__label" htmlFor="exam-title">Identificação / Título</label>
                     <input
                       id="exam-title"
-                      className="exam-list__input"
+                      className="input input--terminal exam-list__input"
                       type="text"
                       value={title}
                       onChange={(event) => setTitle(event.target.value)}
@@ -337,10 +349,10 @@ export function ExamListPage() {
                   </div>
 
                   <div className="exam-list__field">
-                    <label className="exam-list__label" htmlFor="exam-edital">Referência do Edital</label>
+                    <label className="field-label exam-list__label" htmlFor="exam-edital">Referência do Edital</label>
                     <input
                       id="exam-edital"
-                      className="exam-list__input"
+                      className="input input--terminal exam-list__input"
                       type="text"
                       value={edital}
                       onChange={(event) => setEdital(event.target.value)}
@@ -349,10 +361,10 @@ export function ExamListPage() {
                   </div>
 
                   <div className="exam-list__field">
-                    <label className="exam-list__label" htmlFor="exam-date">Data Temporal da Prova</label>
+                    <label className="field-label exam-list__label" htmlFor="exam-date">Data Temporal da Prova</label>
                     <input
                       id="exam-date"
-                      className="exam-list__input"
+                      className="input input--terminal exam-list__input"
                       type="text"
                       value={examDate}
                       onChange={handleDateChange}
@@ -367,17 +379,14 @@ export function ExamListPage() {
                 {step === 3 && (
                   <motion.div
                     key="step3"
-                    initial={{ opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' }}
-                    exit={{ opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' }}
-                    transition={{ duration: 0.3 }}
+                    {...wizardStepMotion}
                     style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
                   >
                   <div className="exam-list__field">
-                    <label className="exam-list__label" htmlFor="exam-prova-type">Arquétipo / Tipo</label>
+                    <label className="field-label exam-list__label" htmlFor="exam-prova-type">Arquétipo / Tipo</label>
                     <input
                       id="exam-prova-type"
-                      className="exam-list__input"
+                      className="input input--terminal exam-list__input"
                       type="text"
                       value={provaType}
                       onChange={(event) => setProvaType(event.target.value)}
@@ -386,7 +395,7 @@ export function ExamListPage() {
                   </div>
 
                   <div className="exam-list__field">
-                    <label className="exam-list__label" htmlFor="exam-cargo-template">Mapeamento de Cargo</label>
+                    <label className="field-label exam-list__label" htmlFor="exam-cargo-template">Mapeamento de Cargo</label>
                     <FuiSelect
                       id="exam-cargo-template"
                       value={cargoTemplateId}
@@ -409,10 +418,10 @@ export function ExamListPage() {
                   </div>
 
                   <div className="exam-list__field">
-                    <label className="exam-list__label" htmlFor="exam-page-start">Limitar Extração (Início)</label>
+                    <label className="field-label exam-list__label" htmlFor="exam-page-start">Limitar Extração (Início)</label>
                     <input
                       id="exam-page-start"
-                      className="exam-list__input"
+                      className="input input--terminal exam-list__input"
                       type="number"
                       min={1}
                       step={1}
@@ -424,10 +433,10 @@ export function ExamListPage() {
                   </div>
 
                   <div className="exam-list__field">
-                    <label className="exam-list__label" htmlFor="exam-page-end">Limitar Extração (Fim)</label>
+                    <label className="field-label exam-list__label" htmlFor="exam-page-end">Limitar Extração (Fim)</label>
                     <input
                       id="exam-page-end"
-                      className="exam-list__input"
+                      className="input input--terminal exam-list__input"
                       type="number"
                       min={1}
                       step={1}
@@ -476,14 +485,14 @@ export function ExamListPage() {
             {Array.from({ length: 3 }, (_, index) => (
               <Card key={index} className="exam-list__card exam-list__card--loading">
                 <Skeleton height="28px" width="50%" />
-                <Skeleton className="exam-list__skeleton-gap" height="16px" width="30%" />
+                <Skeleton className="skeleton-gap exam-list__skeleton-gap" height="16px" width="30%" />
               </Card>
             ))}
           </div>
         )}
 
         {examsQuery.isError && (
-          <div className="exam-list__premium-card exam-list__premium-card--error">
+          <div className="callout callout--err exam-list__premium-card exam-list__premium-card--error">
             <p>Ruptura de rede ao carregar os dados. A conexão falhou.</p>
             <Button variant="ghost" onClick={() => void examsQuery.refetch()}>
               Tentar reconexão
@@ -492,7 +501,7 @@ export function ExamListPage() {
         )}
 
         {examsQuery.data && examsQuery.data.length === 0 && (
-          <div className="exam-list__empty-state">
+          <div className="cut empty empty--boxed exam-list__empty-state">
             <div className="exam-list__empty-icon">∅</div>
             <p>O vazio. Nenhuma prova encontrada. Inicie enviando os dados acima.</p>
           </div>
@@ -509,15 +518,33 @@ export function ExamListPage() {
                 navigate(`/app/exam/${exam.id}`);
               }
             }}
-            onExamDelete={(exam) => {
-              const confirmed = window.confirm(`Deseja realmente dissipar os dados da prova "${exam.title}"?`);
-              if (confirmed) {
-                deleteMutation.mutate(exam.id);
-              }
-            }}
+            onExamDelete={setExamPendingDelete}
           />
         )}
       </div>
+
+      <Modal
+        open={examPendingDelete !== null}
+        onClose={() => setExamPendingDelete(null)}
+        title="Dissipar prova"
+        description={`Deseja realmente dissipar os dados da prova "${examPendingDelete?.title ?? ''}"? Esta ação é irreversível.`}
+      >
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+          <Button variant="ghost" onClick={() => setExamPendingDelete(null)}>
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            loading={deleteMutation.isPending}
+            onClick={() => {
+              if (examPendingDelete) deleteMutation.mutate(examPendingDelete.id);
+              setExamPendingDelete(null);
+            }}
+          >
+            Dissipar
+          </Button>
+        </div>
+      </Modal>
     </section>
   );
 }
