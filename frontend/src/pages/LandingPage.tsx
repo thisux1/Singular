@@ -208,7 +208,7 @@ export function LandingPage() {
           </header>
           <ol className="landing__steps">
             {STEPS.map((step) => (
-              <li className="landing__step glass glass--dense corners" key={step.num}>
+              <li className="terminal terminal--cut-b landing__step" key={step.num}>
                 <span className="landing__step-num kicker" aria-hidden="true">{step.num}</span>
                 <span className="landing__step-icon" aria-hidden="true">{step.icon}</span>
                 <h3 className="landing__step-title">{step.title}</h3>
@@ -228,7 +228,7 @@ export function LandingPage() {
           </header>
           <ul className="landing__features">
             {FEATURES.map((feature) => (
-              <li className="landing__feature glass glass--dense" key={feature.title}>
+              <li className="terminal terminal--cut-b landing__feature" key={feature.title}>
                 <span className="landing__feature-icon" aria-hidden="true">{feature.icon}</span>
                 <h3 className="landing__feature-title">{feature.title}</h3>
                 <p className="landing__feature-text">{feature.text}</p>
@@ -239,7 +239,8 @@ export function LandingPage() {
 
         {/* ─── Self-host ─── */}
         <section className="landing__section page-container" aria-labelledby="landing-selfhost-title">
-          <div className="landing__selfhost glass glass--dense">
+          <div className="terminal terminal--cut-b landing__selfhost">
+            <div className="landing__selfhost-flare" aria-hidden="true" />
             <div className="landing__selfhost-copy">
               <p className="landing__kicker kicker kicker--accent">open-source</p>
               <h2 className="landing__section-title" id="landing-selfhost-title">
