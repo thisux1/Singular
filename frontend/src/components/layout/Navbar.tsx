@@ -1,8 +1,38 @@
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router';
 import { authClient, useAuth } from '../../api/auth';
+import { fetchStatsSummary } from '../../api/stats';
 import { Skeleton } from '../ui/Skeleton';
 import './Navbar.css';
+
+// Chip discreto de progressão (LV + streak). Some silenciosamente se a
+// API de stats falhar — gamificação nunca pode quebrar a navegação.
+function StatsChip() {
+  const summaryQuery = useQuery({
+    queryKey: ['stats-summary'],
+    queryFn: fetchStatsSummary,
+    staleTime: 60_000,
+    retry: false,
+  });
+
+  const summary = summaryQuery.data;
+  if (!summary) {
+    return null;
+  }
+
+  return (
+    <span
+      className="navbar__stats-chip"
+      title={`${summary.xp} XP · ${summary.totalSessions} sessões · ${Math.round(summary.accuracyPct)}% de precisão`}
+    >
+      <span className="navbar__stats-level">LV {summary.level}</span>
+      {summary.streakDays > 0 ? (
+        <span className="navbar__stats-streak">STREAK {summary.streakDays}D</span>
+      ) : null}
+    </span>
+  );
+}
 
 function initialsOf(name: string | null | undefined, email: string | null | undefined): string {
   const source = (name ?? email ?? '').trim();
@@ -92,11 +122,18 @@ export function Navbar() {
         </Link>
 
         <nav className="navbar__nav" aria-label="Navegação principal">
+          <StatsChip />
           <NavLink
             className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}
             to="/"
           >
             Terminal
+          </NavLink>
+          <NavLink
+            className={({ isActive }) => `navbar__link ${isActive ? 'navbar__link--active' : ''}`}
+            to="/banco"
+          >
+            Banco
           </NavLink>
 
           {authDisabled ? (

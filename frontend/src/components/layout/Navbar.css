@@ -116,6 +116,30 @@
   box-shadow: 0 -2px 10px rgba(250, 204, 21, 0.5);
 }
 
+/* ─── Stats chip (gamificação leve) ─── */
+.navbar__stats-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px;
+  border: 1px solid var(--border-ghost-hover);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.navbar__stats-level {
+  color: #facc15;
+}
+
+.navbar__stats-streak {
+  color: #f97316;
+}
+
 /* ─── User section (auth) ─── */
 .navbar__dev-badge {
   font-family: var(--font-mono);

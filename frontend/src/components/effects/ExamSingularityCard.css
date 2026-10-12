@@ -457,30 +457,6 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-.cyber-glitch-text {
-  color: rgba(56, 189, 248, 0.8);
-  position: relative;
-  display: inline-block;
-}
-.cyber-glitch-text::before {
-  content: "TBD";
-  position: absolute;
-  left: 1px;
-  text-shadow: -1px 0 red;
-  background: transparent;
-  overflow: hidden;
-  clip: rect(0, 900px, 0, 0); 
-  animation: noise-anim-2 3s infinite linear alternate-reverse;
-}
-@keyframes noise-anim-2 {
-  0% { clip: rect(2px, 9999px, 8px, 0); }
-  20% { clip: rect(10px, 9999px, 3px, 0); }
-  40% { clip: rect(5px, 9999px, 9px, 0); }
-  60% { clip: rect(8px, 9999px, 2px, 0); }
-  80% { clip: rect(1px, 9999px, 6px, 0); }
-  100% { clip: rect(7px, 9999px, 4px, 0); }
-}
-
 /* SIDE BADGE (TRIGGER) */
 .exam-singularity__side-badge {
   position: absolute;

@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { getApiErrorCode } from '../api/client';
+import type { BankQuestion } from '../api/bank';
 import { fetchExamQuestions, type Question } from '../api/exams';
 import { finishQuiz, submitAnswer } from '../api/quiz';
 import { PageViewerModal } from '../components/pdf/PageViewerModal';
@@ -14,10 +15,33 @@ import { toast } from '../components/ui/ToastUtils';
 import {
   clearExamSession,
   getExamBySessionId,
+  getSessionBankQuestions,
   getSessionByExamId,
   getSessionQuestionIds,
 } from './quizSessionStorage';
 import './QuizPlayerPage.css';
+
+/** BankQuestion (GET /bank/questions) → Question do player. */
+function toPlayerQuestion(question: BankQuestion, index: number): Question {
+  return {
+    id: question.id,
+    // examId real da prova de origem (não o exame sintético kind='bank') —
+    // é o que o PageViewerModal precisa para abrir o PDF correto.
+    examId: question.examId,
+    order: index + 1,
+    questionText: question.questionText,
+    options: question.options,
+    sourcePage: question.sourcePage ?? null,
+    difficulty: question.difficulty,
+    subject: question.subject,
+    topic: question.topic,
+    correctAnswer: question.correctAnswer ?? null,
+    contextText: question.contextText ?? null,
+    annulled: question.annulled,
+    requiresPdf: question.hasImage,
+    hasImage: question.hasImage,
+  };
+}
 
 /** Estado local de uma questão já submetida — feedback fica congelado. */
 type AnsweredState = {
@@ -46,16 +70,48 @@ export function QuizPlayerPage() {
    *  Inicializado no effect abaixo (performance.now é impuro em render). */
   const shownAtRef = useRef<number>(0);
 
+  // Sessões mode='bank' são ancoradas num exame sintético sem questões
+  // próprias — GET /exams/:id/questions retorna 422. O payload completo foi
+  // persistido no start (quizSessionStorage); aqui ele é a fonte primária,
+  // já ordenado pelo snapshot.
+  const bankQuestions = useMemo<Question[] | null>(() => {
+    if (!sessionId) {
+      return null;
+    }
+
+    const stored = getSessionBankQuestions(sessionId);
+    if (!stored || stored.length === 0) {
+      return null;
+    }
+
+    const snapshot = getSessionQuestionIds(sessionId);
+    const orderIds = snapshot && snapshot.length > 0 ? snapshot : stored.map((q) => q.id);
+    const byId = new Map(stored.map((q) => [q.id, q]));
+
+    const ordered = orderIds
+      .map((id, index) => {
+        const question = byId.get(id);
+        return question ? toPlayerQuestion(question, index) : null;
+      })
+      .filter((question): question is Question => Boolean(question));
+
+    return ordered.length > 0 ? ordered : null;
+  }, [sessionId]);
+
   const questionsQuery = useQuery({
     queryKey: ['quiz-player-questions', examId],
     queryFn: () => fetchExamQuestions(examId),
-    enabled: Boolean(examId),
+    enabled: Boolean(examId) && !bankQuestions,
     retry: false,
   });
 
   // Conjunto da sessão: snapshot de questionIds salvo no start. Sem snapshot
   // (sessão de outro device), cai no conjunto completo da prova.
   const questions = useMemo(() => {
+    if (bankQuestions) {
+      return bankQuestions;
+    }
+
     const all = questionsQuery.data ?? [];
     if (!sessionId) {
       return all;
@@ -72,7 +128,7 @@ export function QuizPlayerPage() {
       .filter((question): question is Question => Boolean(question));
 
     return ordered.length > 0 ? ordered : all;
-  }, [questionsQuery.data, sessionId]);
+  }, [bankQuestions, questionsQuery.data, sessionId]);
 
   const goTo = useCallback(
     (index: number) => {
@@ -220,7 +276,7 @@ export function QuizPlayerPage() {
     );
   }
 
-  if (questionsQuery.isLoading) {
+  if (!bankQuestions && questionsQuery.isLoading) {
     return (
       <section className="quiz-player page page-container">
         <div className="quiz-player__terminal">
@@ -235,7 +291,11 @@ export function QuizPlayerPage() {
     );
   }
 
-  if (questionsQuery.isError || !questionsQuery.data || questions.length === 0 || !current) {
+  if (
+    questions.length === 0 ||
+    !current ||
+    (!bankQuestions && (questionsQuery.isError || !questionsQuery.data))
+  ) {
     return (
       <section className="quiz-player page page-container">
         <div className="quiz-player__terminal quiz-player__terminal--error">
@@ -428,7 +488,7 @@ export function QuizPlayerPage() {
         <PageViewerModal
           open={pdfOpen}
           onClose={() => setPdfOpen(false)}
-          examId={examId}
+          examId={current.examId}
           page={current.sourcePage ?? 1}
         />
       ) : null}
@@ -443,7 +503,10 @@ export function QuizPlayerPage() {
           <Button variant="ghost" onClick={() => setExitModalOpen(false)}>
             Continuar na simulação
           </Button>
-          <Button variant="danger" onClick={() => navigate(`/exam/${examId}`)}>
+          <Button
+            variant="danger"
+            onClick={() => navigate(bankQuestions ? '/banco' : `/exam/${examId}`)}
+          >
             Sair
           </Button>
         </div>

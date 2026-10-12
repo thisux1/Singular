@@ -26,6 +26,9 @@ const QuizPlayerPage = lazy(() =>
 const QuizResultPage = lazy(() =>
   import('./pages/QuizResultPage').then((module) => ({ default: module.QuizResultPage })),
 );
+const BankPage = lazy(() =>
+  import('./pages/BankPage').then((module) => ({ default: module.BankPage })),
+);
 
 const queryClient = new QueryClient();
 
@@ -114,6 +117,14 @@ export default function App() {
                 element={
                   <Suspense fallback={<PageFallback />}>
                     <QuizSetupPage />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/banco"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <BankPage />
                   </Suspense>
                 }
               />

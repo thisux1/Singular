@@ -70,6 +70,10 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
   const statusClass = `exam-singularity--${exam.status}`;
   const statusDisplay = getStatusDisplay(exam.status);
 
+  // Score máximo real (stats da API). Campo ausente/nulo → '—'.
+  const bestScore = exam.stats?.bestScore;
+  const bestScoreDisplay = typeof bestScore === 'number' ? `${Math.round(bestScore)}%` : '—';
+
   const formattedDate = exam.examDate 
     ? new Date(exam.examDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) 
     : 'Data Desconhecida';
@@ -92,7 +96,7 @@ export function ExamSingularityCard({ exam, onClick, onEdit, onDelete, step }: E
         </div>
         <div className="exam-singularity__stat-box">
           <span className="stat-label">Score Máx</span>
-          <span className="stat-value cyber-glitch-text">TBD</span>
+          <span className="stat-value">{bestScoreDisplay}</span>
         </div>
       </div>
 

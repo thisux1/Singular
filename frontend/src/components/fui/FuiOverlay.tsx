@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { useGpuTier } from '../../hooks/useGpuTier';
+import { setStaticBackground, useStaticBackground } from '../../hooks/useStaticBackground';
 import { FuiWaveform } from './FuiWaveform';
 import './FuiOverlay.css';
 
@@ -23,9 +24,11 @@ function useMediaQuery(query: string): boolean {
   );
 }
 
-function FuiStatusToggle({ label, active }: { label: string; active?: boolean }) {
+// Indicador passivo — label + dot, sem affordance de clique.
+// Escondido de leitores de tela: o texto é jargão decorativo sem valor de status real.
+function FuiStatusIndicator({ label, active }: { label: string; active?: boolean }) {
   return (
-    <div className={`fui-toggle ${active ? 'fui-toggle--active' : ''}`}>
+    <div className={`fui-toggle ${active ? 'fui-toggle--active' : ''}`} aria-hidden="true">
       <span className="fui-toggle__light" />
       <span className="fui-toggle__label">{label}</span>
     </div>
@@ -60,7 +63,7 @@ const PARTICLES = Array.from({ length: 30 }, () => {
 
 function FuiDataParticles() {
   return (
-    <div className="fui-particles-layer">
+    <div className="fui-particles-layer" aria-hidden="true">
       {PARTICLES.map((particle, i) => (
         <div
           key={i}
@@ -81,6 +84,7 @@ export function FuiOverlay() {
   const gpuTier = useGpuTier();
   const prefersReducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
   const coarsePointer = useMediaQuery(COARSE_POINTER_QUERY);
+  const bgStatic = useStaticBackground();
 
   // Overlays decorativos animados só rodam em GPU saudável,
   // sem preferência de movimento reduzido e com ponteiro preciso.
@@ -98,21 +102,20 @@ export function FuiOverlay() {
     return () => clearInterval(interval);
   }, [motionEnabled]);
 
+  // O overlay não pode ter aria-hidden global: o MANUAL_OVRD é um botão
+  // real e focusável. Cada ramo decorativo é escondido individualmente.
   return (
-    <div
-      className={`fui-overlay${motionEnabled ? '' : ' fui-overlay--reduced'}`}
-      aria-hidden="true"
-    >
+    <div className={`fui-overlay${motionEnabled ? '' : ' fui-overlay--reduced'}`}>
       {/* Decorative Grid Lines */}
-      <div className="fui-grid-lines" />
+      <div className="fui-grid-lines" aria-hidden="true" />
 
       {/* Top Left Status */}
-      <div className="fui-hud-element fui-hud--top-left">
+      <div className="fui-hud-element fui-hud--top-left" aria-hidden="true">
         <span className="fui-text-highlight">SYS.OP.MODE // NOMINAL</span>
       </div>
 
       {/* Top Right Status & Radar */}
-      <div className="fui-hud-element fui-hud--top-right">
+      <div className="fui-hud-element fui-hud--top-right" aria-hidden="true">
         <span className="fui-text-dim">{timeStr}</span>
         <FuiRadar />
       </div>
@@ -120,17 +123,31 @@ export function FuiOverlay() {
       {/* Background Particles — apenas com motion habilitado */}
       {motionEnabled && <FuiDataParticles />}
 
-      {/* Bottom Left: Toggles & Status */}
+      {/* Bottom Left: indicadores passivos + override real do background */}
       <div className="fui-hud-element fui-hud--bottom-left">
         <div className="fui-toggles">
-          <FuiStatusToggle label="DATA_STREAM" active />
-          <FuiStatusToggle label="NEURAL_LINK" active />
-          <FuiStatusToggle label="MANUAL_OVRD" active={false} />
+          <FuiStatusIndicator label="DATA_STREAM" active />
+          <FuiStatusIndicator label="NEURAL_LINK" active />
+          <button
+            type="button"
+            className={`fui-toggle fui-toggle--btn${bgStatic ? ' fui-toggle--active' : ''}`}
+            aria-pressed={bgStatic}
+            aria-label={
+              bgStatic
+                ? 'Fundo animado desligado — pressione para reativar'
+                : 'Desligar fundo animado (modo estático)'
+            }
+            title="MANUAL_OVRD — desliga o fundo animado (menos GPU)"
+            onClick={() => setStaticBackground(!bgStatic)}
+          >
+            <span className="fui-toggle__light" aria-hidden="true" />
+            <span className="fui-toggle__label">MANUAL_OVRD</span>
+          </button>
         </div>
       </div>
 
       {/* Bottom Right: Spectral Waveform */}
-      <div className="fui-hud-element fui-hud--bottom-right">
+      <div className="fui-hud-element fui-hud--bottom-right" aria-hidden="true">
         <div className="fui-spectral-container">
           <span className="fui-text-dim" style={{ fontSize: '10px', letterSpacing: '2px' }}>FLUX_CAPACITY</span>
           <FuiWaveform animated={motionEnabled} />

@@ -3,10 +3,12 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ApiError, getApiErrorCode } from '../api/client';
 import { fetchQuizResult, startQuiz } from '../api/quiz';
+import { fetchStatsSummary } from '../api/stats';
 import { DashboardCharts } from '../components/quiz/DashboardCharts';
 import { ExplainPanel } from '../components/quiz/ExplainPanel';
 import { SessionHistoryList } from '../components/quiz/SessionHistoryList';
 import { Button } from '../components/ui/Button';
+import { ProgressBar } from '../components/ui/ProgressBar';
 import { Skeleton } from '../components/ui/Skeleton';
 import { toast } from '../components/ui/ToastUtils';
 import { getExamBySessionId, saveExamSession } from './quizSessionStorage';
@@ -17,6 +19,7 @@ const MODE_LABELS: Record<string, string> = {
   subjects: 'Disciplinas',
   random: 'Aleatório',
   wrong: 'Revisão de erros',
+  bank: 'Banco de questões',
 };
 
 function formatDuration(totalMs: number | null): string {
@@ -38,6 +41,15 @@ export function QuizResultPage() {
     queryFn: () => fetchQuizResult(quizId),
     retry: false,
   });
+
+  // Gamificação — graceful: se /stats/summary falhar, o painel não renderiza.
+  const summaryQuery = useQuery({
+    queryKey: ['stats-summary'],
+    queryFn: fetchStatsSummary,
+    staleTime: 60_000,
+    retry: false,
+  });
+  const summary = summaryQuery.data ?? null;
 
   // examId: o payload do result carrega examId (contrato atual); storage é
   // fallback para sessões finalizadas antes do campo existir.
@@ -127,6 +139,9 @@ export function QuizResultPage() {
   const result = resultQuery.data;
   const percentage = Math.round(result.score);
   const isGoodScore = percentage >= 70;
+  // Sessões bank: o examId é o exame sintético kind='bank' — modos de prova
+  // (setup/wrong) não se aplicam; a navegação volta para /banco.
+  const isBankMode = result.mode === 'bank';
 
   const answeredAnswers = result.answers;
   const blankCount = Math.max(result.total - result.answered, 0);
@@ -203,6 +218,60 @@ export function QuizResultPage() {
             perSubject={result.perSubject}
           />
 
+          {summary ? (
+            <section className="quiz-result__progress" aria-labelledby="quiz-result-progress-title">
+              <h2 className="quiz-result__section-title" id="quiz-result-progress-title">
+                Progressão
+              </h2>
+
+              <div className="quiz-result__progress-stats">
+                <div className="quiz-result__stat">
+                  <span className="quiz-result__stat-label">Nível</span>
+                  <strong className="quiz-result__stat-value">LV {summary.level}</strong>
+                </div>
+                <div className="quiz-result__stat">
+                  <span className="quiz-result__stat-label">XP total</span>
+                  <strong className="quiz-result__stat-value">
+                    {summary.xp.toLocaleString('pt-BR')}
+                  </strong>
+                </div>
+                <div className="quiz-result__stat">
+                  <span className="quiz-result__stat-label">Streak</span>
+                  <strong className="quiz-result__stat-value">{summary.streakDays}D</strong>
+                </div>
+              </div>
+
+              <div className="quiz-result__level-bar">
+                <div className="quiz-result__level-bar-meta">
+                  <span>LV {summary.level}</span>
+                  <span>
+                    {Math.round(summary.levelProgressPct)}% → LV {summary.level + 1}
+                  </span>
+                </div>
+                <ProgressBar value={summary.levelProgressPct} />
+              </div>
+
+              {summary.badges.length > 0 ? (
+                <ul className="quiz-result__badges" aria-label="Badges">
+                  {summary.badges.map((badge) => (
+                    <li
+                      key={badge.id}
+                      className={`quiz-result__badge ${
+                        badge.earned
+                          ? 'quiz-result__badge--earned'
+                          : 'quiz-result__badge--locked'
+                      }`}
+                    >
+                      <span aria-hidden="true">{badge.earned ? '◈' : '◇'}</span>
+                      {badge.label}
+                      <span className="sr-only">{badge.earned ? ' (conquistado)' : ' (não conquistado)'}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
+          ) : null}
+
           {examId ? <SessionHistoryList examId={examId} currentSessionId={quizId} /> : null}
         </div>
 
@@ -278,32 +347,46 @@ export function QuizResultPage() {
         </div>
 
         <footer className="quiz-result__footer">
-          <Button
-            size="lg"
-            onClick={() => restartWrongMutation.mutate()}
-            loading={restartWrongMutation.isPending}
-            disabled={!examId}
-            title={
-              wrongCount === 0
-                ? 'Nenhum erro nesta sessão — revisa erros de sessões anteriores também'
-                : undefined
-            }
-          >
-            Revisar Erros
-          </Button>
+          {!isBankMode ? (
+            <Button
+              size="lg"
+              onClick={() => restartWrongMutation.mutate()}
+              loading={restartWrongMutation.isPending}
+              disabled={!examId}
+              title={
+                wrongCount === 0
+                  ? 'Nenhum erro nesta sessão — revisa erros de sessões anteriores também'
+                  : undefined
+              }
+            >
+              Revisar Erros
+            </Button>
+          ) : null}
           <Button
             variant="ghost"
             size="lg"
-            onClick={() => (examId ? navigate(`/quiz/setup/${examId}`) : navigate('/'))}
-            disabled={!examId}
+            onClick={() =>
+              isBankMode
+                ? navigate('/banco')
+                : examId
+                  ? navigate(`/quiz/setup/${examId}`)
+                  : navigate('/')
+            }
+            disabled={!isBankMode && !examId}
           >
             Nova Simulação
           </Button>
           <Button variant="ghost" size="lg" onClick={() => window.print()}>
             Imprimir
           </Button>
-          <Button variant="ghost" size="lg" onClick={() => navigate(examId ? `/exam/${examId}` : '/')}>
-            Retornar ao Terminal
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={() =>
+              isBankMode ? navigate('/banco') : navigate(examId ? `/exam/${examId}` : '/')
+            }
+          >
+            {isBankMode ? 'Voltar ao Banco' : 'Retornar ao Terminal'}
           </Button>
         </footer>
       </div>

@@ -2,6 +2,13 @@ import { apiFetch, apiUrl } from './client';
 
 export type ExamStatus = 'queued' | 'processing' | 'reviewing' | 'completed' | 'failed';
 
+/** Agregados por prova (GET /exams) — null/ausente em APIs antigas. */
+export type ExamStats = {
+  sessionsCount: number;
+  /** Melhor score (0–100) entre sessões finalizadas; null sem sessões. */
+  bestScore: number | null;
+};
+
 export type Exam = {
   id: string;
   title: string;
@@ -9,6 +16,7 @@ export type Exam = {
   totalQuestions: number | null;
   errorMessage: string | null;
   pageOffset: number | null;
+  stats?: ExamStats | null;
   pageStart?: number | null;
   pageEnd?: number | null;
   provaType?: string | null;
