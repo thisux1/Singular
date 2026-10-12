@@ -8,7 +8,13 @@
 
 /* ─── Terminal shell ───
    A máquina "duas camadas clip-path" (::before = borda,
-   ::after = vidro escuro) que existia 7× no codebase. */
+   ::after = vidro escuro) que existia 7× no codebase.
+
+   O clip-path vai no ELEMENTO (não só nas pseudos): assim filhos com
+   fundo/overflow (header gradiente, footer, premium-glow, dropdowns)
+   são clipados pela silhueta chanfrada — sem vazamento nos cantos.
+   Custo: drop-shadow externo não sobrevive ao clip (ficaria cortado);
+   no void escuro ele era imperceptível mesmo. */
 .terminal {
   --terminal-clip: polygon(
     0 0,
@@ -19,7 +25,7 @@
     0 calc(100% - var(--terminal-cut))
   );
   position: relative;
-  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.8));
+  clip-path: var(--terminal-clip);
 }
 
 .terminal--cut-b {
@@ -53,10 +59,6 @@
   clip-path: var(--terminal-clip);
   z-index: -1;
   pointer-events: none;
-}
-
-.terminal--flat {
-  filter: none;
 }
 
 .terminal--error::before {

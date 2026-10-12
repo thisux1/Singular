@@ -12,13 +12,11 @@
 }
 
 /* ─── The Terminal (Main Integrated Container) ───
-   Shell ::before/::after + drop-shadow → .terminal.terminal--cut-b.
-   O clip-path no elemento é local: corta o premium-glow e os
-   fundos das seções no chanfro (o primitivo só clipa as pseudos). */
+   Shell ::before/::after + clip da silhueta → .terminal.terminal--cut-b
+   (o primitivo clipa o elemento — filhos não vazam no chanfro). */
 .exam-review__terminal {
   display: flex;
   flex-direction: column;
-  clip-path: var(--terminal-clip);
 }
 
 /* Flare radial no topo → .premium-glow */
