@@ -1,4 +1,4 @@
-import { useEffect, useRef, type MutableRefObject } from 'react';
+import { type MutableRefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useMousePosition } from '../../hooks/useMousePosition';
 
@@ -17,30 +17,16 @@ const LERP_FACTOR = 0.12;
 
 export function CursorDistortion({ enabled, cursorStateRef }: CursorDistortionProps) {
   const mouse = useMousePosition(enabled);
-  const targetRef = useRef({ x: 0.5, y: 0.5, active: false });
-
-  useEffect(() => {
-    if (!enabled || !mouse.enabled) {
-      targetRef.current = { x: 0.5, y: 0.5, active: false };
-      return;
-    }
-
-    targetRef.current = {
-      x: mouse.normalizedX,
-      y: 1 - mouse.normalizedY,
-      active: mouse.active,
-    };
-  }, [enabled, mouse.enabled, mouse.normalizedX, mouse.normalizedY, mouse.active]);
 
   useFrame((_state, delta) => {
-    const next = targetRef.current;
     const current = cursorStateRef.current;
+    const next = mouse.ref.current;
     const t = 1 - Math.exp(-delta * 26);
     const blend = Math.min(1, Math.max(LERP_FACTOR, t));
 
-    current.x += (next.x - current.x) * blend;
-    current.y += (next.y - current.y) * blend;
-    current.active = next.active;
+    current.x += (next.normalizedX - current.x) * blend;
+    current.y += (1 - next.normalizedY - current.y) * blend;
+    current.active = mouse.enabled && next.active;
   });
 
   return null;

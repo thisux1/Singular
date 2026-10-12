@@ -23,7 +23,8 @@ export function FuiWaveform({ animated = true }: FuiWaveformProps) {
         const frequency = 0.02 + index * 0.01;
 
         let d = `M 0 50 `;
-        for (let x = 0; x <= 800; x += 10) {
+        // 50 pontos por path — sinal idêntico no tamanho do HUD, menos churn de path.
+        for (let x = 0; x <= 800; x += 16) {
           // Complex waveform: combination of sine waves
           const y = 50 +
             Math.sin(x * frequency + time * speed) * amplitude * Math.sin(time * 0.2 + index) +

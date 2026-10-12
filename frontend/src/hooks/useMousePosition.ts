@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 
 export type MousePosition = {
   x: number;
@@ -6,6 +6,12 @@ export type MousePosition = {
   normalizedX: number;
   normalizedY: number;
   active: boolean;
+};
+
+export type MousePositionRef = {
+  /** Posição viva — mutada direto no pointermove, sem re-render. */
+  ref: MutableRefObject<MousePosition>;
+  /** false em ambientes touch-like ou quando `enabled=false`. */
   enabled: boolean;
 };
 
@@ -22,15 +28,20 @@ export function isTouchLikeEnvironment(): boolean {
   );
 }
 
-export function useMousePosition(enabled = true): MousePosition {
+/**
+ * Pointer tracking sem custo de render: a posição vai para um ref
+ * (zero setState por frame); estado React só muda quando o ambiente
+ * coarse/hover muda — evento raro.
+ */
+export function useMousePosition(enabled = true): MousePositionRef {
   const [isTouchLike, setIsTouchLike] = useState(() => isTouchLikeEnvironment());
-  const [position, setPosition] = useState(() => ({
+  const positionRef = useRef<MousePosition>({
     x: 0,
     y: 0,
     normalizedX: 0.5,
     normalizedY: 0.5,
     active: false,
-  }));
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -71,20 +82,18 @@ export function useMousePosition(enabled = true): MousePosition {
 
       const width = Math.max(1, window.innerWidth);
       const height = Math.max(1, window.innerHeight);
-      const normalizedX = event.clientX / width;
-      const normalizedY = event.clientY / height;
-
-      setPosition({
-        x: event.clientX,
-        y: event.clientY,
-        normalizedX,
-        normalizedY,
-        active: true,
-      });
+      const pos = positionRef.current;
+      pos.x = event.clientX;
+      pos.y = event.clientY;
+      pos.normalizedX = event.clientX / width;
+      pos.normalizedY = event.clientY / height;
+      pos.active = true;
     };
 
+    const position = positionRef.current;
+
     const onPointerLeave = () => {
-      setPosition((previous) => ({ ...previous, active: false }));
+      position.active = false;
     };
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
@@ -95,15 +104,9 @@ export function useMousePosition(enabled = true): MousePosition {
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerleave', onPointerLeave);
       window.removeEventListener('blur', onPointerLeave);
+      position.active = false;
     };
   }, [shouldTrack]);
 
-  return useMemo(
-    () => ({
-      ...position,
-      active: shouldTrack ? position.active : false,
-      enabled: shouldTrack,
-    }),
-    [position, shouldTrack]
-  );
+  return { ref: positionRef, enabled: shouldTrack };
 }
