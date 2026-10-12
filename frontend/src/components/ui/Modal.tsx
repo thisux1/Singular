@@ -6,10 +6,12 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   description?: string;
+  /** wide → viewport mais larga (ex.: PDF viewer); fullscreen → ocupa a tela. */
+  size?: 'default' | 'wide' | 'fullscreen';
   children: ReactNode;
 }
 
-export function Modal({ open, onClose, title, description, children }: ModalProps) {
+export function Modal({ open, onClose, title, description, size = 'default', children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descriptionId = useId();
@@ -38,7 +40,7 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
   return (
     <dialog
       ref={dialogRef}
-      className="modal"
+      className={`modal modal--${size}`}
       onClose={onClose}
       onCancel={(event) => {
         event.preventDefault();
@@ -60,7 +62,7 @@ export function Modal({ open, onClose, title, description, children }: ModalProp
           </div>
         ) : null}
         {description ? (
-          <p id={descriptionId} className="mb-4 text-sm text-white/70">
+          <p id={descriptionId} className="modal__description">
             {description}
           </p>
         ) : null}

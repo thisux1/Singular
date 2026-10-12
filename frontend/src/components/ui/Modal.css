@@ -7,6 +7,38 @@
   overflow: visible;
 }
 
+.modal--wide {
+  max-width: min(94vw, 900px);
+}
+
+.modal--fullscreen {
+  max-width: 100vw;
+  max-height: 100dvh;
+  width: 100vw;
+  height: 100dvh;
+}
+
+.modal--fullscreen .modal__content {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  border-radius: 0;
+}
+
+/* Mobile: wide modais (ex.: PDF viewer) viram quase full-screen. */
+@media (max-width: 640px) {
+  .modal--wide {
+    max-width: 100vw;
+    max-height: 100dvh;
+    width: 100vw;
+  }
+
+  .modal--wide .modal__content {
+    border-radius: 0;
+    max-height: 100dvh;
+  }
+}
+
 .modal::backdrop {
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
@@ -53,6 +85,12 @@
 
 .modal__close:hover {
   color: var(--text-primary);
+}
+
+.modal__description {
+  margin: calc(-1 * var(--space-3)) 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 .modal__body {

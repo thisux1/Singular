@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   font-weight: 600;
   border: none;
   background: transparent !important;
@@ -30,7 +30,7 @@
 }
 
 .btn:focus-visible {
-  outline: 2px solid #facc15;
+  outline: 2px solid var(--accent-flare-hot);
   outline-offset: 2px;
 }
 
@@ -100,15 +100,15 @@
 
 /* ─── Primary ─── */
 .btn--primary {
-  --btn-bg-color: linear-gradient(135deg, #ea580c, #b91c1c);
+  --btn-bg-color: linear-gradient(135deg, var(--accent-flare), #b91c1c);
   --btn-border-color: transparent;
   color: #fff;
   box-shadow: 0 4px 15px rgba(185, 28, 28, 0.4);
 }
 
 .btn--primary:hover:not(:disabled) {
-  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.6), 0 0 20px rgba(234, 88, 12, 0.5);
-  --btn-border-color: rgba(250, 204, 21, 0.4);
+  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.6), 0 0 20px rgba(var(--accent-flare-rgb), 0.5);
+  --btn-border-color: rgba(var(--accent-flare-rgb), 0.45);
 }
 
 .btn--primary:active:not(:disabled) {

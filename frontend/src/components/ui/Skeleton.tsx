@@ -21,18 +21,3 @@ export function Skeleton({
     />
   );
 }
-
-/** Multiple skeleton lines for text content */
-export function SkeletonText({ lines = 3 }: { lines?: number }) {
-  return (
-    <div className="skeleton-text" aria-hidden="true">
-      {Array.from({ length: lines }, (_, i) => (
-        <Skeleton
-          key={i}
-          width={i === lines - 1 ? '60%' : '100%'}
-          height="14px"
-        />
-      ))}
-    </div>
-  );
-}
