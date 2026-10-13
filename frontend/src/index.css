@@ -4,3 +4,4 @@
 @import "./styles/global.css";
 @import "./styles/primitives.css";
 @import "./styles/animations.css";
+@import "./styles/perf-lite.css";

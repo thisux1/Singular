@@ -1,0 +1,111 @@
+/* ═══════════════════════════════════════════════════════
+   FX.LITE — modo leve global (.fx-lite no <html>).
+   Contrato: toda a UI passa a depender só de transform e
+   opacity (o que roda no compositor). Desliga o que custa
+   repaint/filter por frame, mesmo com perda visual:
+     - backdrop-filter (blur sobre o WebGL — custo nº 1)
+     - filter animado (blur, drop-shadow, hue-rotate)
+     - gradientes que seguem cursor/tempo (glow, glare, sheen)
+     - animações ambient/idle e loops decorativos
+   Mantém: transform, opacity, cores, caret blink, marquee
+   (x é transform), pull magnético (translate), hovers.
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── 1. Backdrop-filter fora em tudo; superfícies translúcidas
+   sobem o alpha pra manter legibilidade sem o blur. ─── */
+.fx-lite *,
+.fx-lite *::before,
+.fx-lite *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ::backdrop mora fora da árvore do elemento — tem regra própria
+   (o blur do modal seria o único remanescente). */
+.fx-lite ::backdrop {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* `filter` (blur/drop-shadow/brightness) repinta por frame e só tem
+   uso decorativo nesta base — glows, grão, ícones. Fora de uma vez;
+   `!important` também vence os valores dentro de @keyframes.
+   Pseudos inclusos: .btn::after, glare ::before etc. */
+.fx-lite *,
+.fx-lite *::before,
+.fx-lite *::after {
+  filter: none !important;
+}
+
+.fx-lite .terminal::after {
+  background: rgba(10, 5, 5, 0.93);
+}
+
+.fx-lite .glass {
+  background: var(--bg-raised);
+}
+
+.fx-lite .glass--dense {
+  background: rgba(9, 9, 14, 0.92);
+}
+
+.fx-lite .glass--bar {
+  background: rgba(10, 5, 5, 0.92);
+}
+
+.fx-lite .glass--menu {
+  background: rgba(12, 10, 12, 0.95);
+}
+
+.fx-lite .app-shell {
+  background: rgba(9, 9, 11, 0.88);
+}
+
+.fx-lite .landing__scroll-hud,
+.fx-lite .landing__fx-toggle {
+  background: rgba(9, 9, 14, 0.9);
+}
+
+.fx-lite .modal::backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+/* ─── 2. Camadas decorativas que repintam com cursor/tempo — fora.
+   .grain-overlay: textura full-screen com drift infinito + blend modes —
+   o custo de composição mais caro depois do raymarcher. ─── */
+.fx-lite .card-glow,
+.fx-lite .btn__magnetic-glow,
+.fx-lite .premium-glow,
+.fx-lite .landing__selfhost-flare,
+.fx-lite .exam-singularity__glare,
+.fx-lite .grain-overlay {
+  display: none;
+}
+
+/* ─── 3. Animações ambient/idle e sweeps — fora.
+   (O conteúdo fica estático; nada de efeito morto visível.) ─── */
+.fx-lite .landing__hero::before {
+  animation: none;
+}
+
+.fx-lite .landing__hero-accent {
+  animation: none;
+  background: none;
+  color: var(--accent-flare-hot);
+}
+
+.fx-lite .landing__step-icon,
+.fx-lite .landing__step-num,
+.fx-lite .landing__feature-icon,
+.fx-lite .landing__selfhost-flare {
+  animation: none;
+}
+
+.fx-lite .landing__steps::before,
+.fx-lite .landing__steps::after {
+  animation: none;
+}
+
+.fx-lite .landing__steps::after {
+  display: none;
+}

@@ -5,6 +5,7 @@ import { GargantuaBackground } from './GargantuaBackground';
 import { CursorDistortion, type CursorDistortionState } from './CursorDistortion';
 import { useGpuTier } from '../../hooks/useGpuTier';
 import { useStaticBackground } from '../../hooks/useStaticBackground';
+import { usePerfLite } from '../../hooks/usePerfLite';
 import './SingularityCanvas.css';
 
 /**
@@ -19,6 +20,7 @@ export function SingularityCanvas() {
   // MANUAL_OVRD (localStorage 'singular:bg-static'): reage ao evento
   // 'singular:bg-toggle' sem reload — desmonta o WebGL na hora.
   const bgStatic = useStaticBackground();
+  const perfLite = usePerfLite();
   const isTouchLike = useMemo(() => {
     if (typeof window === 'undefined') {
       return false;
@@ -57,7 +59,7 @@ export function SingularityCanvas() {
     scrollRef.current = v;
   });
 
-  if (tier === 'low' || prefersReducedMotion || isTouchLike || bgStatic) {
+  if (tier === 'low' || prefersReducedMotion || isTouchLike || bgStatic || perfLite) {
     return <div className="singularity-fallback" aria-hidden="true" />;
   }
 
