@@ -90,6 +90,13 @@
 }
 
 /* ─── Hero ─── */
+
+/* Kicker: receita em .kicker.kicker--accent — local só o tracking mais aberto. */
+.landing__kicker {
+  letter-spacing: 0.25em;
+  margin: 0;
+}
+
 .landing__hero {
   padding-top: clamp(80px, 14vh, 160px);
   padding-bottom: clamp(64px, 10vh, 120px);
@@ -97,12 +104,34 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-6);
+  position: relative;
 }
 
-/* Kicker: receita em .kicker.kicker--accent — local só o tracking mais aberto. */
-.landing__kicker {
-  letter-spacing: 0.25em;
-  margin: 0;
+/* Power-on sweep: linha flare atravessa o hero de cima a baixo uma vez
+   no load — a mesma linguagem CRT do colapso da PageTransition. */
+.landing__hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8%;
+  width: 116%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--accent-flare-rgb), 0.85) 30%,
+    rgba(var(--accent-flare-rgb), 0.85) 70%,
+    transparent
+  );
+  box-shadow: 0 0 18px 2px rgba(var(--accent-flare-rgb), 0.35);
+  pointer-events: none;
+  animation: landing-scan-once 1.1s var(--ease-out) 0.35s both;
+}
+
+@keyframes landing-scan-once {
+  from { transform: translateY(0); opacity: 1; }
+  70% { opacity: 1; }
+  to { transform: translateY(72vh); opacity: 0; }
 }
 
 .landing__hero-title {
@@ -114,11 +143,36 @@
   margin: 0;
   max-width: 14ch;
   text-shadow: 0 0 60px rgba(var(--accent-flare-rgb), 0.25);
+  perspective: 700px; /* rotateX das palavras no reveal */
 }
 
+.landing__word {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Sheen idle: um facho claro atravessa a palavra-accent a cada ~7s —
+   o detalhe "memorável" do hero, sem competir com o Gargantua. */
 .landing__hero-accent {
-  color: var(--accent-flare-hot);
+  background: linear-gradient(
+    100deg,
+    var(--accent-flare-hot) 35%,
+    #ffe3b8 50%,
+    var(--accent-flare-hot) 65%
+  );
+  background-size: 250% 100%;
+  background-position: 200% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   text-shadow: 0 0 40px var(--accent-flare-glow);
+  animation: landing-sheen 7s ease-in-out 2s infinite;
+}
+
+@keyframes landing-sheen {
+  0% { background-position: 200% 0; }
+  55% { background-position: -100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 .landing__hero-sub {
@@ -134,6 +188,113 @@
   flex-wrap: wrap;
   gap: var(--space-4);
   margin-top: var(--space-2);
+}
+
+/* ─── Log de extração — a "ilustração" do hero: o produto digitando
+   a si mesmo. Linha fina, discreta; altura fixa evita layout shift. ─── */
+.landing__hero-log {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+  border-left: 1px solid rgba(var(--accent-flare-rgb), 0.4);
+  padding: var(--space-1) 0 var(--space-1) var(--space-4);
+  margin-top: var(--space-3);
+  /* 6 fileiras (5 linhas + caret) × 1.6em + 5 gaps × 0.3em + padding.
+     Reserva a altura final desde o início — sem isso o bloco crescia
+     ~35px a cada loop e deslocava a página inteira. */
+  min-height: 11.8em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.landing__hero-log-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.landing__hero-log-caret {
+  color: var(--accent-flare-hot);
+  animation: landing-caret 1s steps(1) infinite;
+}
+
+@keyframes landing-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ─── Ticker — fita de pipeline correndo entre seções.
+   Pausa no hover (2.2.2); reduced-motion desliga no bloco do fim. ─── */
+.landing__ticker {
+  overflow: hidden;
+  border-top: 1px solid var(--border-ghost);
+  border-bottom: 1px solid var(--border-ghost);
+  padding: var(--space-3) 0;
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.landing__ticker-track {
+  display: flex;
+  width: max-content;
+  /* translate vem do framer (velocity-driven) — CSS animation
+     aqui ganharia do style inline e mataria o efeito. */
+}
+
+.landing__ticker-item {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  padding-right: var(--space-8);
+}
+
+.landing__ticker-sep {
+  color: var(--accent-flare);
+}
+
+/* ─── Progress hairline — scaleX do scroll global, sob a topbar. ─── */
+.landing__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  transform-origin: 0 50%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--accent-flare-rgb), 0.9) 12%,
+    var(--accent-flare-hot) 100%
+  );
+  pointer-events: none;
+}
+
+/* ─── HUD de scroll — leitura de posição estilo instrumento. ─── */
+.landing__scroll-hud {
+  position: fixed;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  z-index: var(--z-sticky);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-ghost);
+  border-left-color: rgba(var(--accent-flare-rgb), 0.5);
+  padding: 6px 10px;
+  background: rgba(9, 9, 14, 0.55);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.landing__scroll-hud span {
+  color: var(--accent-flare-hot);
 }
 
 /* ─── Seções ─── */
@@ -163,21 +324,71 @@
 .landing__steps {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: var(--space-6) 0 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: var(--space-5);
   counter-reset: step;
+  position: relative;
+}
+
+/* Trilha do pipeline: tracejado fluindo + pulso viajando — dados indo
+   de um estágio ao próximo. Só desktop (mobile vira pilha vertical). */
+@media (min-width: 761px) {
+  .landing__steps::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(var(--accent-flare-rgb), 0.4) 0 10px,
+      transparent 10px 22px
+    );
+    animation: landing-pipeline 1.4s linear infinite;
+  }
+
+  .landing__steps::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 10px;
+    height: 5px;
+    background: var(--accent-flare-hot);
+    box-shadow: 0 0 12px var(--accent-flare-glow);
+    animation: landing-pipeline-dot 4.5s linear infinite;
+  }
+}
+
+@keyframes landing-pipeline {
+  to { background-position-x: 22px; }
+}
+
+@keyframes landing-pipeline-dot {
+  0% { left: 0; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { left: calc(100% - 10px); opacity: 0; }
 }
 
 /* Card chanfrado via .terminal.terminal--cut-b — padrão do app.
-   Local: padding, layout, cut menor (cards pequenos). */
+   Local: padding, layout, cut menor (cards pequenos).
+   Hover idêntico ao .landing__feature — mesma assinatura de card. */
 .landing__step {
   --terminal-cut: 14px;
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+
+.landing__step:hover {
+  --terminal-border-color: rgba(var(--accent-flare-rgb), 0.45);
+  transform: translateY(-2px);
 }
 
 .landing__step-num {
@@ -189,6 +400,36 @@
   width: 32px;
   height: 32px;
   color: var(--accent-flare-hot);
+  transition: filter var(--duration-normal) var(--ease-out);
+}
+
+.landing__step:hover .landing__step-icon {
+  filter: drop-shadow(0 0 8px rgba(var(--accent-flare-rgb), 0.5));
+}
+
+/* Pulso sequencial do pipeline: quando o pulso luminoso da trilha passa
+   sobre um card (delays casam com a viagem de 4.5s do ::after), o ícone
+   e o número do estágio flarecem — o dado "chegando" em cada etapa. */
+@media (min-width: 761px) {
+  .landing__step:nth-child(1) { --step-pulse-delay: 0.5s; }
+  .landing__step:nth-child(2) { --step-pulse-delay: 1.6s; }
+  .landing__step:nth-child(3) { --step-pulse-delay: 2.8s; }
+  .landing__step:nth-child(4) { --step-pulse-delay: 3.9s; }
+
+  .landing__step-icon,
+  .landing__step-num {
+    animation: landing-step-pulse 4.5s linear var(--step-pulse-delay, 0s) infinite;
+  }
+}
+
+@keyframes landing-step-pulse {
+  0%, 100% { opacity: 1; filter: none; }
+  3% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(var(--accent-flare-rgb), 0.85))
+      brightness(1.35);
+  }
+  10% { filter: drop-shadow(0 0 3px rgba(var(--accent-flare-rgb), 0.3)); }
 }
 
 .landing__step-icon svg {
@@ -240,6 +481,26 @@
   width: 28px;
   height: 28px;
   color: var(--accent-flare-hot);
+  transition: filter var(--duration-normal) var(--ease-out);
+}
+
+.landing__feature:hover .landing__feature-icon {
+  filter: drop-shadow(0 0 8px rgba(var(--accent-flare-rgb), 0.5));
+}
+
+/* Ambient: glow respirando bem devagar, delays dessincronizados —
+   textura de fundo, não pede atenção. */
+.landing__feature-icon {
+  animation: landing-icon-breathe 8s ease-in-out infinite;
+}
+
+.landing__feature:nth-child(3n + 1) .landing__feature-icon { animation-delay: -2.4s; }
+.landing__feature:nth-child(3n + 2) .landing__feature-icon { animation-delay: -5.1s; }
+.landing__feature:nth-child(3n) .landing__feature-icon { animation-delay: -7.2s; }
+
+@keyframes landing-icon-breathe {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 7px rgba(var(--accent-flare-rgb), 0.35)); }
 }
 
 .landing__feature-icon svg {
@@ -275,11 +536,21 @@
   padding: var(--space-8);
 }
 
+.landing__selfhost:hover {
+  --terminal-border-color: rgba(var(--accent-flare-rgb), 0.4);
+}
+
 .landing__selfhost-flare {
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse 40% 60% at 85% 50%, rgba(var(--accent-flare-rgb), 0.1), transparent 70%);
   pointer-events: none;
+  animation: landing-flare-breathe 6s ease-in-out infinite;
+}
+
+@keyframes landing-flare-breathe {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
 }
 
 .landing__selfhost-copy {
@@ -297,11 +568,13 @@
   margin: 0;
 }
 
-/* Bloco de terminal: receita em .term-log — local: margem, leading, position. */
+/* Bloco de terminal: receita em .term-log — local: margem, leading, position.
+   min-height reserva as 2 linhas: o typewriter não desloca nada ao digitar. */
 .landing__selfhost-terminal {
   margin: 0;
   line-height: 2;
   position: relative;
+  min-height: 4.5em;
 }
 
 .landing__term-prompt {
@@ -345,6 +618,10 @@
     padding: var(--space-6);
   }
 
+  .landing__scroll-hud {
+    display: none;
+  }
+
   .landing__footer-inner {
     flex-direction: column;
     align-items: flex-start;
@@ -354,7 +631,45 @@
 
 @media (prefers-reduced-motion: reduce) {
   .landing__cta:hover,
+  .landing__step:hover,
   .landing__feature:hover {
     transform: none;
+  }
+
+  .landing__ticker-track {
+    transform: none !important;
+    width: auto;
+    flex-wrap: wrap;
+  }
+
+  .landing__hero-log-caret {
+    animation: none;
+  }
+
+  .landing__steps::before,
+  .landing__steps::after {
+    animation: none;
+  }
+
+  .landing__steps::after {
+    display: none;
+  }
+
+  /* Idle e sweeps: fora em reduced-motion (Tier 1/2). */
+  .landing__hero::before {
+    animation: none;
+  }
+
+  .landing__hero-accent {
+    animation: none;
+    background: none;
+    color: var(--accent-flare-hot);
+  }
+
+  .landing__step-icon,
+  .landing__step-num,
+  .landing__feature-icon,
+  .landing__selfhost-flare {
+    animation: none;
   }
 }

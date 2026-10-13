@@ -1,5 +1,6 @@
 import { Suspense, useMemo, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { useScroll, useMotionValueEvent } from 'framer-motion';
 import { GargantuaBackground } from './GargantuaBackground';
 import { CursorDistortion, type CursorDistortionState } from './CursorDistortion';
 import { useGpuTier } from '../../hooks/useGpuTier';
@@ -48,6 +49,13 @@ export function SingularityCanvas() {
     y: 0.5,
     active: false,
   });
+  /* Scroll global (0..1) alimenta a órbita da câmera — descer a página
+     gira o buraco. Lido no useFrame via ref, sem re-render. */
+  const scrollRef = useRef(0);
+  const { scrollYProgress } = useScroll();
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    scrollRef.current = v;
+  });
 
   if (tier === 'low' || prefersReducedMotion || isTouchLike || bgStatic) {
     return <div className="singularity-fallback" aria-hidden="true" />;
@@ -62,7 +70,7 @@ export function SingularityCanvas() {
         frameloop="always"
       >
         <Suspense fallback={null}>
-          <GargantuaBackground tier={tier} cursorStateRef={cursorStateRef} />
+          <GargantuaBackground tier={tier} cursorStateRef={cursorStateRef} scrollRef={scrollRef} />
           <CursorDistortion enabled cursorStateRef={cursorStateRef} />
         </Suspense>
       </Canvas>

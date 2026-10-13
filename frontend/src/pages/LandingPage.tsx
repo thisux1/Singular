@@ -1,10 +1,277 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
+import {
+  motion,
+  useInView,
+  useScroll,
+  useSpring,
+  useTransform,
+  useVelocity,
+  useAnimationFrame,
+  useMotionValue,
+  useMotionValueEvent,
+  type Variants,
+} from 'framer-motion';
 import { useAuth } from '../api/auth';
+import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
+import { useCursorGlow } from '../hooks/useCursorGlow';
 import { ButtonLink } from '../components/ui/ButtonLink';
 import './LandingPage.css';
 
 const GITHUB_URL = 'https://github.com/thisux1/singular';
+
+/* ─── Motion — lente "polish": enter com blur+rise (a mesma linguagem CRT
+   da PageTransition do app, só que mais leve). Reduced-motion → só fade. ─── */
+const EASE_OUT = [0.16, 1, 0.3, 1] as const;
+
+function useEnterVariants(): {
+  container: Variants;
+  item: Variants;
+  card: Variants;
+  wordGroup: Variants;
+  word: Variants;
+} {
+  const reduced = usePrefersReducedMotion();
+  const fade: Variants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { duration: 0.15 } },
+  };
+  return {
+    /* Título: cada palavra sobe com leve rotateX + blur — o reveal por
+       palavra dá cadência; a accent entra por último e ancora a linha. */
+    wordGroup: {
+      hidden: {},
+      show: { transition: { staggerChildren: reduced ? 0.02 : 0.1, delayChildren: reduced ? 0 : 0.12 } },
+    },
+    word: reduced
+      ? fade
+      : {
+          hidden: { opacity: 0, y: '0.55em', rotateX: 40, filter: 'blur(5px)' },
+          show: {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            filter: 'blur(0px)',
+            transition: { duration: 0.7, ease: EASE_OUT },
+          },
+        },
+    container: {
+      hidden: {},
+      show: { transition: { staggerChildren: reduced ? 0.03 : 0.08 } },
+    },
+    item: reduced
+      ? fade
+      : {
+          hidden: { opacity: 0, y: 26, filter: 'blur(6px) hue-rotate(50deg)' },
+          show: {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px) hue-rotate(0deg)',
+            transition: { duration: 0.55, ease: EASE_OUT },
+          },
+        },
+    /* Cards: materialização com leve scale — textura diferente dos
+       textos (que só sobem), consistente entre step/feature/selfhost. */
+    card: reduced
+      ? fade
+      : {
+          hidden: { opacity: 0, y: 18, scale: 0.965, filter: 'blur(5px)' },
+          show: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            filter: 'blur(0px)',
+            transition: { duration: 0.6, ease: EASE_OUT },
+          },
+        },
+  };
+}
+
+/* ─── Cards com spotlight — li/div chanfrados que ganham a camada
+   .card-glow seguindo o cursor (useCursorGlow). O clip do .terminal
+   garante que o spotlight não vaza do chanfro. ─── */
+function GlowLi({ className, variants, children }: { className: string; variants: Variants; children: ReactNode }) {
+  const glow = useCursorGlow<HTMLLIElement>();
+  return (
+    <motion.li className={className} variants={variants} {...glow}>
+      <i className="card-glow" aria-hidden="true" />
+      {children}
+    </motion.li>
+  );
+}
+
+function GlowDiv({ className, variants, children }: { className: string; variants: Variants; children: ReactNode }) {
+  const glow = useCursorGlow<HTMLDivElement>();
+  return (
+    <motion.div className={className} variants={variants} {...glow}>
+      <i className="card-glow" aria-hidden="true" />
+      {children}
+    </motion.div>
+  );
+}
+
+/* ─── Ticker marquee — velocity-driven: a fita acelera e até inverte
+   com a velocidade do scroll (assinatura awwwards — motion-recipes).
+   x em % da track (conteúdo duplicado, wrap em -50%). ─── */
+const TICKER_ITEMS = [
+  'upload pdf', 'ocr', 'extração ia', 'classificação', 'revisão',
+  'modo quiz', 'revisão de erros', 'banco global', 'dedup', 'xp & streak', 'stats',
+];
+
+function Ticker() {
+  const reduced = usePrefersReducedMotion();
+  const baseX = useMotionValue(0);
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
+  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
+  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 4], { clamp: false });
+  const direction = useRef(1);
+
+  useAnimationFrame((_, delta) => {
+    if (reduced) return;
+    let moveBy = direction.current * 3 * (delta / 1000); // %/s base
+    const vf = velocityFactor.get();
+    if (vf < 0) direction.current = -1;
+    else if (vf > 0) direction.current = 1;
+    moveBy += direction.current * moveBy * vf;
+    let x = baseX.get() + moveBy;
+    if (x <= -50) x += 50;
+    else if (x > 0) x -= 50;
+    baseX.set(x);
+  });
+
+  const x = useTransform(baseX, (v) => `${v}%`);
+
+  return (
+    <div className="landing__ticker" aria-hidden="true">
+      <motion.div className="landing__ticker-track" style={{ x }}>
+        {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+          <span className="landing__ticker-item" key={i}>
+            {item} <span className="landing__ticker-sep">//</span>
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─── Parallax de seção — desliza ±amount px conforme o elemento
+   atravessa o viewport (start end → end start). Profundidade leve. ─── */
+function ParallaxY({ amount = 22, className, children }: { amount?: number; className?: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = usePrefersReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [amount, -amount]);
+  return (
+    <motion.div ref={ref} className={className} style={reduced ? undefined : { y }}>
+      {children}
+    </motion.div>
+  );
+}
+
+/* ─── Progress hairline — scaleX do scroll global sob a topbar. ─── */
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 28, restDelta: 0.001 });
+  return <motion.div className="landing__progress" style={{ scaleX }} aria-hidden="true" />;
+}
+
+/* ─── Terminal de extração — a "ilustração" da LP: o produto digitando
+   a si mesmo. Linhas aparecem em cadência; loop infinito. ─── */
+const LOG_LINES = [
+  '> ingest prova_2024.pdf',
+  '> ocr — 40 questões detectadas',
+  '> classify — Matemática · média',
+  '> gabarito sincronizado',
+  '> status: pronto p/ simulado',
+];
+
+function ExtractionLog() {
+  const reduced = usePrefersReducedMotion();
+  const [count, setCount] = useState(reduced ? LOG_LINES.length : 0);
+
+  useEffect(() => {
+    if (reduced) return;
+    const id = window.setInterval(() => {
+      setCount((c) => (c >= LOG_LINES.length + 1 ? 0 : c + 1));
+    }, 700);
+    return () => window.clearInterval(id);
+  }, [reduced]);
+
+  const visible = reduced ? LOG_LINES : LOG_LINES.slice(0, Math.min(count, LOG_LINES.length));
+
+  return (
+    <div className="landing__hero-log" role="img" aria-label="Demonstração: terminal extraindo questões de uma prova">
+      {visible.map((line, i) => (
+        <div className="landing__hero-log-line" key={`${i}-${line}`}>{line}</div>
+      ))}
+      <span className="landing__hero-log-caret" aria-hidden="true">█</span>
+    </div>
+  );
+}
+
+/* ─── Terminal self-host — digita os comandos quando entra em view:
+   "o produto falando por si", mesmo motivo do log do hero. ─── */
+const SELFHOST_CMDS = [
+  `git clone ${GITHUB_URL}.git`,
+  'docker compose up',
+];
+
+function SelfhostTerminal() {
+  const ref = useRef<HTMLPreElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const reduced = usePrefersReducedMotion();
+  const full = SELFHOST_CMDS.join('\n');
+  const [len, setLen] = useState(reduced ? full.length : 0);
+
+  useEffect(() => {
+    if (!inView || reduced) return;
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 2;
+      setLen(i);
+      if (i >= full.length) window.clearInterval(id);
+    }, 22);
+    return () => window.clearInterval(id);
+  }, [inView, reduced, full]);
+
+  const typed = full.slice(0, len);
+  const lines = typed.split('\n');
+
+  return (
+    <pre
+      ref={ref}
+      className="landing__selfhost-terminal term-log"
+      aria-label="Comando de instalação"
+    >
+      <code>
+        {lines.map((line, i) => (
+          <span key={i}>
+            <span className="landing__term-prompt">$ </span>
+            {line}
+            {'\n'}
+          </span>
+        ))}
+      </code>
+      <span className="landing__hero-log-caret" aria-hidden="true">█</span>
+    </pre>
+  );
+}
+
+/* ─── HUD de scroll — leitura de posição em % estilo instrumento. ─── */
+function ScrollHud() {
+  const { scrollYProgress } = useScroll();
+  const [pct, setPct] = useState(0);
+  useMotionValueEvent(scrollYProgress, 'change', (v) => setPct(Math.round(v * 100)));
+  return (
+    <div className="landing__scroll-hud" aria-hidden="true">
+      SCROLL <span>{String(pct).padStart(3, '0')}%</span>
+    </div>
+  );
+}
 
 type Step = { num: string; title: string; text: string; icon: ReactNode };
 
@@ -140,11 +407,25 @@ const FEATURES: Feature[] = [
 export function LandingPage() {
   const { isAuthenticated, authDisabled } = useAuth();
   const canEnter = isAuthenticated || authDisabled;
+  const { container, item, card, wordGroup, word } = useEnterVariants();
+  const reduced = usePrefersReducedMotion();
+
+  /* Parallax do hero: conteúdo sobe mais devagar que o scroll e some
+     suave — profundidade contra o Gargantua que fica fixo atrás. */
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroP } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+  const heroY = useTransform(heroP, [0, 1], [0, -80]);
+  const heroO = useTransform(heroP, [0, 0.9], [1, 0.1]);
 
   return (
     <div className="landing">
+      <ScrollHud />
       {/* ─── Top bar público ─── */}
       <header className="landing__topbar glass glass--bar">
+        <ScrollProgress />
         <div className="landing__topbar-inner page-container">
           <Link className="landing__wordmark" to="/" aria-label="Singular — página inicial">
             <span className="landing__wordmark-icon" aria-hidden="true">⌘</span>
@@ -171,16 +452,33 @@ export function LandingPage() {
 
       <main>
         {/* ─── Hero ─── */}
-        <section className="landing__hero page-container" aria-labelledby="landing-hero-title">
-          <p className="landing__kicker kicker kicker--accent">provas → questões → simulados</p>
-          <h1 className="landing__hero-title" id="landing-hero-title">
-            Sua máquina de <span className="landing__hero-accent">simulados</span>
-          </h1>
-          <p className="landing__hero-sub">
+        <motion.section
+          ref={heroRef}
+          className="landing__hero page-container"
+          aria-labelledby="landing-hero-title"
+          variants={container}
+          initial="hidden"
+          animate="show"
+          style={reduced ? undefined : { y: heroY, opacity: heroO }}
+        >
+          <motion.p className="landing__kicker kicker kicker--accent" variants={item}>
+            provas → questões → simulados
+          </motion.p>
+          <motion.h1 className="landing__hero-title" id="landing-hero-title" variants={wordGroup}>
+            {['Sua', 'máquina', 'de'].map((w) => (
+              <motion.span className="landing__word" variants={word} key={w}>
+                {w}&nbsp;
+              </motion.span>
+            ))}
+            <motion.span className="landing__hero-accent landing__word" variants={word}>
+              simulados
+            </motion.span>
+          </motion.h1>
+          <motion.p className="landing__hero-sub" variants={item}>
             Suba o PDF de uma prova. A Singular extrai as questões com IA, você revisa
             e transforma tudo em simulados com estatísticas por disciplina.
-          </p>
-          <div className="landing__hero-actions">
+          </motion.p>
+          <motion.div className="landing__hero-actions" variants={item}>
             {canEnter ? (
               <ButtonLink className="landing__cta landing__cta--lg" to="/app">
                 Abrir o app
@@ -193,53 +491,84 @@ export function LandingPage() {
             <ButtonLink className="landing__cta landing__cta--lg" variant="ghost" href="#como-funciona">
               Como funciona
             </ButtonLink>
-          </div>
-        </section>
+          </motion.div>
+          <motion.div variants={item}>
+            <ExtractionLog />
+          </motion.div>
+        </motion.section>
+
+        <Ticker />
 
         {/* ─── Como funciona ─── */}
-        <section
+        <motion.section
           className="landing__section page-container"
           id="como-funciona"
           aria-labelledby="landing-steps-title"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-60px' }}
         >
-          <header className="landing__section-head">
-            <p className="landing__kicker kicker kicker--accent">pipeline</p>
-            <h2 className="landing__section-title" id="landing-steps-title">Como funciona</h2>
-          </header>
+          <motion.header className="landing__section-head" variants={item}>
+            <ParallaxY>
+              <p className="landing__kicker kicker kicker--accent">pipeline</p>
+              <h2 className="landing__section-title" id="landing-steps-title">Como funciona</h2>
+            </ParallaxY>
+          </motion.header>
           <ol className="landing__steps">
             {STEPS.map((step) => (
-              <li className="terminal terminal--cut-b landing__step" key={step.num}>
+              <GlowLi className="terminal terminal--cut-b landing__step" variants={card} key={step.num}>
                 <span className="landing__step-num kicker" aria-hidden="true">{step.num}</span>
                 <span className="landing__step-icon" aria-hidden="true">{step.icon}</span>
                 <h3 className="landing__step-title">{step.title}</h3>
                 <p className="landing__step-text">{step.text}</p>
-              </li>
+              </GlowLi>
             ))}
           </ol>
-        </section>
+        </motion.section>
 
         {/* ─── Features ─── */}
-        <section className="landing__section page-container" aria-labelledby="landing-features-title">
-          <header className="landing__section-head">
-            <p className="landing__kicker kicker kicker--accent">sistema</p>
-            <h2 className="landing__section-title" id="landing-features-title">
-              Feito para estudar de verdade
-            </h2>
-          </header>
+        <motion.section
+          className="landing__section page-container"
+          aria-labelledby="landing-features-title"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-60px' }}
+        >
+          <motion.header className="landing__section-head" variants={item}>
+            <ParallaxY>
+              <p className="landing__kicker kicker kicker--accent">sistema</p>
+              <h2 className="landing__section-title" id="landing-features-title">
+                Feito para estudar de verdade
+              </h2>
+            </ParallaxY>
+          </motion.header>
           <ul className="landing__features">
             {FEATURES.map((feature) => (
-              <li className="terminal terminal--cut-b landing__feature" key={feature.title}>
+              <GlowLi
+                className="terminal terminal--cut-b landing__feature"
+                key={feature.title}
+                variants={card}
+              >
                 <span className="landing__feature-icon" aria-hidden="true">{feature.icon}</span>
                 <h3 className="landing__feature-title">{feature.title}</h3>
                 <p className="landing__feature-text">{feature.text}</p>
-              </li>
+              </GlowLi>
             ))}
           </ul>
-        </section>
+        </motion.section>
 
         {/* ─── Self-host ─── */}
-        <section className="landing__section page-container" aria-labelledby="landing-selfhost-title">
-          <div className="terminal terminal--cut-b landing__selfhost">
+        <motion.section
+          className="landing__section page-container"
+          aria-labelledby="landing-selfhost-title"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-60px' }}
+        >
+          <GlowDiv className="terminal terminal--cut-b landing__selfhost" variants={card}>
             <div className="landing__selfhost-flare" aria-hidden="true" />
             <div className="landing__selfhost-copy">
               <p className="landing__kicker kicker kicker--accent">open-source</p>
@@ -260,16 +589,9 @@ export function LandingPage() {
                 GitHub ↗
               </ButtonLink>
             </div>
-            <pre className="landing__selfhost-terminal term-log" aria-label="Comando de instalação">
-              <code>
-                <span className="landing__term-prompt">$ </span>
-                git clone {GITHUB_URL}.git{'\n'}
-                <span className="landing__term-prompt">$ </span>
-                docker compose up
-              </code>
-            </pre>
-          </div>
-        </section>
+            <SelfhostTerminal />
+          </GlowDiv>
+        </motion.section>
       </main>
 
       {/* ─── Footer ─── */}
