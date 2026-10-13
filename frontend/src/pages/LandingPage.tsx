@@ -147,6 +147,7 @@ const TICKER_ITEMS = [
 
 function Ticker() {
   const reduced = usePrefersReducedMotion();
+  const lite = usePerfLite();
   const baseX = useMotionValue(0);
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
@@ -155,7 +156,7 @@ function Ticker() {
   const direction = useRef(1);
 
   useAnimationFrame((_, delta) => {
-    if (reduced) return;
+    if (reduced || lite) return;
     let moveBy = direction.current * 3 * (delta / 1000); // %/s base
     const vf = velocityFactor.get();
     if (vf < 0) direction.current = -1;

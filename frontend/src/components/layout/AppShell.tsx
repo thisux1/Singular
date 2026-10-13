@@ -4,6 +4,7 @@ import { PageTransition } from '../effects/PageTransition';
 import { GrainOverlay } from '../effects/GrainOverlay';
 import { ToastContainer } from '../ui/Toast';
 import { isTouchLikeEnvironment } from '../../hooks/useMousePosition';
+import { usePerfLite } from '../../hooks/usePerfLite';
 import { Navbar } from './Navbar';
 import { FuiOverlay } from '../fui/FuiOverlay';
 import './AppShell.css';
@@ -11,7 +12,9 @@ import './AppShell.css';
 import { useEffect, useRef, useState } from 'react';
 
 function DomCursor() {
-  const [enabled, setEnabled] = useState(() => !isTouchLikeEnvironment());
+  const [touchFree, setTouchFree] = useState(() => !isTouchLikeEnvironment());
+  const perfLite = usePerfLite();
+  const enabled = touchFree && !perfLite;
   const cursorRef = useRef<HTMLDivElement>(null);
   const trailRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, active: false });
@@ -21,7 +24,7 @@ function DomCursor() {
     if (typeof window === 'undefined') return;
     const coarseQuery = window.matchMedia('(pointer: coarse)');
     const hoverNoneQuery = window.matchMedia('(hover: none)');
-    const sync = () => setEnabled(!isTouchLikeEnvironment());
+    const sync = () => setTouchFree(!isTouchLikeEnvironment());
     coarseQuery.addEventListener('change', sync);
     hoverNoneQuery.addEventListener('change', sync);
     return () => {

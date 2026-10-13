@@ -14,6 +14,7 @@ import { AnimatedFileIcon } from '../components/ui/AnimatedIcons';
 import { FuiSelect } from '../components/ui/FuiSelect';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
+import { usePerfLite } from '../hooks/usePerfLite';
 import './ExamListPage.css';
 
 
@@ -41,6 +42,7 @@ export function ExamListPage() {
   const [provaFile, setProvaFile] = useState<File | null>(null);
   const [examPendingDelete, setExamPendingDelete] = useState<Exam | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+  const perfLite = usePerfLite();
   const [gabaritoFile, setGabaritoFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [edital, setEdital] = useState('');
@@ -243,9 +245,11 @@ export function ExamListPage() {
         transition: { duration: 0.15 },
       }
     : {
-        initial: { opacity: 0, y: 15, filter: 'blur(4px) hue-rotate(90deg)' },
-        animate: { opacity: 1, y: 0, filter: 'blur(0px) hue-rotate(0deg)' },
-        exit: { opacity: 0, y: -15, filter: 'blur(4px) hue-rotate(-90deg)' },
+        /* FX.LITE: y+opacity seguem (compostáveis); o framer nem
+           interpola filter — não é só supressão visual via CSS. */
+        initial: { opacity: 0, y: 15, ...(perfLite ? {} : { filter: 'blur(4px) hue-rotate(90deg)' }) },
+        animate: { opacity: 1, y: 0, ...(perfLite ? {} : { filter: 'blur(0px) hue-rotate(0deg)' }) },
+        exit: { opacity: 0, y: -15, ...(perfLite ? {} : { filter: 'blur(4px) hue-rotate(-90deg)' }) },
         transition: { duration: 0.3 },
       };
 

@@ -17,6 +17,16 @@
     />
     <meta property="og:type" content="website" />
     <title>Singular — Provas viram quizzes</title>
+    <script>
+      /* FX.LITE no-flash: aplica a classe antes do primeiro paint —
+         sem isso o 1º frame renderiza com blur/filters que só somem
+         quando o React monta e o useEffect roda. */
+      try {
+        if (localStorage.getItem('singular:fx-lite') === '1') {
+          document.documentElement.classList.add('fx-lite');
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -37,6 +37,12 @@
   filter: none !important;
 }
 
+/* will-change pré-aloca camadas no compositor — em lite a memória
+   de layers vale mais que o hint (o transform ainda composta sem ele). */
+.fx-lite * {
+  will-change: auto !important;
+}
+
 .fx-lite .terminal::after {
   background: rgba(10, 5, 5, 0.93);
 }
@@ -78,7 +84,9 @@
 .fx-lite .premium-glow,
 .fx-lite .landing__selfhost-flare,
 .fx-lite .exam-singularity__glare,
-.fx-lite .grain-overlay {
+.fx-lite .grain-overlay,
+.fx-lite .exam-singularity--failed .glitch-layer-1,
+.fx-lite .exam-singularity--failed .glitch-layer-2 {
   display: none;
 }
 
