@@ -14,6 +14,7 @@ import {
 } from 'framer-motion';
 import { useAuth } from '../api/auth';
 import { usePrefersReducedMotion } from '../hooks/useMediaQuery';
+import { usePerfLite, setPerfLite } from '../hooks/usePerfLite';
 import { useCursorGlow } from '../hooks/useCursorGlow';
 import { ButtonLink } from '../components/ui/ButtonLink';
 import './LandingPage.css';
@@ -32,10 +33,17 @@ function useEnterVariants(): {
   word: Variants;
 } {
   const reduced = usePrefersReducedMotion();
+  const lite = usePerfLite();
   const fade: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { duration: 0.15 } },
   };
+  /* FX.LITE: mesma coreografia menos todo filter (blur/hue-rotate) —
+     transform e opacity seguem intactos porque são compostáveis. */
+  const fx = lite ? {} : { filter: 'blur(6px) hue-rotate(50deg)' };
+  const fxOut = lite ? {} : { filter: 'blur(0px) hue-rotate(0deg)' };
+  const wordFx = lite ? {} : { filter: 'blur(5px)' };
+  const wordFxOut = lite ? {} : { filter: 'blur(0px)' };
   return {
     /* Título: cada palavra sobe com leve rotateX + blur — o reveal por
        palavra dá cadência; a accent entra por último e ancora a linha. */
@@ -46,12 +54,12 @@ function useEnterVariants(): {
     word: reduced
       ? fade
       : {
-          hidden: { opacity: 0, y: '0.55em', rotateX: 40, filter: 'blur(5px)' },
+          hidden: { opacity: 0, y: '0.55em', rotateX: 40, ...wordFx },
           show: {
             opacity: 1,
             y: 0,
             rotateX: 0,
-            filter: 'blur(0px)',
+            ...wordFxOut,
             transition: { duration: 0.7, ease: EASE_OUT },
           },
         },
@@ -62,11 +70,11 @@ function useEnterVariants(): {
     item: reduced
       ? fade
       : {
-          hidden: { opacity: 0, y: 26, filter: 'blur(6px) hue-rotate(50deg)' },
+          hidden: { opacity: 0, y: 26, ...fx },
           show: {
             opacity: 1,
             y: 0,
-            filter: 'blur(0px) hue-rotate(0deg)',
+            ...fxOut,
             transition: { duration: 0.55, ease: EASE_OUT },
           },
         },
@@ -75,16 +83,35 @@ function useEnterVariants(): {
     card: reduced
       ? fade
       : {
-          hidden: { opacity: 0, y: 18, scale: 0.965, filter: 'blur(5px)' },
+          hidden: { opacity: 0, y: 18, scale: 0.965, ...wordFx },
           show: {
             opacity: 1,
             y: 0,
             scale: 1,
-            filter: 'blur(0px)',
+            ...wordFxOut,
             transition: { duration: 0.6, ease: EASE_OUT },
           },
         },
   };
+}
+
+/* ─── Toggle FX.LITE na LP — mesmo papel do MANUAL_OVRD do HUD do app,
+   como chip fixo ao lado do ScrollHud. ─── */
+function FxToggle() {
+  const lite = usePerfLite();
+  return (
+    <button
+      type="button"
+      className={`landing__fx-toggle${lite ? ' landing__fx-toggle--on' : ''}`}
+      aria-pressed={lite}
+      aria-label={lite ? 'Modo leve ligado — voltar aos efeitos completos' : 'Ligar modo leve (só efeitos compostáveis)'}
+      title="FX.LITE — só transform/opacity: desliga blur, glow e o raymarcher"
+      onClick={() => setPerfLite(!lite)}
+    >
+      <span className="landing__fx-light" aria-hidden="true" />
+      FX.LITE
+    </button>
+  );
 }
 
 /* ─── Cards com spotlight — li/div chanfrados que ganham a camada
@@ -423,6 +450,7 @@ export function LandingPage() {
   return (
     <div className="landing">
       <ScrollHud />
+      <FxToggle />
       {/* ─── Top bar público ─── */}
       <header className="landing__topbar glass glass--bar">
         <ScrollProgress />

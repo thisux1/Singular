@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGpuTier } from '../../hooks/useGpuTier';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { setStaticBackground, useStaticBackground } from '../../hooks/useStaticBackground';
+import { setPerfLite, usePerfLite } from '../../hooks/usePerfLite';
 import { FuiWaveform } from './FuiWaveform';
 import './FuiOverlay.css';
 
@@ -69,10 +70,11 @@ export function FuiOverlay() {
   const prefersReducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
   const coarsePointer = useMediaQuery(COARSE_POINTER_QUERY);
   const bgStatic = useStaticBackground();
+  const perfLite = usePerfLite();
 
   // Overlays decorativos animados só rodam em GPU saudável,
   // sem preferência de movimento reduzido e com ponteiro preciso.
-  const motionEnabled = !prefersReducedMotion && gpuTier !== 'low' && !coarsePointer;
+  const motionEnabled = !prefersReducedMotion && gpuTier !== 'low' && !coarsePointer && !perfLite;
 
   useEffect(() => {
     const update = () => {
@@ -123,6 +125,21 @@ export function FuiOverlay() {
           >
             <span className="fui-toggle__light" aria-hidden="true" />
             <span className="fui-toggle__label">MANUAL_OVRD</span>
+          </button>
+          <button
+            type="button"
+            className={`fui-toggle fui-toggle--btn${perfLite ? ' fui-toggle--active' : ''}`}
+            aria-pressed={perfLite}
+            aria-label={
+              perfLite
+                ? 'Modo leve ligado — pressione para voltar aos efeitos completos'
+                : 'Ligar modo leve (só efeitos compostáveis)'
+            }
+            title="FX.LITE — só transform/opacity: desliga blur, glow e o raymarcher"
+            onClick={() => setPerfLite(!perfLite)}
+          >
+            <span className="fui-toggle__light" aria-hidden="true" />
+            <span className="fui-toggle__label">FX.LITE</span>
           </button>
         </div>
       </div>
