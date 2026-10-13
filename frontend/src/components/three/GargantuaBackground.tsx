@@ -28,9 +28,11 @@ const FOV_TAN = Math.tan((34 * Math.PI) / 360);
 type GargantuaBackgroundProps = {
   tier: GpuTier;
   cursorStateRef: MutableRefObject<CursorDistortionState>;
+  /** Scroll global 0..1 — descer a página orbita a câmera. */
+  scrollRef?: MutableRefObject<number>;
 };
 
-export function GargantuaBackground({ tier, cursorStateRef }: GargantuaBackgroundProps) {
+export function GargantuaBackground({ tier, cursorStateRef, scrollRef }: GargantuaBackgroundProps) {
   const { gl, size } = useThree();
   const dpr = useThree((s) => s.viewport.dpr);
   const isMedium = tier === 'medium';
@@ -220,8 +222,11 @@ export function GargantuaBackground({ tier, cursorStateRef }: GargantuaBackgroun
 
     tgt.azim += dt * 0.028;
     tgt.elev += Math.sin(simT * 0.11) * dt * 0.012;
-    const effAzim = tgt.azim + cx * 0.34;
-    const effElev = Math.min(1.35, Math.max(-1.35, tgt.elev + cy * 0.26));
+    // Scroll-driven: descer a página gira o buraco (+0.8 rad azim,
+    // ~46°) com leve subida de elevação — o lerp abaixo suaviza.
+    const scroll = scrollRef?.current ?? 0;
+    const effAzim = tgt.azim + cx * 0.34 + scroll * 0.8;
+    const effElev = Math.min(1.35, Math.max(-1.35, tgt.elev + cy * 0.26 + scroll * 0.12));
 
     const k = 1 - Math.exp(-dt * 7);
     cam.azim += (effAzim - cam.azim) * k;

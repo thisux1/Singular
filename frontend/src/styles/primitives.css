@@ -106,6 +106,24 @@
   pointer-events: none;
 }
 
+/* ─── Card glow — spotlight radial que segue o cursor (--gx/--gy vêm
+   do useCursorGlow, --glow-o liga/desliga no enter/leave). Filho
+   dedicado porque .terminal já gasta ::before/::after; o clip do
+   host garante que o glow não vaza do chanfro. ─── */
+.card-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    280px circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(var(--accent-flare-rgb), 0.09),
+    transparent 70%
+  );
+  opacity: var(--glow-o, 0);
+  transition: opacity var(--duration-normal) var(--ease-out);
+  pointer-events: none;
+}
+
 /* ─── Glass ─── */
 .glass {
   background: var(--bg-surface);
