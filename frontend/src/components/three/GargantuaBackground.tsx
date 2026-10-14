@@ -39,10 +39,10 @@ export function GargantuaBackground({ tier, cursorStateRef, scrollRef }: Gargant
   const maxSteps = isMedium ? 320 : 560;
   const baseScale = isMedium ? 0.85 : 1.0;
 
-  // Câmera orbital (azim/elev/dist) — auto-orbita no idle + parallax do cursor.
-  // dist 17 (vs 12.5 do standalone): afasta o buraco pra dar ar ao layout.
-  const camRef = useRef({ azim: 0, elev: 0.115, dist: 17 });
-  const tgtRef = useRef({ azim: 0, elev: 0.115, dist: 17 });
+  // Câmera orbital (azim/elev/dist) — auto-órbita no idle + parallax do cursor.
+  // dist 24 = ponto de partida do trilho de scroll (antes era fixo em 17).
+  const camRef = useRef({ azim: 0, elev: 0.115, dist: 24 });
+  const tgtRef = useRef({ azim: 0, elev: 0.115, dist: 24 });
   const simTRef = useRef(0);
   const qualityRef = useRef({ scale: baseScale, steps: maxSteps, emaMs: 16.7, frames: 0 });
   const dbgRef = useRef<HTMLElement | null>(null);
@@ -222,16 +222,27 @@ export function GargantuaBackground({ tier, cursorStateRef, scrollRef }: Gargant
 
     tgt.azim += dt * 0.028;
     tgt.elev += Math.sin(simT * 0.11) * dt * 0.012;
-    // Scroll-driven: descer a página gira o buraco (+0.8 rad azim,
-    // ~46°) com leve subida de elevação — o lerp abaixo suaviza.
+    // Trilho de câmera dirigido pelo scroll: wide → medium → close sutil
+    // no "fold" — o arco mais quente do disco, dobrado por cima do buraco
+    // (imagem lensada do lado oposto). Elevação sobe no meio e desce de
+    // novo pra pegar o fold quase de perfil — o enquadramento clássico.
     const scroll = scrollRef?.current ?? 0;
-    const effAzim = tgt.azim + cx * 0.34 + scroll * 0.8;
-    const effElev = Math.min(1.35, Math.max(-1.35, tgt.elev + cy * 0.26 + scroll * 0.12));
+    const ss = (a: number, b: number, t: number) => {
+      const x = Math.min(1, Math.max(0, (t - a) / (b - a)));
+      return x * x * (3 - 2 * x);
+    };
+    const railDist = 24 - 9 * ss(0, 0.55, scroll) - 5.0 * ss(0.55, 1, scroll);
+    const railElev = 0.08 + 0.12 * ss(0, 0.5, scroll) - 0.08 * ss(0.5, 1, scroll);
+    const effAzim = tgt.azim + cx * 0.34 + scroll * 0.5;
+    const effElev = Math.min(
+      1.35,
+      Math.max(-1.35, railElev + (tgt.elev - 0.115) + cy * 0.26),
+    );
 
     const k = 1 - Math.exp(-dt * 7);
     cam.azim += (effAzim - cam.azim) * k;
     cam.elev += (effElev - cam.elev) * k;
-    cam.dist += (tgt.dist - cam.dist) * k;
+    cam.dist += (railDist - cam.dist) * k;
 
     const ce = Math.cos(cam.elev);
     const se = Math.sin(cam.elev);

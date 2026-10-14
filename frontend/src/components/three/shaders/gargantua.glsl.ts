@@ -187,7 +187,7 @@ vec4 diskShade(vec2 cxz, vec3 vel) {
              + 0.30 * rimG, 0.0, 0.98);
 
   float tobs = clamp(pow(max(prof, 0.001), 0.25) * shift, 0.10, 3.8);
-  vec3 kb = kelvin(1600.0 + tobs * 5800.0) * vec3(1.05, 0.92, 0.72);
+  vec3 kb = kelvin(1600.0 + tobs * 3400.0) * vec3(1.24, 0.52, 0.16);
 
   float I = flux * pow(shift, 4.0) * 0.9;
   return vec4(kb * I, alpha);
