@@ -5,13 +5,24 @@ import { RequireAuth } from './components/auth/RequireAuth';
 import { AppShell } from './components/layout/AppShell';
 import { OnboardingDialog } from './components/onboarding/OnboardingDialog';
 import { useOnboarding } from './components/onboarding/useOnboarding';
-import { SingularityCanvas } from './components/three/SingularityCanvas';
+import { useGpuTier } from './hooks/useGpuTier';
+import { usePrefersReducedMotion } from './hooks/useMediaQuery';
+import { isTouchLikeEnvironment } from './hooks/useMousePosition';
+import { usePerfLite } from './hooks/usePerfLite';
+import { useStaticBackground } from './hooks/useStaticBackground';
+import './components/three/SingularityCanvas.css';
 import { Skeleton } from './components/ui/Skeleton';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { LoginPage } from './pages/LoginPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { SignupPage } from './pages/SignupPage';
 import { VerifyEmailPage } from './pages/VerifyEmailPage';
+
+const SingularityCanvas = lazy(() =>
+  import('./components/three/SingularityCanvas').then((module) => ({
+    default: module.SingularityCanvas,
+  })),
+);
 
 const LandingPage = lazy(() =>
   import('./pages/LandingPage').then((module) => ({ default: module.LandingPage })),
@@ -84,12 +95,38 @@ function NotFound() {
   );
 }
 
+/* Gate barato: decide ANTES de baixar o chunk three-vendor (~880 kB).
+   Todas as condições de bail usam hooks standalone — nada do ecossistema
+   three entra nesse arquivo. Elegível → o Suspense mostra o fallback
+   estático enquanto o chunk chega (progressive enhancement).
+   O CSS do canvas/fallback é importado estaticamente acima justamente
+   pra que o fallback renderize estilizado sem o bundle 3D. */
+function SingularityGate() {
+  const perfLite = usePerfLite();
+  const bgStatic = useStaticBackground();
+  const reducedMotion = usePrefersReducedMotion();
+  const gpuTier = useGpuTier();
+
+  const ineligible =
+    reducedMotion || isTouchLikeEnvironment() || bgStatic || perfLite || gpuTier === 'low';
+
+  if (ineligible) {
+    return <div className="singularity-fallback" aria-hidden="true" />;
+  }
+
+  return (
+    <Suspense fallback={<div className="singularity-fallback" aria-hidden="true" />}>
+      <SingularityCanvas />
+    </Suspense>
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         {/* Fundo Gargantua — canvas fixed global, visível em rotas públicas e no app. */}
-        <SingularityCanvas />
+        <SingularityGate />
         <Routes>
           {/* ─── Rotas públicas ─── */}
           <Route
